@@ -8,6 +8,7 @@
   --color-border: #23232b;
   --color-accent: #7c5cff;
   --color-accent-2: #43e6d0;
+  --color-accent-3: #ff7ac2;
   --color-accent-foreground: #ffffff;
 
   --font-sans: var(--font-latin), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
@@ -151,6 +152,37 @@ html.lenis body {
 }
 .is-live .proj-overlay {
   animation: proj-overlay 3.4s ease-in-out infinite;
+}
+
+/* Skills — color-coded chips. Resting state is colored (uses --sk per category);
+   the color-fill loop starts after the GSAP fly-in entrance adds .is-live. */
+.skill-chip {
+  color: var(--sk);
+  border: 1px solid color-mix(in srgb, var(--sk) 42%, var(--color-border));
+  background: color-mix(in srgb, var(--sk) 9%, transparent);
+}
+@keyframes skill-fill {
+  0%,
+  35%,
+  100% {
+    color: var(--sk);
+    border-color: color-mix(in srgb, var(--sk) 42%, var(--color-border));
+    background: color-mix(in srgb, var(--sk) 9%, transparent);
+  }
+  50% {
+    color: var(--color-muted);
+    border-color: var(--color-border);
+    background: transparent;
+  }
+  70% {
+    color: var(--sk);
+    border-color: color-mix(in srgb, var(--sk) 42%, var(--color-border));
+    background: color-mix(in srgb, var(--sk) 9%, transparent);
+  }
+}
+.is-live .skill-chip {
+  animation: skill-fill 3s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.12s);
 }
 
 /* Global reduced-motion safety net */

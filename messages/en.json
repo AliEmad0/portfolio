@@ -16,6 +16,7 @@
   },
   "hero": { "greeting": "Hi, I'm", "kicker": "Portfolio" },
   "projects": { "eyebrow": "Selected work", "featured": "Featured" },
+  "skills": { "eyebrow": "Toolkit" },
   "footer": {
     "builtWith": "Built with Next.js, GSAP & Motion",
     "rights": "All rights reserved."
