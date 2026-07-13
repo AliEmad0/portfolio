@@ -2,23 +2,27 @@
 
 import { useEffect } from 'react';
 import Lenis from 'lenis';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
-/** Lenis smooth-scroll, disabled under reduced motion. Cleans up its RAF + instance on unmount. */
+gsap.registerPlugin(ScrollTrigger);
+
+/** Lenis smooth-scroll synced with GSAP ScrollTrigger. Disabled under reduced motion. */
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   const reduced = useReducedMotion();
 
   useEffect(() => {
     if (reduced) return;
     const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
-    let raf = 0;
-    const loop = (time: number) => {
-      lenis.raf(time);
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
+    const onScroll = () => ScrollTrigger.update();
+    lenis.on('scroll', onScroll);
+    const tick = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
     return () => {
-      cancelAnimationFrame(raf);
+      lenis.off('scroll', onScroll);
+      gsap.ticker.remove(tick);
       lenis.destroy();
     };
   }, [reduced]);
