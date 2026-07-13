@@ -15,6 +15,7 @@
     "readMore": "اقرأ المزيد"
   },
   "hero": { "greeting": "مرحبًا، أنا", "kicker": "المعرض" },
+  "projects": { "eyebrow": "أعمال مختارة", "featured": "مميّز" },
   "footer": {
     "builtWith": "بُني باستخدام Next.js و GSAP و Motion",
     "rights": "جميع الحقوق محفوظة."
