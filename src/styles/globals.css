@@ -185,6 +185,28 @@ html.lenis body {
   animation-delay: calc(var(--i, 0) * 0.12s);
 }
 
+/* Experience — ghost-year timeline. Big faded year sits behind the role;
+   its soft underglow loop starts after the GSAP entrance adds .is-live. */
+.ghost-year {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.8;
+  color: color-mix(in srgb, var(--color-accent) 16%, transparent);
+}
+@keyframes ghost-underglow {
+  0%,
+  100% {
+    text-shadow: none;
+  }
+  50% {
+    text-shadow: 0 6px 30px color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
+}
+.is-live .ghost-year {
+  animation: ghost-underglow 3.6s ease-in-out infinite;
+}
+
 /* Global reduced-motion safety net */
 @media (prefers-reduced-motion: reduce) {
   html {
