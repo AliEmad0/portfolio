@@ -14,6 +14,36 @@
     { "label": "GitHub", "url": "https://github.com/AliEmad0", "icon": "github" },
     { "label": "LinkedIn", "url": "https://www.linkedin.com/in/ali-emad", "icon": "linkedin" }
   ],
+  "about": {
+    "paragraphs": [
+      {
+        "en": "I'm a frontend engineer who builds production web applications end-to-end — from the data architecture down to the last micro-interaction. I care about the things people feel but rarely name: pages that load instantly, motion that guides instead of distracts, and interfaces that work for everyone, in every language.",
+        "ar": "أنا مهندس واجهات أمامية أبني تطبيقات ويب إنتاجية بشكل متكامل — من بنية البيانات وصولًا إلى أدقّ التفاعلات. أهتمّ بالتفاصيل التي يشعر بها المستخدمون دون أن ينتبهوا إليها: صفحات تُحمّل فورًا، وحركة توجّه بدل أن تشتّت، وواجهات تعمل للجميع وبكل لغة."
+      },
+      {
+        "en": "Most recently I designed and shipped PitchIQ solo — a Premier League encyclopedia spanning 34 seasons, fully localized in English and Arabic (RTL), with an era-shifting theme, an interactive historic map, and 1170+ tests keeping it honest. I'm drawn to hard problems that live where performance, accessibility, and craft meet.",
+        "ar": "أنجزتُ مؤخّرًا مشروع PitchIQ بمفردي — موسوعة للدوري الإنجليزي الممتاز تغطّي ٣٤ موسمًا، مُترجمة بالكامل للإنجليزية والعربية (من اليمين لليسار)، مع ثيم يتبدّل حسب الحقبة، وخريطة تاريخية تفاعلية، وأكثر من ١١٧٠ اختبارًا تحفظ جودتها. تجذبني المشكلات الصعبة التي تلتقي عندها السرعة وسهولة الوصول والإتقان."
+      }
+    ],
+    "facts": [
+      {
+        "label": { "en": "Focus", "ar": "التركيز" },
+        "value": { "en": "Performance, motion & accessibility", "ar": "الأداء والحركة وسهولة الوصول" }
+      },
+      {
+        "label": { "en": "Location", "ar": "الموقع" },
+        "value": { "en": "Egypt · open to remote", "ar": "مصر · متاح للعمل عن بُعد" }
+      },
+      {
+        "label": { "en": "Languages", "ar": "اللغات" },
+        "value": { "en": "English · Arabic", "ar": "الإنجليزية · العربية" }
+      },
+      {
+        "label": { "en": "Status", "ar": "الحالة" },
+        "value": { "en": "Available for work", "ar": "متاح للعمل" }
+      }
+    ]
+  },
   "skills": [
     {
       "category": { "en": "Frontend", "ar": "الواجهة الأمامية" },

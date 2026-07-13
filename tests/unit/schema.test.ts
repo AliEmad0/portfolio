@@ -12,6 +12,10 @@ const valid = {
     resumeUrl: '/resume.pdf',
   },
   socials: [{ label: 'GitHub', url: 'https://github.com/AliEmad0', icon: 'github' }],
+  about: {
+    paragraphs: [{ en: 'A short bio.', ar: 'نبذة قصيرة.' }],
+    facts: [{ label: { en: 'Focus', ar: 'التركيز' }, value: { en: 'Frontend', ar: 'الواجهة' } }],
+  },
   skills: [
     {
       category: { en: 'Frontend', ar: 'الواجهة الأمامية' },
