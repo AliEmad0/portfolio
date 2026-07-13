@@ -12,6 +12,7 @@
 A highly modern, visually stunning, performance-optimized **personal developer portfolio** intended to impress top-tier tech companies through both advanced interactive animation and pristine architectural code quality. It showcases Ali Emad's real work (PitchIQ front-and-center), experience, and skills, in **English and Arabic (full RTL)**.
 
 Success criteria:
+
 - Near-perfect Lighthouse across **Performance, SEO, Accessibility, Best Practices**.
 - **CLS ≈ 0** — animations never cause layout shift.
 - **No GSAP memory leaks** — all scroll/timeline instances auto-revert on unmount, enforced structurally.
@@ -22,24 +23,24 @@ Success criteria:
 
 ## 2. Tech Stack (locked)
 
-| Concern | Choice |
-| --- | --- |
-| Framework | Next.js (App Router, RSC-first) |
-| Language | TypeScript (strict + extra strictness flags) |
-| Styling | Tailwind CSS v4 (CSS-based `@theme`, no `tailwind.config.ts`) |
-| Scroll animation | **GSAP + ScrollTrigger** via `@gsap/react` `useGSAP()` |
-| Micro-interactions & transitions | **Motion** (Framer Motion, `motion/react`) |
-| Smooth scroll | **Lenis** (reduced-motion gated) |
-| i18n | **next-intl** — EN (unprefixed) + AR (`/ar/*`, full RTL), `localePrefix: 'as-needed'` |
-| Fonts | `next/font` (self-hosted) — Latin display/body + Arabic-capable face (e.g. IBM Plex Sans Arabic / Cairo) |
-| Contact delivery | **Resend** via a Next.js server action |
-| Blog | **MDX** content pipeline |
-| SEO | Metadata API, `sitemap.ts`, `robots.ts`, dynamic OG images, **JSON-LD `Person`** |
-| Analytics | Vercel Analytics + Speed Insights |
-| Deploy | Vercel |
-| Package manager | pnpm |
-| Testing | **Full** — Vitest (unit) + Playwright (E2E + axe a11y) + CI |
-| Theme | **Dark only** (premium dark aesthetic; no light theme by choice — YAGNI) |
+| Concern                          | Choice                                                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Framework                        | Next.js (App Router, RSC-first)                                                                          |
+| Language                         | TypeScript (strict + extra strictness flags)                                                             |
+| Styling                          | Tailwind CSS v4 (CSS-based `@theme`, no `tailwind.config.ts`)                                            |
+| Scroll animation                 | **GSAP + ScrollTrigger** via `@gsap/react` `useGSAP()`                                                   |
+| Micro-interactions & transitions | **Motion** (Framer Motion, `motion/react`)                                                               |
+| Smooth scroll                    | **Lenis** (reduced-motion gated)                                                                         |
+| i18n                             | **next-intl** — EN (unprefixed) + AR (`/ar/*`, full RTL), `localePrefix: 'as-needed'`                    |
+| Fonts                            | `next/font` (self-hosted) — Latin display/body + Arabic-capable face (e.g. IBM Plex Sans Arabic / Cairo) |
+| Contact delivery                 | **Resend** via a Next.js server action                                                                   |
+| Blog                             | **MDX** content pipeline                                                                                 |
+| SEO                              | Metadata API, `sitemap.ts`, `robots.ts`, dynamic OG images, **JSON-LD `Person`**                         |
+| Analytics                        | Vercel Analytics + Speed Insights                                                                        |
+| Deploy                           | Vercel                                                                                                   |
+| Package manager                  | pnpm                                                                                                     |
+| Testing                          | **Full** — Vitest (unit) + Playwright (E2E + axe a11y) + CI                                              |
+| Theme                            | **Dark only** (premium dark aesthetic; no light theme by choice — YAGNI)                                 |
 
 **Aesthetic direction:** Dark & premium — deep dark canvas, glassmorphism, subtle gradients/glow, refined typography, cinematic scroll moments. Concrete motion designs will be chosen from a live animated gallery before any animation is implemented (standing owner rule).
 
@@ -53,7 +54,7 @@ Success criteria:
 - **`src/lib/content.ts`** — typed loader: parses + validates `portfolio.json` once, exposes typed accessors + a `localized(field, locale)` helper.
 - **UI chrome strings** (nav, buttons, form labels/errors, "Read more", locale/section labels) live in **next-intl** message files `messages/en.json` + `messages/ar.json` — NOT in `portfolio.json`.
 
-**Boundary:** `portfolio.json` = *your content*. `messages/*.json` = *interface strings*. Blog posts = MDX files (own front-matter).
+**Boundary:** `portfolio.json` = _your content_. `messages/*.json` = _interface strings_. Blog posts = MDX files (own front-matter).
 
 ---
 
@@ -182,4 +183,7 @@ portfolio/
 - Resume PDF + profile/OG imagery.
 - Arabic translations for any content not machine-translatable with confidence.
 - Exact repo name / Vercel project name / custom domain (if any).
+
+```
+
 ```

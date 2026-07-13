@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "about": "نبذة",
+    "projects": "المشاريع",
+    "skills": "المهارات",
+    "experience": "الخبرة",
+    "contact": "تواصل",
+    "blog": "المدونة"
+  },
+  "actions": {
+    "viewResume": "عرض السيرة الذاتية",
+    "getInTouch": "تواصل معي",
+    "viewProject": "عرض المشروع",
+    "readMore": "اقرأ المزيد"
+  },
+  "hero": { "greeting": "مرحبًا، أنا" },
+  "footer": {
+    "builtWith": "بُني باستخدام Next.js و GSAP و Motion",
+    "rights": "جميع الحقوق محفوظة."
+  },
+  "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }
+}

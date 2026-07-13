@@ -21,6 +21,7 @@ wsl -d Ubuntu -- bash -c 'source $HOME/.nvm/nvm.sh && nvm use 22 >/dev/null && c
 Plain `git`, file reads/writes, and edits work directly on the UNC path (they don't spawn `cmd.exe`). Git identity is already configured locally (`Ali Emad` / `sonnythedeveloper@gmail.com`). There are no Husky hooks yet (added in Task 4); until then commits run plain.
 
 Commit message footer for every commit in this plan:
+
 ```
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 ```
@@ -52,9 +53,11 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 - [ ] **Step 1: Scaffold with create-next-app**
 
 RUN (node):
+
 ```
 pnpm create next-app@latest . --ts --app --tailwind --eslint --src-dir --import-alias "@/*" --turbopack --use-pnpm
 ```
+
 When prompted about existing files (`docs/`), choose to continue — create-next-app only conflicts on files it generates, and `docs/` is untouched.
 
 - [ ] **Step 2: Verify it builds and the dev harness runs**
@@ -78,11 +81,13 @@ git commit -m "chore: scaffold Next.js app (App Router, TS, Tailwind v4, pnpm)"
 ## Task 2: Strict TypeScript + absolute imports
 
 **Files:**
+
 - Modify: `tsconfig.json`
 
 - [ ] **Step 1: Tighten compiler options**
 
 Ensure `compilerOptions` includes (merge with what create-next-app generated; keep its `paths`, `plugins`, `moduleResolution`):
+
 ```jsonc
 {
   "compilerOptions": {
@@ -94,8 +99,8 @@ Ensure `compilerOptions` includes (merge with what create-next-app generated; ke
     "noUnusedParameters": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
-    "paths": { "@/*": ["./src/*"] }
-  }
+    "paths": { "@/*": ["./src/*"] },
+  },
 }
 ```
 
@@ -107,6 +112,7 @@ Expected: no errors (fix any `noUnusedParameters` complaints in scaffolded files
 - [ ] **Step 3: Add convenience scripts**
 
 In `package.json` `scripts`, ensure these exist:
+
 ```json
 "type-check": "tsc --noEmit",
 "test": "vitest run",
@@ -125,6 +131,7 @@ git commit -m "chore(ts): strict compiler options + @/* absolute imports"
 ## Task 3: Prettier
 
 **Files:**
+
 - Create: `.prettierrc`, `.prettierignore`
 
 - [ ] **Step 1: Install Prettier + Tailwind plugin**
@@ -170,6 +177,7 @@ git commit -m "chore: prettier + tailwind class sorting"
 ## Task 4: Husky + lint-staged
 
 **Files:**
+
 - Create: `.husky/pre-commit`
 - Modify: `package.json`
 
@@ -189,6 +197,7 @@ RUN (node): `pnpm add -D husky lint-staged && pnpm exec husky init`
 - [ ] **Step 3: Set the pre-commit hook**
 
 Replace `.husky/pre-commit` contents with:
+
 ```sh
 pnpm exec lint-staged
 ```
@@ -197,6 +206,7 @@ pnpm exec lint-staged
 
 Make a trivial whitespace edit to `README.md` (create it if absent), `git add` it, and `git commit -m "chore: verify husky"`.
 Expected: lint-staged runs before the commit completes.
+
 > Note: if the hook fails because Node isn't on PATH in the git GUI context, commits from the WSL shell work; document this in README (Task 14).
 
 - [ ] **Step 5: Commit** (already done in Step 4 if the hook passed; otherwise commit the config)
@@ -211,6 +221,7 @@ git commit -m "chore: husky pre-commit + lint-staged"
 ## Task 5: Vitest harness
 
 **Files:**
+
 - Create: `vitest.config.ts`, `tests/setup.ts`, `tests/unit/harness.test.ts`
 
 - [ ] **Step 1: Install**
@@ -247,6 +258,7 @@ import '@testing-library/jest-dom/vitest';
 - [ ] **Step 4: Write the failing harness test**
 
 `tests/unit/harness.test.ts`:
+
 ```ts
 import { describe, it, expect } from 'vitest';
 
@@ -274,6 +286,7 @@ git commit -m "test: vitest harness (happy-dom + testing-library)"
 ## Task 6: Zod content schema
 
 **Files:**
+
 - Create: `src/lib/schema.ts`, `tests/unit/schema.test.ts`
 
 - [ ] **Step 1: Install Zod**
@@ -283,6 +296,7 @@ RUN (node): `pnpm add zod`
 - [ ] **Step 2: Write the failing schema test**
 
 `tests/unit/schema.test.ts`:
+
 ```ts
 import { describe, it, expect } from 'vitest';
 import { portfolioSchema } from '@/lib/schema';
@@ -298,7 +312,10 @@ const valid = {
   },
   socials: [{ label: 'GitHub', url: 'https://github.com/AliEmad0', icon: 'github' }],
   skills: [
-    { category: { en: 'Frontend', ar: 'الواجهة الأمامية' }, items: ['React', 'Next.js', 'TypeScript'] },
+    {
+      category: { en: 'Frontend', ar: 'الواجهة الأمامية' },
+      items: ['React', 'Next.js', 'TypeScript'],
+    },
   ],
   projects: [
     {
@@ -353,6 +370,7 @@ Expected: FAIL — cannot find module `@/lib/schema`.
 - [ ] **Step 4: Implement the schema**
 
 `src/lib/schema.ts`:
+
 ```ts
 import { z } from 'zod';
 
@@ -438,6 +456,7 @@ git commit -m "feat(data): zod schema for portfolio content"
 ## Task 7: Seed `content/portfolio.json`
 
 **Files:**
+
 - Create: `content/portfolio.json`
 
 - [ ] **Step 1: Write the content file**
@@ -445,6 +464,7 @@ git commit -m "feat(data): zod schema for portfolio content"
 Populate with Ali's real data. Below is the seed; fields marked `TODO(ali)` in a sibling `content/GAPS.md` are the ones to confirm (do NOT put TODO strings inside the JSON — it must validate). Use best-known values now; gaps are tracked separately in Step 2.
 
 `content/portfolio.json`:
+
 ```json
 {
   "profile": {
@@ -463,9 +483,18 @@ Populate with Ali's real data. Below is the seed; fields marked `TODO(ali)` in a
     { "label": "LinkedIn", "url": "https://www.linkedin.com/in/ali-emad", "icon": "linkedin" }
   ],
   "skills": [
-    { "category": { "en": "Frontend", "ar": "الواجهة الأمامية" }, "items": ["React", "Next.js", "TypeScript", "Tailwind CSS"] },
-    { "category": { "en": "Animation", "ar": "الحركة" }, "items": ["GSAP", "Framer Motion", "Lenis"] },
-    { "category": { "en": "Tooling & Quality", "ar": "الأدوات والجودة" }, "items": ["Vitest", "Playwright", "ESLint", "pnpm"] }
+    {
+      "category": { "en": "Frontend", "ar": "الواجهة الأمامية" },
+      "items": ["React", "Next.js", "TypeScript", "Tailwind CSS"]
+    },
+    {
+      "category": { "en": "Animation", "ar": "الحركة" },
+      "items": ["GSAP", "Framer Motion", "Lenis"]
+    },
+    {
+      "category": { "en": "Tooling & Quality", "ar": "الأدوات والجودة" },
+      "items": ["Vitest", "Playwright", "ESLint", "pnpm"]
+    }
   ],
   "projects": [
     {
@@ -482,13 +511,20 @@ Populate with Ali's real data. Below is the seed; fields marked `TODO(ali)` in a
       "stack": ["Next.js", "TypeScript", "Tailwind CSS", "next-intl", "Zod"],
       "role": { "en": "Solo developer", "ar": "مطوّر منفرد" },
       "highlights": [
-        { "en": "34 seasons of committed data (1992–2026)", "ar": "٣٤ موسمًا من البيانات (١٩٩٢–٢٠٢٦)" },
-        { "en": "Full English + Arabic RTL localization", "ar": "ترجمة كاملة للإنجليزية والعربية (من اليمين لليسار)" },
-        { "en": "1170+ unit tests, E2E + CI green", "ar": "أكثر من ١١٧٠ اختبار وحدة مع اختبارات شاملة" }
+        {
+          "en": "34 seasons of committed data (1992–2026)",
+          "ar": "٣٤ موسمًا من البيانات (١٩٩٢–٢٠٢٦)"
+        },
+        {
+          "en": "Full English + Arabic RTL localization",
+          "ar": "ترجمة كاملة للإنجليزية والعربية (من اليمين لليسار)"
+        },
+        {
+          "en": "1170+ unit tests, E2E + CI green",
+          "ar": "أكثر من ١١٧٠ اختبار وحدة مع اختبارات شاملة"
+        }
       ],
-      "links": [
-        { "label": "Live", "url": "https://pitchiq-pl.vercel.app" }
-      ],
+      "links": [{ "label": "Live", "url": "https://pitchiq-pl.vercel.app" }],
       "image": "/projects/pitchiq.png",
       "featured": true
     }
@@ -515,6 +551,7 @@ Create `content/GAPS.md` listing what to verify: additional projects (names/stac
 - [ ] **Step 3: Validate the file against the schema (extend the test)**
 
 Append to `tests/unit/schema.test.ts`:
+
 ```ts
 import portfolio from '../../content/portfolio.json';
 
@@ -522,6 +559,7 @@ it('the committed content/portfolio.json is valid', () => {
   expect(() => portfolioSchema.parse(portfolio)).not.toThrow();
 });
 ```
+
 Ensure `tsconfig.json` has `"resolveJsonModule": true` (create-next-app enables it; add if missing).
 
 - [ ] **Step 4: Run**
@@ -541,11 +579,13 @@ git commit -m "feat(data): seed real portfolio content + validation + gaps check
 ## Task 8: Typed content loader
 
 **Files:**
+
 - Create: `src/lib/content.ts`, `tests/unit/content.test.ts`
 
 - [ ] **Step 1: Write the failing loader test**
 
 `tests/unit/content.test.ts`:
+
 ```ts
 import { describe, it, expect } from 'vitest';
 import { getPortfolio, localized, getFeaturedProjects } from '@/lib/content';
@@ -579,6 +619,7 @@ Expected: FAIL — cannot find module `@/lib/content`.
 - [ ] **Step 3: Implement the loader**
 
 `src/lib/content.ts`:
+
 ```ts
 import raw from '../../content/portfolio.json';
 import { portfolioSchema, type Portfolio, type LocalizedString } from '@/lib/schema';
@@ -622,6 +663,7 @@ git commit -m "feat(data): typed content loader + localized() helper"
 ## Task 9: next-intl (EN + Arabic RTL)
 
 **Files:**
+
 - Create: `src/i18n/routing.ts`, `src/i18n/navigation.ts`, `src/i18n/request.ts`, `middleware.ts`, `messages/en.json`, `messages/ar.json`
 - Modify: `next.config.ts`
 
@@ -632,6 +674,7 @@ RUN (node): `pnpm add next-intl`
 - [ ] **Step 2: Routing config**
 
 `src/i18n/routing.ts`:
+
 ```ts
 import { defineRouting } from 'next-intl/routing';
 
@@ -647,6 +690,7 @@ export type AppLocale = (typeof routing.locales)[number];
 - [ ] **Step 3: Navigation helpers**
 
 `src/i18n/navigation.ts`:
+
 ```ts
 import { createNavigation } from 'next-intl/navigation';
 import { routing } from './routing';
@@ -657,6 +701,7 @@ export const { Link, redirect, usePathname, useRouter, getPathname } = createNav
 - [ ] **Step 4: Request config**
 
 `src/i18n/request.ts`:
+
 ```ts
 import { getRequestConfig } from 'next-intl/server';
 import { hasLocale } from 'next-intl';
@@ -675,6 +720,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
 - [ ] **Step 5: Middleware**
 
 `middleware.ts` (repo root):
+
 ```ts
 import createMiddleware from 'next-intl/middleware';
 import { routing } from '@/i18n/routing';
@@ -702,10 +748,23 @@ export default withNextIntl(nextConfig);
 - [ ] **Step 7: Message files**
 
 `messages/en.json`:
+
 ```json
 {
-  "nav": { "about": "About", "projects": "Projects", "skills": "Skills", "experience": "Experience", "contact": "Contact", "blog": "Blog" },
-  "actions": { "viewResume": "View résumé", "getInTouch": "Get in touch", "viewProject": "View project", "readMore": "Read more" },
+  "nav": {
+    "about": "About",
+    "projects": "Projects",
+    "skills": "Skills",
+    "experience": "Experience",
+    "contact": "Contact",
+    "blog": "Blog"
+  },
+  "actions": {
+    "viewResume": "View résumé",
+    "getInTouch": "Get in touch",
+    "viewProject": "View project",
+    "readMore": "Read more"
+  },
   "hero": { "greeting": "Hi, I'm" },
   "footer": { "builtWith": "Built with Next.js, GSAP & Motion", "rights": "All rights reserved." },
   "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }
@@ -713,12 +772,28 @@ export default withNextIntl(nextConfig);
 ```
 
 `messages/ar.json`:
+
 ```json
 {
-  "nav": { "about": "نبذة", "projects": "المشاريع", "skills": "المهارات", "experience": "الخبرة", "contact": "تواصل", "blog": "المدونة" },
-  "actions": { "viewResume": "عرض السيرة الذاتية", "getInTouch": "تواصل معي", "viewProject": "عرض المشروع", "readMore": "اقرأ المزيد" },
+  "nav": {
+    "about": "نبذة",
+    "projects": "المشاريع",
+    "skills": "المهارات",
+    "experience": "الخبرة",
+    "contact": "تواصل",
+    "blog": "المدونة"
+  },
+  "actions": {
+    "viewResume": "عرض السيرة الذاتية",
+    "getInTouch": "تواصل معي",
+    "viewProject": "عرض المشروع",
+    "readMore": "اقرأ المزيد"
+  },
   "hero": { "greeting": "مرحبًا، أنا" },
-  "footer": { "builtWith": "بُني باستخدام Next.js و GSAP و Motion", "rights": "جميع الحقوق محفوظة." },
+  "footer": {
+    "builtWith": "بُني باستخدام Next.js و GSAP و Motion",
+    "rights": "جميع الحقوق محفوظة."
+  },
   "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }
 }
 ```
@@ -740,6 +815,7 @@ git commit -m "feat(i18n): next-intl routing, middleware, en/ar messages"
 ## Task 10: Bilingual root layout + home shell
 
 **Files:**
+
 - Create: `src/app/[locale]/layout.tsx`, `src/app/[locale]/page.tsx`
 - Delete: `src/app/layout.tsx`, `src/app/page.tsx` (the non-localized scaffold)
 - Create: `src/lib/fonts.ts`
@@ -747,6 +823,7 @@ git commit -m "feat(i18n): next-intl routing, middleware, en/ar messages"
 - [ ] **Step 1: Fonts (Latin + Arabic) via next/font**
 
 `src/lib/fonts.ts`:
+
 ```ts
 import { Sora, IBM_Plex_Sans_Arabic } from 'next/font/google';
 
@@ -767,6 +844,7 @@ export const fontArabic = IBM_Plex_Sans_Arabic({
 - [ ] **Step 2: Localized layout**
 
 `src/app/[locale]/layout.tsx`:
+
 ```tsx
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -804,7 +882,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={dir} className={`${fontLatin.variable} ${fontArabic.variable}`}>
-      <body className="min-h-dvh bg-background text-foreground antialiased">
+      <body className="bg-background text-foreground min-h-dvh antialiased">
         <NextIntlClientProvider>
           <Header profileName={profile.name} />
           <main id="content">{children}</main>
@@ -819,6 +897,7 @@ export default async function LocaleLayout({
 - [ ] **Step 3: Home page shell**
 
 `src/app/[locale]/page.tsx`:
+
 ```tsx
 import { setRequestLocale } from 'next-intl/server';
 import { getPortfolio, localized, type Locale } from '@/lib/content';
@@ -831,17 +910,21 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   return (
     <section className="mx-auto flex min-h-[60vh] max-w-3xl flex-col justify-center px-6 py-24">
-      <p className="text-sm text-muted">{profile.location.en /* replaced with localized() below */}</p>
+      <p className="text-muted text-sm">
+        {profile.location.en /* replaced with localized() below */}
+      </p>
       <h1 className="mt-2 text-4xl font-bold sm:text-6xl">{profile.name}</h1>
-      <p className="mt-4 text-lg text-muted">{localized(profile.role, l)}</p>
+      <p className="text-muted mt-4 text-lg">{localized(profile.role, l)}</p>
       <p className="mt-6 max-w-prose text-balance">{localized(profile.tagline, l)}</p>
     </section>
   );
 }
 ```
+
 Then fix the placeholder comment line to use `localized(profile.location, l)`:
+
 ```tsx
-<p className="text-sm text-muted">{localized(profile.location, l)}</p>
+<p className="text-muted text-sm">{localized(profile.location, l)}</p>
 ```
 
 - [ ] **Step 4: Remove the non-localized scaffold routes**
@@ -851,16 +934,19 @@ Delete `src/app/layout.tsx` and `src/app/page.tsx`. (Header/Footer are created i
 - [ ] **Step 5: Temporary Header/Footer stubs (replaced in Task 12)**
 
 `src/components/layout/Header.tsx`:
+
 ```tsx
 export function Header({ profileName }: { profileName: string }) {
   return <header className="px-6 py-4 text-sm font-semibold">{profileName}</header>;
 }
 ```
+
 `src/components/layout/Footer.tsx`:
+
 ```tsx
 export function Footer({ socials }: { socials: { label: string; url: string }[] }) {
   return (
-    <footer className="px-6 py-8 text-sm text-muted">
+    <footer className="text-muted px-6 py-8 text-sm">
       {socials.map((s) => (
         <a key={s.url} href={s.url} className="me-4 underline">
           {s.label}
@@ -888,11 +974,13 @@ git commit -m "feat(app): bilingual [locale] layout + home shell + fonts"
 ## Task 11: Tailwind v4 dark-premium tokens
 
 **Files:**
+
 - Modify: `src/styles/globals.css`
 
 - [ ] **Step 1: Define the design tokens + base**
 
 Replace `src/styles/globals.css` with:
+
 ```css
 @import 'tailwindcss';
 
@@ -954,12 +1042,14 @@ git commit -m "feat(styles): dark-premium design tokens (tailwind v4 @theme)"
 ## Task 12: Layout chrome — Header, Footer, LocaleSwitcher
 
 **Files:**
+
 - Modify: `src/components/layout/Header.tsx`, `src/components/layout/Footer.tsx`
 - Create: `src/components/layout/LocaleSwitcher.tsx`, `tests/unit/locale-switcher.test.tsx`
 
 - [ ] **Step 1: LocaleSwitcher — failing test**
 
 `tests/unit/locale-switcher.test.tsx`:
+
 ```tsx
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -992,6 +1082,7 @@ Expected: FAIL — cannot find module `@/components/layout/LocaleSwitcher`.
 - [ ] **Step 3: Implement LocaleSwitcher**
 
 `src/components/layout/LocaleSwitcher.tsx`:
+
 ```tsx
 'use client';
 
@@ -1006,7 +1097,7 @@ export function LocaleSwitcher({ currentLocale }: { currentLocale: 'en' | 'ar' }
   const label = target === 'ar' ? t('switchToArabic') : t('switchToEnglish');
 
   return (
-    <Link href={pathname} locale={target} className="text-sm text-muted hover:text-foreground">
+    <Link href={pathname} locale={target} className="text-muted hover:text-foreground text-sm">
       {label}
     </Link>
   );
@@ -1021,6 +1112,7 @@ Expected: 1 passed.
 - [ ] **Step 5: Real Header with nav + switcher**
 
 `src/components/layout/Header.tsx`:
+
 ```tsx
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
@@ -1037,11 +1129,11 @@ export async function Header({
   const sections = ['about', 'projects', 'skills', 'experience', 'contact'] as const;
 
   return (
-    <header className="sticky top-0 z-50 flex items-center justify-between border-b border-border bg-background/70 px-6 py-4 backdrop-blur">
+    <header className="border-border bg-background/70 sticky top-0 z-50 flex items-center justify-between border-b px-6 py-4 backdrop-blur">
       <Link href="/" className="font-semibold">
         {profileName}
       </Link>
-      <nav className="hidden gap-6 text-sm text-muted sm:flex">
+      <nav className="text-muted hidden gap-6 text-sm sm:flex">
         {sections.map((s) => (
           <a key={s} href={`#${s}`} className="hover:text-foreground">
             {t(s)}
@@ -1053,23 +1145,31 @@ export async function Header({
   );
 }
 ```
+
 Update the layout call in `src/app/[locale]/layout.tsx` to pass `locale`: `<Header profileName={profile.name} locale={dir === 'rtl' ? 'ar' : 'en'} />`.
 
 - [ ] **Step 6: Real Footer**
 
 `src/components/layout/Footer.tsx`:
+
 ```tsx
 import { getTranslations } from 'next-intl/server';
 
 export async function Footer({ socials }: { socials: { label: string; url: string }[] }) {
   const t = await getTranslations('footer');
   return (
-    <footer className="border-t border-border px-6 py-10 text-sm text-muted">
+    <footer className="border-border text-muted border-t px-6 py-10 text-sm">
       <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p>{t('builtWith')}</p>
         <div className="flex gap-4">
           {socials.map((s) => (
-            <a key={s.url} href={s.url} target="_blank" rel="noreferrer" className="hover:text-foreground">
+            <a
+              key={s.url}
+              href={s.url}
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-foreground"
+            >
               {s.label}
             </a>
           ))}
@@ -1097,11 +1197,13 @@ git commit -m "feat(layout): header nav, footer, locale switcher"
 ## Task 13: CI (GitHub Actions)
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Workflow**
 
 `.github/workflows/ci.yml`:
+
 ```yaml
 name: CI
 on:
@@ -1139,6 +1241,7 @@ git commit -m "ci: type-check, lint, test, build on push/PR"
 ## Task 14: Docs — `.env.example` + README
 
 **Files:**
+
 - Create: `.env.example`, update `README.md`
 
 - [ ] **Step 1: `.env.example`**

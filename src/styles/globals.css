@@ -1,0 +1,41 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-background: #08080b;
+  --color-foreground: #f4f4f6;
+  --color-muted: #9a9aa6;
+  --color-surface: #101015;
+  --color-border: #23232b;
+  --color-accent: #7c5cff;
+  --color-accent-foreground: #ffffff;
+
+  --font-sans: var(--font-latin), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+
+  --radius: 0.75rem;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+/* Global reduced-motion safety net (animation infra arrives in Plan 2). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

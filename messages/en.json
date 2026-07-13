@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "about": "About",
+    "projects": "Projects",
+    "skills": "Skills",
+    "experience": "Experience",
+    "contact": "Contact",
+    "blog": "Blog"
+  },
+  "actions": {
+    "viewResume": "View résumé",
+    "getInTouch": "Get in touch",
+    "viewProject": "View project",
+    "readMore": "Read more"
+  },
+  "hero": { "greeting": "Hi, I'm" },
+  "footer": {
+    "builtWith": "Built with Next.js, GSAP & Motion",
+    "rights": "All rights reserved."
+  },
+  "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }
+}
