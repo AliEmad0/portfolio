@@ -10,10 +10,11 @@
   "actions": {
     "viewResume": "View résumé",
     "getInTouch": "Get in touch",
+    "viewWork": "View work",
     "viewProject": "View project",
     "readMore": "Read more"
   },
-  "hero": { "greeting": "Hi, I'm" },
+  "hero": { "greeting": "Hi, I'm", "kicker": "Portfolio" },
   "footer": {
     "builtWith": "Built with Next.js, GSAP & Motion",
     "rights": "All rights reserved."
