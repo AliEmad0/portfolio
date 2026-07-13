@@ -1,0 +1,73 @@
+{
+  "profile": {
+    "name": "Ali Emad",
+    "role": { "en": "Frontend Engineer", "ar": "مهندس واجهات أمامية" },
+    "tagline": {
+      "en": "I build fast, accessible, beautifully-animated web applications.",
+      "ar": "أبني تطبيقات ويب سريعة وسهلة الوصول وذات حركة جميلة."
+    },
+    "location": { "en": "Egypt", "ar": "مصر" },
+    "email": "sonnythedeveloper@gmail.com",
+    "resumeUrl": "/resume.pdf"
+  },
+  "socials": [
+    { "label": "GitHub", "url": "https://github.com/AliEmad0", "icon": "github" },
+    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/ali-emad", "icon": "linkedin" }
+  ],
+  "skills": [
+    {
+      "category": { "en": "Frontend", "ar": "الواجهة الأمامية" },
+      "items": ["React", "Next.js", "TypeScript", "Tailwind CSS"]
+    },
+    {
+      "category": { "en": "Animation", "ar": "الحركة" },
+      "items": ["GSAP", "Framer Motion", "Lenis"]
+    },
+    {
+      "category": { "en": "Tooling & Quality", "ar": "الأدوات والجودة" },
+      "items": ["Vitest", "Playwright", "ESLint", "pnpm"]
+    }
+  ],
+  "projects": [
+    {
+      "slug": "pitchiq",
+      "name": "PitchIQ",
+      "summary": {
+        "en": "A Premier League encyclopedia spanning 34 seasons.",
+        "ar": "موسوعة الدوري الإنجليزي الممتاز تغطي ٣٤ موسمًا."
+      },
+      "description": {
+        "en": "Standings, fixtures, teams, players, managers, a comparison tool, trivia, and an interactive historic map — with a per-era Time-Machine theme, full English/Arabic RTL localization, and motion.",
+        "ar": "الترتيب والمباريات والفرق واللاعبون والمدربون وأداة مقارنة ومعلومات وخريطة تاريخية تفاعلية — مع ثيم آلة الزمن لكل حقبة وترجمة كاملة للعربية وحركة."
+      },
+      "stack": ["Next.js", "TypeScript", "Tailwind CSS", "next-intl", "Zod"],
+      "role": { "en": "Solo developer", "ar": "مطوّر منفرد" },
+      "highlights": [
+        { "en": "34 seasons of committed data (1992–2026)", "ar": "٣٤ موسمًا من البيانات (١٩٩٢–٢٠٢٦)" },
+        {
+          "en": "Full English + Arabic RTL localization",
+          "ar": "ترجمة كاملة للإنجليزية والعربية (من اليمين لليسار)"
+        },
+        {
+          "en": "1170+ unit tests, E2E + CI green",
+          "ar": "أكثر من ١١٧٠ اختبار وحدة مع اختبارات شاملة"
+        }
+      ],
+      "links": [{ "label": "Live", "url": "https://pitchiq-pl.vercel.app" }],
+      "image": "/projects/pitchiq.png",
+      "featured": true
+    }
+  ],
+  "timeline": [
+    {
+      "start": "2023",
+      "end": "present",
+      "title": { "en": "Frontend Engineer", "ar": "مهندس واجهات أمامية" },
+      "org": { "en": "Independent / Freelance", "ar": "مستقل / عمل حر" },
+      "description": {
+        "en": "Designing and shipping production web apps end-to-end, including the PitchIQ encyclopedia.",
+        "ar": "تصميم وإطلاق تطبيقات ويب إنتاجية بالكامل، بما في ذلك موسوعة PitchIQ."
+      }
+    }
+  ]
+}

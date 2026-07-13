@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { portfolioSchema } from '@/lib/schema';
+import portfolio from '../../content/portfolio.json';
 
 const valid = {
   profile: {
@@ -58,5 +59,9 @@ describe('portfolioSchema', () => {
     const bad = structuredClone(valid);
     bad.profile.email = 'not-an-email';
     expect(() => portfolioSchema.parse(bad)).toThrow();
+  });
+
+  it('the committed content/portfolio.json is valid', () => {
+    expect(() => portfolioSchema.parse(portfolio)).not.toThrow();
   });
 });
