@@ -7,6 +7,7 @@
   --color-surface: #101015;
   --color-border: #23232b;
   --color-accent: #7c5cff;
+  --color-accent-2: #43e6d0;
   --color-accent-foreground: #ffffff;
 
   --font-sans: var(--font-latin), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
@@ -26,7 +27,60 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Global reduced-motion safety net (animation infra arrives in Plan 2). */
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Hero motion primitives */
+@keyframes caret-blink {
+  0%,
+  100% {
+    border-color: var(--color-accent-2);
+  }
+  50% {
+    border-color: transparent;
+  }
+}
+@keyframes ring-pulse {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.82);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+.hero-caret {
+  border-inline-end: 2px solid var(--color-accent-2);
+  animation: caret-blink 0.8s step-end infinite;
+}
+.hero-ring {
+  position: relative;
+}
+.hero-ring::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border: 1.6px solid var(--color-accent);
+  border-radius: calc(var(--radius) + 4px);
+  opacity: 0;
+  animation: ring-pulse 2.6s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Global reduced-motion safety net */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -37,5 +91,8 @@ body {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+  .hero-caret {
+    border-color: transparent;
   }
 }

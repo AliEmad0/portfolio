@@ -7,6 +7,7 @@ import { fontLatin, fontArabic } from '@/lib/fonts';
 import { getPortfolio, type Locale } from '@/lib/content';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { SmoothScroll } from '@/animation/SmoothScroll';
 import '@/styles/globals.css';
 
 export function generateStaticParams() {
@@ -37,9 +38,11 @@ export default async function LocaleLayout({
     <html lang={locale} dir={dir} className={`${fontLatin.variable} ${fontArabic.variable}`}>
       <body className="bg-background text-foreground min-h-dvh antialiased">
         <NextIntlClientProvider>
-          <Header profileName={profile.name} locale={l} />
-          <main id="content">{children}</main>
-          <Footer socials={socials} />
+          <SmoothScroll>
+            <Header profileName={profile.name} locale={l} />
+            <main id="content">{children}</main>
+            <Footer socials={socials} />
+          </SmoothScroll>
         </NextIntlClientProvider>
       </body>
     </html>
