@@ -80,6 +80,79 @@ html.lenis body {
   pointer-events: none;
 }
 
+/* Projects — ongoing loops (start after the GSAP entrance adds .is-live) */
+@keyframes proj-beat {
+  0%,
+  55%,
+  100% {
+    transform: translateY(0) scale(1);
+    border-color: var(--color-border);
+  }
+  8% {
+    transform: translateY(-4px) scale(1.012);
+    border-color: var(--color-accent);
+  }
+  16% {
+    transform: translateY(0) scale(1);
+  }
+  24% {
+    transform: translateY(-2px) scale(1.007);
+    border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border));
+  }
+  32% {
+    transform: translateY(0) scale(1);
+    border-color: var(--color-border);
+  }
+}
+@keyframes proj-wash {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  40% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+@keyframes proj-arrow {
+  0%,
+  60%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translate(5px, -5px);
+  }
+}
+@keyframes proj-overlay {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+.is-live .proj-card {
+  animation: proj-beat 2.6s ease-in-out infinite;
+}
+.is-live .proj-wash {
+  animation: proj-wash 2.6s ease-in-out infinite;
+}
+.is-live .proj-arrow {
+  animation: proj-arrow 2.6s ease-in-out infinite;
+}
+.is-live .proj-overlay {
+  animation: proj-overlay 3.4s ease-in-out infinite;
+}
+
 /* Global reduced-motion safety net */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -94,5 +167,8 @@ html.lenis body {
   }
   .hero-caret {
     border-color: transparent;
+  }
+  .proj-curtain {
+    display: none !important;
   }
 }
