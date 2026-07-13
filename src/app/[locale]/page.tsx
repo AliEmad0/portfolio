@@ -3,6 +3,7 @@ import { getPortfolio, localized, type Locale } from '@/lib/content';
 import { Hero, type HeroSocial } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
 import { Projects } from '@/components/sections/Projects';
+import { Skills } from '@/components/sections/Skills';
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -27,6 +28,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       />
       <About locale={l} />
       <Projects locale={l} />
+      <Skills locale={l} />
     </>
   );
 }
