@@ -44,6 +44,11 @@ const timelineEntry = z.object({
   description: localizedString,
 });
 
+const aboutSchema = z.object({
+  paragraphs: z.array(localizedString).min(1),
+  facts: z.array(z.object({ label: localizedString, value: localizedString })).default([]),
+});
+
 export const portfolioSchema = z.object({
   profile: z.object({
     name: z.string().min(1),
@@ -54,6 +59,7 @@ export const portfolioSchema = z.object({
     resumeUrl: z.string().min(1),
   }),
   socials: z.array(social).min(1),
+  about: aboutSchema,
   skills: z.array(skillGroup).min(1),
   projects: z.array(project).min(1),
   timeline: z.array(timelineEntry).min(1),
@@ -64,3 +70,4 @@ export type Project = z.infer<typeof project>;
 export type TimelineEntry = z.infer<typeof timelineEntry>;
 export type SkillGroup = z.infer<typeof skillGroup>;
 export type Social = z.infer<typeof social>;
+export type About = z.infer<typeof aboutSchema>;
