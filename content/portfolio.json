@@ -12,7 +12,11 @@
   },
   "socials": [
     { "label": "GitHub", "url": "https://github.com/AliEmad0", "icon": "github" },
-    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/ali-emad", "icon": "linkedin" }
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/ali-emad-9a1401109",
+      "icon": "linkedin"
+    }
   ],
   "about": {
     "paragraphs": [
@@ -90,13 +94,52 @@
   ],
   "timeline": [
     {
-      "start": "2023",
+      "start": "2024",
       "end": "present",
-      "title": { "en": "Frontend Engineer", "ar": "مهندس واجهات أمامية" },
-      "org": { "en": "Independent / Freelance", "ar": "مستقل / عمل حر" },
+      "title": { "en": "Senior Front-End Developer", "ar": "مطوّر واجهات أمامية أول" },
+      "org": {
+        "en": "TechBridge Labs — Remote, US",
+        "ar": "TechBridge Labs — عن بُعد، الولايات المتحدة"
+      },
       "description": {
-        "en": "Designing and shipping production web apps end-to-end, including the PitchIQ encyclopedia.",
-        "ar": "تصميم وإطلاق تطبيقات ويب إنتاجية بالكامل، بما في ذلك موسوعة PitchIQ."
+        "en": "Architecting high-traffic web platforms in Next.js and TypeScript, partnering closely with design in Figma for high-fidelity, high-performance UI.",
+        "ar": "هندسة منصّات ويب عالية الحركة باستخدام Next.js وTypeScript، والعمل عن كثب مع فرق التصميم على Figma لتنفيذ واجهات عالية الدقة والأداء."
+      }
+    },
+    {
+      "start": "2019",
+      "end": "2024",
+      "title": { "en": "Front-End Developer", "ar": "مطوّر واجهات أمامية" },
+      "org": { "en": "Syft — Remote, US", "ar": "Syft — عن بُعد، الولايات المتحدة" },
+      "description": {
+        "en": "Led front-end across Web3, e-commerce and gaming products — cinematic GSAP animations and pixel-perfect implementation of complex Figma designs.",
+        "ar": "قيادة تطوير الواجهات الأمامية عبر منتجات Web3 والتجارة الإلكترونية والألعاب — حركات GSAP سينمائية وتنفيذ دقيق لتصاميم Figma المعقّدة."
+      }
+    },
+    {
+      "start": "2022",
+      "end": "2023",
+      "title": {
+        "en": "Front-End Developer (part-time)",
+        "ar": "مطوّر واجهات أمامية (دوام جزئي)"
+      },
+      "org": {
+        "en": "Smartive Media — Remote, Saudi Arabia",
+        "ar": "Smartive Media — عن بُعد، السعودية"
+      },
+      "description": {
+        "en": "Led front-end of the Artisan platform with cinematic GSAP motion and pixel-perfect, performant layouts that turned static designs into interactive experiences.",
+        "ar": "قيادة تطوير واجهة منصّة Artisan بحركات GSAP سينمائية وتخطيطات دقيقة وعالية الأداء حوّلت التصاميم الثابتة إلى تجارب تفاعلية."
+      }
+    },
+    {
+      "start": "2018",
+      "end": "2019",
+      "title": { "en": "Web Developer", "ar": "مطوّر ويب" },
+      "org": { "en": "Freelance", "ar": "عمل حر" },
+      "description": {
+        "en": "Began my professional career building custom features and responsive sites for a range of clients with HTML, CSS and JavaScript.",
+        "ar": "بدأت مسيرتي المهنية ببناء ميزات مخصّصة ومواقع متجاوبة لمجموعة من العملاء باستخدام HTML وCSS وJavaScript."
       }
     }
   ]
