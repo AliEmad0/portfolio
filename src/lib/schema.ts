@@ -29,6 +29,7 @@ const project = z.object({
   summary: localizedString,
   description: localizedString,
   stack: z.array(z.string().min(1)).min(1),
+  status: z.enum(['live', 'wip', 'archived']).optional(),
   role: localizedString,
   highlights: z.array(localizedString).default([]),
   links: z.array(link).default([]),

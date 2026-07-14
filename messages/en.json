@@ -5,7 +5,9 @@
     "skills": "Skills",
     "experience": "Experience",
     "contact": "Contact",
-    "blog": "Blog"
+    "blog": "Blog",
+    "menu": "Menu",
+    "close": "Close"
   },
   "actions": {
     "viewResume": "View résumé",
@@ -15,10 +17,16 @@
     "readMore": "Read more"
   },
   "hero": { "greeting": "Hi, I'm", "kicker": "Portfolio" },
-  "projects": { "eyebrow": "Selected work", "featured": "Featured" },
+  "projects": {
+    "eyebrow": "Selected work",
+    "featured": "Featured",
+    "status": { "live": "Live", "wip": "In progress", "archived": "Archived" }
+  },
   "skills": { "eyebrow": "Toolkit" },
   "experience": { "eyebrow": "Career journey", "present": "Present" },
   "footer": {
+    "availability": "Open to new projects",
+    "backToTop": "Back to top",
     "rights": "All rights reserved."
   },
   "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }

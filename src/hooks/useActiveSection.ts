@@ -3,45 +3,65 @@
 import { useEffect, useState } from 'react';
 
 /**
- * Tracks which section is currently in view via IntersectionObserver.
- * Returns the id of the most-visible observed section, or `''` before any
- * intersects. Ids whose elements are absent from the DOM are simply ignored,
- * so they never become active. No motion — safe under reduced motion.
+ * Tracks which section is in view. A section becomes active once its top passes
+ * a line ~a third down the viewport; at the very bottom the last section wins
+ * (so a short footer `#contact` can activate — it can never be scrolled high
+ * enough on its own). Ids absent from the DOM are ignored.
+ *
+ * Position is polled via requestAnimationFrame rather than the `scroll` event:
+ * Lenis smooth-scroll does not emit native `scroll` events, so a listener alone
+ * would never update. A `scroll` listener is kept too for the reduced-motion
+ * (no-Lenis) path. No animation of its own; reduced-motion safe.
  */
 export function useActiveSection(ids: readonly string[]): string {
   const [active, setActive] = useState('');
 
   useEffect(() => {
-    if (typeof IntersectionObserver !== 'function') return;
+    if (typeof window === 'undefined') return;
 
-    const elements = ids
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
-    if (elements.length === 0) return;
+    const compute = () => {
+      const els = ids
+        .map((id) => document.getElementById(id))
+        .filter((el): el is HTMLElement => el !== null);
+      const first = els[0];
+      const last = els[els.length - 1];
+      if (!first || !last) return;
 
-    // Track the visible ratio of each section; the most-visible one wins.
-    const ratios = new Map<string, number>();
+      const scrollY = window.scrollY;
+      if (window.innerHeight + scrollY >= document.documentElement.scrollHeight - 4) {
+        setActive(last.id);
+        return;
+      }
+      const line = scrollY + window.innerHeight * 0.32;
+      let current = first.id;
+      for (const el of els) {
+        if (el.getBoundingClientRect().top + scrollY <= line) current = el.id;
+      }
+      setActive(current);
+    };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0);
-        }
-        let best = '';
-        let bestRatio = 0;
-        for (const [id, ratio] of ratios) {
-          if (ratio > bestRatio) {
-            bestRatio = ratio;
-            best = id;
-          }
-        }
-        if (best) setActive(best);
-      },
-      { threshold: [0.1, 0.35, 0.6, 0.85], rootMargin: '-20% 0px -35% 0px' },
-    );
+    let raf = 0;
+    let lastY = -1;
+    const tick = () => {
+      if (window.scrollY !== lastY) {
+        lastY = window.scrollY;
+        compute();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    const onResize = () => {
+      lastY = -1; // force a recompute on the next frame
+    };
 
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    compute();
+    raf = requestAnimationFrame(tick);
+    window.addEventListener('scroll', compute, { passive: true });
+    window.addEventListener('resize', onResize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', compute);
+      window.removeEventListener('resize', onResize);
+    };
   }, [ids]);
 
   return active;

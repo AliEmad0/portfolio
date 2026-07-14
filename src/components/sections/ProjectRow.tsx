@@ -6,6 +6,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useLocaleDir } from '@/hooks/useLocaleDir';
+import { ProjectVisual } from './ProjectVisual';
+
+export type ProjectStatus = { label: string; tone: 'live' | 'wip' | 'archived' };
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -15,8 +18,10 @@ export type ProjectRowProps = {
   summary: string;
   description: string;
   stack: string[];
+  image: string;
   href: string;
   featuredLabel?: string;
+  status?: ProjectStatus;
   viewLabel: string;
   numberLabel: string;
 };
@@ -35,14 +40,35 @@ function FeaturedTag({ label }: { label: string }) {
   );
 }
 
+const STATUS_COLOR: Record<ProjectStatus['tone'], string> = {
+  live: 'var(--color-accent-2)',
+  wip: '#f5b544',
+  archived: 'var(--color-muted)',
+};
+
+function StatusTag({ label, tone }: ProjectStatus) {
+  const color = STATUS_COLOR[tone];
+  return (
+    <span
+      className="proj-status"
+      style={{ color, borderColor: `color-mix(in srgb, ${color} 42%, transparent)` }}
+    >
+      <span className="proj-status-dot" style={{ background: color }} />
+      {label}
+    </span>
+  );
+}
+
 export function ProjectRow({
   index,
   name,
   summary,
   description,
   stack,
+  image,
   href,
   featuredLabel,
+  status,
   viewLabel,
   numberLabel,
 }: ProjectRowProps) {
@@ -92,9 +118,10 @@ export function ProjectRow({
             {numberLabel}
             {featuredLabel ? ` · ${featuredLabel}` : ''}
           </span>
-          <span className="flex items-center gap-2 text-lg font-bold text-white">
+          <span className="flex flex-wrap items-center gap-2 text-lg font-bold text-white">
             {name}
             {featuredLabel && <FeaturedTag label={featuredLabel} />}
+            {status && <StatusTag {...status} />}
           </span>
         </div>
 
@@ -106,6 +133,13 @@ export function ProjectRow({
           <span className="absolute inset-0 flex items-center justify-center text-4xl font-extrabold text-white/10">
             {name.charAt(0)}
           </span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- static screenshot, no optimization needed */}
+          <img
+            src={image}
+            alt={`${name} preview`}
+            loading="lazy"
+            className="absolute inset-0 z-[1] h-full w-full object-cover"
+          />
           <div
             className="proj-overlay absolute inset-0 z-[2] opacity-0"
             style={{
@@ -127,14 +161,15 @@ export function ProjectRow({
 
         {/* text */}
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <div className="hidden items-center gap-2.5 text-xl font-bold text-white md:flex">
+          <div className="hidden flex-wrap items-center gap-2.5 text-xl font-bold text-white md:flex">
             {name}
             <span className="proj-arrow text-accent-2">↗</span>
             {featuredLabel && <FeaturedTag label={featuredLabel} />}
+            {status && <StatusTag {...status} />}
           </div>
           <p className="text-muted hidden text-sm md:block">{summary}</p>
           <p className="text-muted text-sm leading-relaxed md:hidden">{description}</p>
-          <ul className="flex flex-wrap gap-2 md:hidden">
+          <ul className="mt-1 flex flex-wrap gap-2">
             {stack.map((s) => (
               <li
                 key={s}
@@ -148,6 +183,8 @@ export function ProjectRow({
             {viewLabel} <span className="proj-arrow text-accent-2">↗</span>
           </span>
         </div>
+
+        <ProjectVisual name={name} />
       </a>
     </div>
   );

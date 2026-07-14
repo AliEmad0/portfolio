@@ -5,7 +5,9 @@
     "skills": "المهارات",
     "experience": "الخبرة",
     "contact": "تواصل",
-    "blog": "المدونة"
+    "blog": "المدونة",
+    "menu": "القائمة",
+    "close": "إغلاق"
   },
   "actions": {
     "viewResume": "عرض السيرة الذاتية",
@@ -15,10 +17,16 @@
     "readMore": "اقرأ المزيد"
   },
   "hero": { "greeting": "مرحبًا، أنا", "kicker": "المعرض" },
-  "projects": { "eyebrow": "أعمال مختارة", "featured": "مميّز" },
+  "projects": {
+    "eyebrow": "أعمال مختارة",
+    "featured": "مميّز",
+    "status": { "live": "مباشر", "wip": "قيد التطوير", "archived": "مؤرشف" }
+  },
   "skills": { "eyebrow": "الأدوات" },
   "experience": { "eyebrow": "المسيرة المهنية", "present": "الآن" },
   "footer": {
+    "availability": "متاح لمشاريع جديدة",
+    "backToTop": "إلى الأعلى",
     "rights": "جميع الحقوق محفوظة."
   },
   "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }

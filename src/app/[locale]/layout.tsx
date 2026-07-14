@@ -42,11 +42,11 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <LenisProvider>
             <CustomCursor />
-            <Header profileName={localized(profile.name, l)} />
+            <Header />
             <PageEntrance>
               <main id="content">{children}</main>
             </PageEntrance>
-            <Footer socials={socials} />
+            <Footer socials={socials} email={profile.email} name={localized(profile.name, l)} />
           </LenisProvider>
         </NextIntlClientProvider>
       </body>
