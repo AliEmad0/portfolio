@@ -4,12 +4,14 @@ import { useEffect, useRef } from 'react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 type Star = {
-  hx: number; // home position
-  hy: number;
   x: number;
   y: number;
-  vx: number;
+  vx: number; // transient velocity from cursor scatter (decays)
   vy: number;
+  ang: number; // drift heading
+  speed: number; // constant drift speed
+  wp: number; // wander phase — slowly curves the heading
+  wps: number; // wander phase speed
   r: number;
   base: number; // base opacity
   tw: number; // twinkle phase
@@ -22,9 +24,11 @@ const COLORS = ['#ffffff', '#ffffff', '#c9c3ff', '#a9f0e6', '#ffd1ec'];
 
 /**
  * Full-app interactive starfield. Small twinkling stars of random sizes drift
- * behind everything; near the pointer they scatter and spring back. Canvas-based
- * for performance; `pointer-events: none` so it never blocks the cursor. Static
- * (no motion, no scatter) under reduced motion.
+ * slowly and endlessly on gently curving random paths, wrapping around the
+ * screen edges so the field never settles. Near the pointer they scatter, then
+ * ease back into their drift. Canvas-based for performance; `pointer-events:
+ * none` so it never blocks the cursor. Static (no motion, no scatter) under
+ * reduced motion.
  */
 export function Starfield() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -52,15 +56,15 @@ export function Starfield() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const count = Math.min(260, Math.round((w * h) / 9000));
       stars = Array.from({ length: count }, () => {
-        const x = Math.random() * w;
-        const y = Math.random() * h;
         return {
-          hx: x,
-          hy: y,
-          x,
-          y,
+          x: Math.random() * w,
+          y: Math.random() * h,
           vx: 0,
           vy: 0,
+          ang: Math.random() * Math.PI * 2, // random heading
+          speed: Math.random() * 0.1 + 0.04, // slow drift, ~2.5–8 px/s
+          wp: Math.random() * Math.PI * 2,
+          wps: Math.random() * 0.006 + 0.002,
           r: Math.random() * 1.3 + 0.3, // small, random sizes
           base: Math.random() * 0.5 + 0.2,
           tw: Math.random() * Math.PI * 2,
@@ -102,6 +106,7 @@ export function Starfield() {
         s.tw += s.tws;
         const alpha = s.base + Math.sin(s.tw) * 0.28;
 
+        // cursor scatter — push away, decays via friction below
         const dx = s.x - mouse.x;
         const dy = s.y - mouse.y;
         const d2 = dx * dx + dy * dy;
@@ -111,13 +116,21 @@ export function Starfield() {
           s.vx += (dx / d) * force;
           s.vy += (dy / d) * force;
         }
-        // spring home + friction
-        s.vx += (s.hx - s.x) * 0.012;
-        s.vy += (s.hy - s.y) * 0.012;
-        s.vx *= 0.85;
-        s.vy *= 0.85;
-        s.x += s.vx;
-        s.y += s.vy;
+        s.vx *= 0.9;
+        s.vy *= 0.9;
+
+        // endless slow drift on a gently curving random heading
+        s.wp += s.wps;
+        s.ang += Math.sin(s.wp) * 0.02;
+        s.x += Math.cos(s.ang) * s.speed + s.vx;
+        s.y += Math.sin(s.ang) * s.speed + s.vy;
+
+        // wrap around edges → infinite field
+        const m = s.r + 1;
+        if (s.x < -m) s.x = w + m;
+        else if (s.x > w + m) s.x = -m;
+        if (s.y < -m) s.y = h + m;
+        else if (s.y > h + m) s.y = -m;
 
         paint(s, alpha);
       }
