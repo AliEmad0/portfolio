@@ -4,7 +4,7 @@ import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { fontLatin, fontArabic } from '@/lib/fonts';
-import { getPortfolio, type Locale } from '@/lib/content';
+import { getPortfolio, localized, type Locale } from '@/lib/content';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { LenisProvider } from '@/animation/LenisProvider';
@@ -42,7 +42,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <LenisProvider>
             <CustomCursor />
-            <Header profileName={profile.name} locale={l} />
+            <Header profileName={localized(profile.name, l)} />
             <PageEntrance>
               <main id="content">{children}</main>
             </PageEntrance>

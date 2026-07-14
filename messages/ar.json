@@ -19,7 +19,6 @@
   "skills": { "eyebrow": "الأدوات" },
   "experience": { "eyebrow": "المسيرة المهنية", "present": "الآن" },
   "footer": {
-    "builtWith": "بُني باستخدام Next.js و GSAP و Motion",
     "rights": "جميع الحقوق محفوظة."
   },
   "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }

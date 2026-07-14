@@ -4,7 +4,7 @@ import portfolio from '../../content/portfolio.json';
 
 const valid = {
   profile: {
-    name: 'Ali Emad',
+    name: { en: 'Ali Emad', ar: 'علي عماد' },
     role: { en: 'Frontend Engineer', ar: 'مهندس واجهات أمامية' },
     tagline: { en: 'I build fast, beautiful web apps.', ar: 'أبني تطبيقات ويب سريعة وجميلة.' },
     location: { en: 'Egypt', ar: 'مصر' },

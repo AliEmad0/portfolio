@@ -19,7 +19,6 @@
   "skills": { "eyebrow": "Toolkit" },
   "experience": { "eyebrow": "Career journey", "present": "Present" },
   "footer": {
-    "builtWith": "Built with Next.js, GSAP & Motion",
     "rights": "All rights reserved."
   },
   "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }

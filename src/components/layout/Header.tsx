@@ -1,15 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { LocaleSwitcher } from './LocaleSwitcher';
 import { Nav, type NavItem } from './Nav';
 
-export async function Header({
-  profileName,
-  locale,
-}: {
-  profileName: string;
-  locale: 'en' | 'ar';
-}) {
+export async function Header({ profileName }: { profileName: string }) {
   const t = await getTranslations('nav');
   const sections = ['about', 'projects', 'skills', 'experience', 'contact'] as const;
   const items: NavItem[] = sections.map((s) => ({ id: s, label: t(s) }));
@@ -20,7 +13,9 @@ export async function Header({
         {profileName}
       </Link>
       <Nav items={items} />
-      <LocaleSwitcher currentLocale={locale} />
+      {/* Language switcher hidden per request. To restore: import { LocaleSwitcher }
+          from './LocaleSwitcher', take a `locale` prop, and render
+          <LocaleSwitcher currentLocale={locale} /> here. */}
     </header>
   );
 }

@@ -4,7 +4,8 @@ import { getPortfolio, localized, getFeaturedProjects } from '@/lib/content';
 describe('content loader', () => {
   it('returns validated, typed portfolio data', () => {
     const p = getPortfolio();
-    expect(p.profile.name).toBe('Ali Emad');
+    expect(p.profile.name.en).toBe('Ali Emad');
+    expect(p.profile.name.ar).toBe('علي عماد');
   });
 
   it('localized() picks the right language and falls back to en', () => {

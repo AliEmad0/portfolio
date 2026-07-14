@@ -1,6 +1,6 @@
 {
   "profile": {
-    "name": "Ali Emad",
+    "name": { "en": "Ali Emad", "ar": "علي عماد" },
     "role": { "en": "Senior Front-End Developer", "ar": "مطوّر واجهات أمامية أول" },
     "tagline": {
       "en": "Specialized in engineering immersive, accessible, and ultra-fast web applications that feel alive.",

@@ -39,6 +39,11 @@ export function Hero({ name, role, tagline, tags, socials }: HeroProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const tiltRef = useRef<HTMLDivElement>(null);
 
+  // The name cascades one animated unit at a time. Latin splits per character;
+  // Arabic is cursive, so per-character spans would break letter-joining — split
+  // it per word instead (whitespace kept as its own unit via the capture group).
+  const nameUnits = /[؀-ۿ]/.test(name) ? name.split(/(\s+)/) : [...name];
+
   // Entrance timeline — leak-free via useGSAP scope; skipped under reduced motion.
   useGSAP(
     () => {
@@ -126,9 +131,9 @@ export function Hero({ name, role, tagline, tags, socials }: HeroProps) {
             className="m-0 flex flex-wrap text-5xl leading-[0.98] font-bold tracking-tight text-white sm:text-7xl"
             style={{ transform: 'translateZ(46px)' }}
           >
-            {[...name].map((ch, i) => (
+            {nameUnits.map((unit, i) => (
               <span key={i} data-letter className="inline-block whitespace-pre">
-                {ch === ' ' ? ' ' : ch}
+                {unit.trim() === '' ? '\u00A0' : unit}
               </span>
             ))}
           </h1>

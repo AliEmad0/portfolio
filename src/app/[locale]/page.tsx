@@ -21,7 +21,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   return (
     <>
       <Hero
-        name={profile.name}
+        name={localized(profile.name, l)}
         role={localized(profile.role, l)}
         tagline={localized(profile.tagline, l)}
         tags={tags}

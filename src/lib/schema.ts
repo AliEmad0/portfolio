@@ -51,7 +51,7 @@ const aboutSchema = z.object({
 
 export const portfolioSchema = z.object({
   profile: z.object({
-    name: z.string().min(1),
+    name: localizedString,
     role: localizedString,
     tagline: localizedString,
     location: localizedString,
