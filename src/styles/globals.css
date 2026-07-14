@@ -28,6 +28,14 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Interactive galaxy starfield — behind everything, never blocks the pointer */
+.starfield {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
 /* Lenis smooth scroll */
 html.lenis,
 html.lenis body {

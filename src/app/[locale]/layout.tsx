@@ -10,6 +10,7 @@ import { Footer } from '@/components/layout/Footer';
 import { LenisProvider } from '@/animation/LenisProvider';
 import { PageEntrance } from '@/animation/PageEntrance';
 import { CustomCursor } from '@/animation/CustomCursor';
+import { Starfield } from '@/animation/Starfield';
 import '@/styles/globals.css';
 
 export function generateStaticParams() {
@@ -39,6 +40,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={dir} className={`${fontLatin.variable} ${fontArabic.variable}`}>
       <body className="bg-background text-foreground min-h-dvh antialiased">
+        <Starfield />
         <NextIntlClientProvider>
           <LenisProvider>
             <CustomCursor />
