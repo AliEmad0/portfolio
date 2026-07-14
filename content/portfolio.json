@@ -1,13 +1,13 @@
 {
   "profile": {
     "name": "Ali Emad",
-    "role": { "en": "Frontend Engineer", "ar": "مهندس واجهات أمامية" },
+    "role": { "en": "Senior Front-End Developer", "ar": "مطوّر واجهات أمامية أول" },
     "tagline": {
       "en": "Specialized in engineering immersive, accessible, and ultra-fast web applications that feel alive.",
       "ar": "متخصّص في هندسة تطبيقات ويب غامرة وسهلة الوصول وفائقة السرعة تنبض بالحياة."
     },
-    "location": { "en": "Egypt", "ar": "مصر" },
-    "email": "sonnythedeveloper@gmail.com",
+    "location": { "en": "Cairo, Egypt", "ar": "القاهرة، مصر" },
+    "email": "aliemademad02@gmail.com",
     "resumeUrl": "/resume.pdf"
   },
   "socials": [
@@ -36,11 +36,14 @@
       },
       {
         "label": { "en": "Location", "ar": "الموقع" },
-        "value": { "en": "Egypt · open to remote", "ar": "مصر · متاح للعمل عن بُعد" }
+        "value": { "en": "Cairo, Egypt · open to remote", "ar": "القاهرة، مصر · متاح للعمل عن بُعد" }
       },
       {
         "label": { "en": "Languages", "ar": "اللغات" },
-        "value": { "en": "English · Arabic", "ar": "الإنجليزية · العربية" }
+        "value": {
+          "en": "Arabic (Native) · English (Professional)",
+          "ar": "العربية (لغة أم) · الإنجليزية (احترافية)"
+        }
       },
       {
         "label": { "en": "Status", "ar": "الحالة" },
@@ -50,16 +53,32 @@
   },
   "skills": [
     {
-      "category": { "en": "Frontend", "ar": "الواجهة الأمامية" },
-      "items": ["React", "Next.js", "TypeScript", "Tailwind CSS"]
+      "category": { "en": "Core", "ar": "الأساسيات" },
+      "items": ["TypeScript", "JavaScript (ES6+)", "HTML5", "CSS3"]
     },
     {
-      "category": { "en": "Animation", "ar": "الحركة" },
-      "items": ["GSAP", "Framer Motion", "Lenis"]
+      "category": { "en": "Frameworks", "ar": "أطر العمل" },
+      "items": ["React", "Next.js (App Router)", "Node.js"]
     },
     {
-      "category": { "en": "Tooling & Quality", "ar": "الأدوات والجودة" },
-      "items": ["Vitest", "Playwright", "ESLint", "pnpm"]
+      "category": { "en": "Styling & UI", "ar": "التنسيق والواجهة" },
+      "items": ["Tailwind CSS", "Shadcn UI", "Chakra UI", "Responsive design", "RTL / i18n"]
+    },
+    {
+      "category": { "en": "Motion", "ar": "الحركة" },
+      "items": ["GSAP", "Framer Motion", "View Transitions API", "Lenis"]
+    },
+    {
+      "category": { "en": "Testing & Quality", "ar": "الاختبار والجودة" },
+      "items": ["Vitest", "Playwright", "Testing Library", "CI/CD"]
+    },
+    {
+      "category": { "en": "Data & APIs", "ar": "البيانات وواجهات البرمجة" },
+      "items": ["GraphQL", "REST", "Zod", "TanStack Query"]
+    },
+    {
+      "category": { "en": "Tools", "ar": "الأدوات" },
+      "items": ["Figma", "Git / GitHub Actions", "Vercel", "Sentry", "ESLint", "pnpm"]
     }
   ],
   "projects": [
