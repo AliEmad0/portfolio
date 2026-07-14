@@ -13,7 +13,7 @@ export async function Footer({ socials }: { socials: { label: string; url: strin
               href={s.url}
               target="_blank"
               rel="noreferrer"
-              className="hover:text-foreground"
+              className="nav-link hover:text-foreground"
             >
               {s.label}
             </a>

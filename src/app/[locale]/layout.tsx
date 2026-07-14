@@ -7,7 +7,9 @@ import { fontLatin, fontArabic } from '@/lib/fonts';
 import { getPortfolio, type Locale } from '@/lib/content';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { SmoothScroll } from '@/animation/SmoothScroll';
+import { LenisProvider } from '@/animation/LenisProvider';
+import { PageEntrance } from '@/animation/PageEntrance';
+import { CustomCursor } from '@/animation/CustomCursor';
 import '@/styles/globals.css';
 
 export function generateStaticParams() {
@@ -15,8 +17,8 @@ export function generateStaticParams() {
 }
 
 export const metadata: Metadata = {
-  title: 'Ali Emad — Frontend Engineer',
-  description: 'Portfolio of Ali Emad, frontend engineer.',
+  title: 'Ali Emad — Senior Front-End Developer',
+  description: 'Portfolio of Ali Emad, senior front-end developer.',
 };
 
 export default async function LocaleLayout({
@@ -38,11 +40,14 @@ export default async function LocaleLayout({
     <html lang={locale} dir={dir} className={`${fontLatin.variable} ${fontArabic.variable}`}>
       <body className="bg-background text-foreground min-h-dvh antialiased">
         <NextIntlClientProvider>
-          <SmoothScroll>
+          <LenisProvider>
+            <CustomCursor />
             <Header profileName={profile.name} locale={l} />
-            <main id="content">{children}</main>
+            <PageEntrance>
+              <main id="content">{children}</main>
+            </PageEntrance>
             <Footer socials={socials} />
-          </SmoothScroll>
+          </LenisProvider>
         </NextIntlClientProvider>
       </body>
     </html>

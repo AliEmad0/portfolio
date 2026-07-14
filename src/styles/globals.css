@@ -144,6 +144,17 @@ html.lenis body {
 .is-live .proj-card {
   animation: proj-beat 2.6s ease-in-out infinite;
 }
+/* Hover: pause the attention beat and lift with an accent border + glow */
+.proj-card {
+  transition:
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+}
+.proj-card:hover {
+  animation-play-state: paused;
+  border-color: var(--color-accent);
+  box-shadow: 0 16px 48px -18px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
 .is-live .proj-wash {
   animation: proj-wash 2.6s ease-in-out infinite;
 }
@@ -207,6 +218,64 @@ html.lenis body {
   animation: ghost-underglow 3.6s ease-in-out infinite;
 }
 
+/* Locale-switch crossfade (View Transitions API) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animated link underline — grows from the inline-start; RTL-correct.
+   Persists while [data-active="true"]. */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: -3px;
+  height: 1.5px;
+  width: 100%;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: inline-start;
+  transition: transform 0.28s ease;
+}
+[dir='rtl'] .nav-link::after {
+  transform-origin: right;
+}
+.nav-link:hover::after,
+.nav-link:focus-visible::after,
+.nav-link[data-active='true']::after {
+  transform: scaleX(1);
+}
+
+/* Unified press + focus states */
+a,
+button {
+  transition:
+    transform 0.15s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+a:active,
+button:active {
+  transform: scale(0.97);
+}
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Custom cursor: hide the native cursor only while it is active */
+body.has-custom-cursor,
+body.has-custom-cursor * {
+  cursor: none !important;
+}
+
 /* Global reduced-motion safety net */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -224,5 +293,9 @@ html.lenis body {
   }
   .proj-curtain {
     display: none !important;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }

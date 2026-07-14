@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useLocaleDir } from '@/hooks/useLocaleDir';
+import { Magnetic } from '@/animation/Magnetic';
 
 export type HeroSocial = { label: string; url: string; icon: string };
 
@@ -172,14 +173,18 @@ export function Hero({ name, role, tagline, tags, socials }: HeroProps) {
             className="mt-6 flex gap-3"
             style={{ transform: 'translateZ(34px)' }}
           >
-            <a
-              href="#projects"
-              className="hero-ring bg-accent rounded-xl px-5 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
-            >
-              {t('actions.viewWork')}
-            </a>
+            <Magnetic strength={0.35}>
+              <a
+                href="#projects"
+                data-cursor
+                className="hero-ring bg-accent block rounded-xl px-5 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
+              >
+                {t('actions.viewWork')}
+              </a>
+            </Magnetic>
             <a
               href="#contact"
+              data-cursor
               className="hover:border-accent rounded-xl border border-[#3a3a48] px-5 py-3 text-sm font-semibold text-[#cfcfe0] transition-colors"
             >
               {t('actions.getInTouch')}
