@@ -579,6 +579,94 @@ body.has-custom-cursor * {
   }
 }
 
+/* ===== Brand / Logo (concept #21) ===== */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.62em;
+  font-family: var(--font-latin), ui-sans-serif, system-ui, sans-serif;
+  line-height: 1;
+  white-space: nowrap;
+}
+.logo-mark {
+  display: grid;
+  place-items: center;
+  width: 2.35em;
+  height: 2.35em;
+  border-radius: 0.62em;
+  background: #0b0b11;
+  border: 1px solid var(--color-border);
+  box-shadow: inset 0 1px 0 #ffffff0d;
+}
+.logo-ae {
+  font-weight: 800;
+  font-size: 1.18em;
+  letter-spacing: -0.07em;
+  background: linear-gradient(
+    120deg,
+    var(--color-accent),
+    var(--color-accent-2) 52%,
+    var(--color-accent-3)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.logo-divider {
+  width: 1px;
+  height: 2.1em;
+  background: var(--color-border);
+}
+.logo-words {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28em;
+  text-align: start;
+}
+.logo-name {
+  font-weight: 600;
+  font-size: 0.92em;
+  letter-spacing: 0.06em;
+  color: var(--color-foreground);
+}
+.logo-sub {
+  font-weight: 500;
+  font-size: 0.52em;
+  letter-spacing: 0.42em;
+  color: var(--color-muted);
+}
+
+/* Fixed brand anchor, top-left (free corner) */
+.brand-mark {
+  position: fixed;
+  top: 18px;
+  inset-inline-start: 18px;
+  z-index: 50;
+  font-size: 15px;
+  border-radius: 0.62em;
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease;
+}
+.brand-mark .logo-mark {
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.brand-mark:hover {
+  transform: translateY(-1px);
+}
+.brand-mark:hover .logo-mark {
+  border-color: color-mix(in srgb, var(--color-accent) 60%, var(--color-border));
+  box-shadow:
+    inset 0 1px 0 #ffffff0d,
+    0 0 22px -6px color-mix(in srgb, var(--color-accent) 70%, transparent);
+}
+.brand-mark:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
 /* Global reduced-motion safety net */
 @media (prefers-reduced-motion: reduce) {
   html {

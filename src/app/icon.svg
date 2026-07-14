@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c5cff"/>
+      <stop offset="0.52" stop-color="#43e6d0"/>
+      <stop offset="1" stop-color="#ff7ac2"/>
+    </linearGradient>
+    <clipPath id="tileclip"><rect x="14" y="14" width="484" height="484" rx="120"/></clipPath>
+  </defs>
+  <g clip-path="url(#tileclip)"><rect x="14" y="14" width="484" height="484" rx="120" fill="#0b0b11" stroke="#26263050" stroke-width="3"/><circle cx="150" cy="120" r="240" fill="#7c5cff" opacity="0.12"/>
+                <circle cx="400" cy="440" r="220" fill="#43e6d0" opacity="0.10"/></g><rect x="14" y="14" width="484" height="484" rx="120" fill="#0b0b11" stroke="#26263050" stroke-width="3"/>
+  <g transform="translate(45.86,374.00) scale(1.0776)">
+    <path d="M58.200 0L2.400 0L72.600-219L162-219L234.600 0L177 0L120.600-180L136.500-174L96.900-174L113.100-180L58.200 0M176.400-50.700L59.700-50.700L76.500-96.300L159.600-96.300L176.400-50.700M301.200 0L247.200 0L247.200-219L301.200-219L301.200 0M387.600 0L295.200 0L295.200-45.600L387.600-45.600L387.600 0M381.300-88.500L295.200-88.500L295.200-134.100L381.300-134.100L381.300-88.500M385.800-173.400L295.200-173.400L295.200-219L385.800-219" fill="url(#g)"/>
+  </g>
+</svg>

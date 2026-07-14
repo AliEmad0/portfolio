@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { BrandMark } from '@/components/brand/BrandMark';
 import { EdgeText } from './navs/EdgeText';
 import { RadialNav, type NavItem } from './RadialNav';
 
@@ -7,11 +8,12 @@ export async function Header() {
   const sections = ['about', 'projects', 'skills', 'experience', 'contact'] as const;
   const items: NavItem[] = sections.map((s) => ({ id: s, label: t(s) }));
 
-  // `display: contents` — no header box; each nav positions itself fixed.
-  // Desktop: vertical edge-text rail. Mobile: the radial menu (edge text is
-  // cramped on small screens).
+  // `display: contents` — no header box; each element positions itself fixed.
+  // Brand mark: free top-left corner. Desktop nav: vertical edge-text rail
+  // (right-center). Mobile nav: the radial menu, top-right.
   return (
     <header className="contents">
+      <BrandMark label={t('home')} />
       <div className="hidden md:block">
         <EdgeText items={items} />
       </div>

@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { Logo } from '@/components/brand/Logo';
 import { BackToTop } from './BackToTop';
 
 type FooterProps = {
@@ -26,6 +27,10 @@ export async function Footer({ socials, email, name }: FooterProps) {
         <a href={`mailto:${email}`} className="giant-email" dir="ltr">
           {email}
         </a>
+      </div>
+
+      <div className="flex justify-center px-6 pb-12" dir="ltr">
+        <Logo variant="full" className="text-[20px]" />
       </div>
 
       <div className="text-muted mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 pb-10 text-sm">
