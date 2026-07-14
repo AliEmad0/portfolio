@@ -30,8 +30,13 @@ export async function generateMetadata({
     'Portfolio of Ali Emad — senior front-end developer building fast, polished, accessible web interfaces with React, Next.js, and TypeScript.';
   const path = `/${locale}`;
 
-  // opengraph-image.png / twitter-image.png and the icon set are wired
-  // automatically from src/app file conventions.
+  // OG/Twitter image is served from /public (public/og.png) and referenced
+  // explicitly below. A static opengraph-image file under the dynamic
+  // [locale] segment trips a Next invariant during Vercel's build
+  // ("failed to find source route /[locale]/opengraph-image.png"), so we
+  // avoid the file-convention route here. The icon set (icon.svg,
+  // favicon.ico, apple-icon.png) lives at the app root and is fine.
+  const ogImage = { url: '/og.png', width: 1200, height: 630, alt: title };
   return {
     metadataBase: new URL(siteUrl),
     title: { default: title, template: '%s · Ali Emad' },
@@ -47,8 +52,9 @@ export async function generateMetadata({
       description,
       url: path,
       locale: locale === 'ar' ? 'ar_EG' : 'en_US',
+      images: [ogImage],
     },
-    twitter: { card: 'summary_large_image', title, description },
+    twitter: { card: 'summary_large_image', title, description, images: [ogImage] },
   };
 }
 
