@@ -30,5 +30,21 @@
     "backToTop": "Back to top",
     "rights": "All rights reserved."
   },
+  "contact": {
+    "eyebrow": "Contact",
+    "heading": "Let's build something",
+    "subheading": "Have a role, a project, or just a question? Send a message and I'll get back to you.",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "you@example.com",
+    "messagePlaceholder": "Tell me a little about it…",
+    "send": "Send message",
+    "sending": "Sending…",
+    "success": "Thanks — your message is on its way. I'll reply soon.",
+    "error": "Something went wrong. Please email me directly."
+  },
+  "a11y": { "skipToContent": "Skip to content" },
   "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }
 }

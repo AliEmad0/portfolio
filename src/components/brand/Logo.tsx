@@ -9,12 +9,23 @@ type LogoVariant = 'full' | 'mark' | 'wordmark';
 export function Logo({
   variant = 'full',
   className = '',
+  decorative = false,
+  label = 'Ali Emad — Portfolio',
 }: {
   variant?: LogoVariant;
   className?: string;
+  /** Hide the logo from the a11y tree (for purely decorative repeats). */
+  decorative?: boolean;
+  /** Accessible name when the logo IS the label — e.g. a home button wrapping
+   *  only the mark. Exposed as a single `role="img"` name so the "AE" glyph is
+   *  treated as an image, not competing visible text. */
+  label?: string;
 }) {
+  const a11y = decorative
+    ? ({ 'aria-hidden': true } as const)
+    : ({ role: 'img', 'aria-label': label } as const);
   return (
-    <span className={`logo ${className}`} role="img" aria-label="Ali Emad — Portfolio">
+    <span className={`logo ${className}`} {...a11y}>
       {variant !== 'wordmark' && (
         <span className="logo-mark" aria-hidden>
           <span className="logo-ae">AE</span>

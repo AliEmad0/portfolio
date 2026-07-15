@@ -9,16 +9,17 @@ type FooterProps = {
 };
 
 /**
- * Contact-forward footer: a full-width availability strip, a giant email that
- * fills with the accent gradient on hover, and a back-to-top control. Carries
- * `id="contact"` so it is the destination for the nav's Contact link.
+ * Sign-off footer: a full-width availability strip, a giant email that fills
+ * with the accent gradient on hover, the brand lockup, and a back-to-top
+ * control. (The nav's Contact link targets the dedicated `#contact` form
+ * section that sits just above this footer.)
  */
 export async function Footer({ socials, email, name }: FooterProps) {
   const t = await getTranslations('footer');
   const year = new Date().getFullYear();
 
   return (
-    <footer id="contact" className="border-border mt-24 border-t">
+    <footer className="border-border mt-24 border-t">
       <a href={`mailto:${email}`} className="avail-strip">
         {t('availability')} <span aria-hidden>→</span>
       </a>
@@ -33,8 +34,8 @@ export async function Footer({ socials, email, name }: FooterProps) {
         <Logo variant="full" className="text-[20px]" />
       </div>
 
-      <div className="text-muted mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 pb-10 text-sm">
-        <div className="flex gap-4">
+      <div className="text-muted mx-auto grid max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 pb-10 text-sm">
+        <div className="flex gap-4 justify-self-start">
           {socials.map((s) => (
             <a
               key={s.url}
@@ -47,10 +48,12 @@ export async function Footer({ socials, email, name }: FooterProps) {
             </a>
           ))}
         </div>
-        <span className="hidden sm:inline">
+        <span className="hidden justify-self-center whitespace-nowrap sm:block">
           © {year} {name}
         </span>
-        <BackToTop label={t('backToTop')} />
+        <div className="justify-self-end">
+          <BackToTop label={t('backToTop')} />
+        </div>
       </div>
     </footer>
   );

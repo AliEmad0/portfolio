@@ -30,5 +30,21 @@
     "backToTop": "إلى الأعلى",
     "rights": "جميع الحقوق محفوظة."
   },
+  "contact": {
+    "eyebrow": "تواصل",
+    "heading": "لنصنع شيئًا معًا",
+    "subheading": "لديك وظيفة أو مشروع أو سؤال؟ أرسل رسالة وسأعود إليك قريبًا.",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "message": "الرسالة",
+    "namePlaceholder": "اسمك",
+    "emailPlaceholder": "you@example.com",
+    "messagePlaceholder": "أخبرني قليلًا عن الأمر…",
+    "send": "إرسال الرسالة",
+    "sending": "جارٍ الإرسال…",
+    "success": "شكرًا — رسالتك في طريقها إليّ. سأرد قريبًا.",
+    "error": "حدث خطأ ما. يرجى مراسلتي مباشرة."
+  },
+  "a11y": { "skipToContent": "تخطَّ إلى المحتوى" },
   "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }
 }

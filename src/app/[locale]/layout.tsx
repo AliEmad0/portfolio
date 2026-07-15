@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
+import { getTranslations } from 'next-intl/server';
 import { fontLatin, fontArabic } from '@/lib/fonts';
+import { siteUrl } from '@/lib/site';
 import { getPortfolio, localized, type Locale } from '@/lib/content';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -16,8 +18,6 @@ import '@/styles/globals.css';
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ali-emad-portfolio.vercel.app';
 
 export async function generateMetadata({
   params,
@@ -72,10 +72,14 @@ export default async function LocaleLayout({
   const l = locale as Locale;
   const dir = l === 'ar' ? 'rtl' : 'ltr';
   const { profile, socials } = getPortfolio();
+  const t = await getTranslations('a11y');
 
   return (
     <html lang={locale} dir={dir} className={`${fontLatin.variable} ${fontArabic.variable}`}>
       <body className="bg-background text-foreground min-h-dvh antialiased">
+        <a href="#content" className="skip-link">
+          {t('skipToContent')}
+        </a>
         <Starfield />
         <NextIntlClientProvider>
           <LenisProvider>
