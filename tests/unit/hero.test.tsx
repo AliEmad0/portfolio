@@ -20,6 +20,7 @@ function renderHero() {
         tagline="A distinctive tagline."
         tags={['React', 'GSAP']}
         socials={socials}
+        resumeUrl="/resume.pdf"
       />
     </NextIntlClientProvider>,
   );
@@ -42,6 +43,10 @@ describe('Hero', () => {
     renderHero();
     expect(screen.getByRole('link', { name: 'View work' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Get in touch' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View résumé' })).toHaveAttribute(
+      'href',
+      '/resume.pdf',
+    );
     expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute(
       'href',
       'https://github.com/AliEmad0',

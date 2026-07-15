@@ -27,7 +27,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const title = 'Ali Emad — Senior Front-End Developer';
   const description =
-    'Portfolio of Ali Emad — senior front-end developer building fast, polished, accessible web interfaces with React, Next.js, and TypeScript.';
+    'Ali Emad — senior front-end developer crafting fast, accessible web interfaces with React, Next.js & TypeScript.';
   const path = `/${locale}`;
 
   // OG/Twitter image is served from /public (public/og.png) and referenced

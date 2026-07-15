@@ -16,6 +16,7 @@ type HeroProps = {
   tagline: string;
   tags: string[];
   socials: HeroSocial[];
+  resumeUrl: string;
 };
 
 const ICONS: Record<string, ReactNode> = {
@@ -30,7 +31,7 @@ const ICONS: Record<string, ReactNode> = {
   ),
 };
 
-export function Hero({ name, role, tagline, tags, socials }: HeroProps) {
+export function Hero({ name, role, tagline, tags, socials, resumeUrl }: HeroProps) {
   const t = useTranslations();
   const { sign } = useLocaleDir();
   const reduced = useReducedMotion();
@@ -193,6 +194,28 @@ export function Hero({ name, role, tagline, tags, socials }: HeroProps) {
               className="hover:border-accent rounded-xl border border-[#3a3a48] px-5 py-3 text-sm font-semibold text-[#cfcfe0] transition-colors"
             >
               {t('actions.getInTouch')}
+            </a>
+            <a
+              href={resumeUrl}
+              target="_blank"
+              rel="noreferrer"
+              data-cursor
+              className="hover:border-accent inline-flex items-center gap-2 rounded-xl border border-[#3a3a48] px-5 py-3 text-sm font-semibold text-[#cfcfe0] transition-colors"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" />
+              </svg>
+              {t('actions.viewResume')}
             </a>
           </div>
 

@@ -26,6 +26,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         tagline={localized(profile.tagline, l)}
         tags={tags}
         socials={heroSocials}
+        resumeUrl={profile.resumeUrl}
       />
       <About locale={l} />
       <Projects locale={l} />
