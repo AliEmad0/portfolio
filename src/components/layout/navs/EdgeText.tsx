@@ -15,7 +15,7 @@ export function EdgeText({ items }: { items: NavItem[] }) {
       {items.map((it) => (
         <a
           key={it.id}
-          href={`#${it.id}`}
+          href={it.href ?? `#${it.id}`}
           onClick={nav(it.id)}
           data-active={active === it.id}
           className="edge-link"

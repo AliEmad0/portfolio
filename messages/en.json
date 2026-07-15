@@ -45,6 +45,19 @@
     "success": "Thanks — your message is on its way. I'll reply soon.",
     "error": "Something went wrong. Please email me directly."
   },
+  "blog": {
+    "title": "Writing",
+    "description": "Notes from building things — animation, i18n, and the bugs that only show up in production.",
+    "explorer": "Posts",
+    "filter": "Filter posts…",
+    "back": "Back to posts",
+    "posts": "posts",
+    "latest": "Latest",
+    "tags": "Tags",
+    "close": "Close tab",
+    "noMatches": "No posts match that filter.",
+    "hint": "Select a post from the explorer to start reading."
+  },
   "a11y": { "skipToContent": "Skip to content" },
   "locale": { "switchToArabic": "العربية", "switchToEnglish": "English" }
 }

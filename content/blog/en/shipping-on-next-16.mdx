@@ -1,0 +1,58 @@
+---
+title: 'Shipping on Next 16'
+description: 'Turbopack does not run middleware in dev, static OG images break under dynamic segments, and other things that cost me an afternoon each.'
+date: '2026-04-28'
+tags: ['next', 'vercel']
+---
+
+Three things on Next 16 cost me an afternoon apiece. All three were one sentence in a doc I hadn't read.
+
+## Turbopack does not run middleware in dev
+
+The site redirects `/` to `/en` in middleware. In `next dev`, `/` returned a 404 — but only locally. Production was fine.
+
+Turbopack's dev server doesn't run middleware. Any i18n or routing logic living there is invisible until you build:
+
+```bash
+next build && next start -p 3112
+curl -sD - localhost:3112/
+```
+
+If routing changes can't be verified in dev, verify them in a production build. Always.
+
+## Static OG images break under a dynamic segment
+
+I put `opengraph-image.png` in `app/[locale]/`. It built clean locally and in CI, then failed the Vercel deploy:
+
+```
+Error: Invariant: failed to find source route /[locale]/opengraph-image.png
+```
+
+The difference was Vercel restoring a build cache from before those routes existed. A static metadata image under a dynamic segment is fragile in that situation.
+
+The fix was to stop using the file convention there — serve the card from `public/og.png` and reference it explicitly:
+
+```ts
+const ogImage = { url: '/og.png', width: 1200, height: 630, alt: title };
+return {
+  metadataBase: new URL(siteUrl),
+  openGraph: { images: [ogImage] },
+  twitter: { card: 'summary_large_image', images: [ogImage] },
+};
+```
+
+With `metadataBase` set, the relative path resolves to an absolute URL — and the invariant can't come back.
+
+## Root-level OG images don't reach a locale route
+
+Worth knowing before you "fix" the above by moving the file up: an `opengraph-image.png` at the app root does **not** attach to `/[locale]` routes. The tags just silently vanish. No error, no warning — you only notice when a link preview comes back blank.
+
+Check the built HTML, not your assumptions:
+
+```bash
+curl -s localhost:3112/en | grep 'og:image'
+```
+
+## The pattern
+
+Every one of these passed locally and passed CI. The failure only appeared with a warm cache, a real domain, or a production build. Trust the deploy, not the dev server.

@@ -5,7 +5,13 @@ import { useLenis } from '@/animation/LenisProvider';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useLocaleDir } from '@/hooks/useLocaleDir';
 
-export type NavItem = { id: string; label: string };
+/**
+ * `href` lets an item point anywhere (a locale-absolute `/en#about`, or a real
+ * page like `/en/blog`). When the `id` exists on the current page the click is
+ * intercepted and smooth-scrolled; otherwise the href navigates normally — so
+ * the same rail works on the homepage and on the blog.
+ */
+export type NavItem = { id: string; label: string; href?: string };
 
 /**
  * Radial menu: a toggle whose section links bloom outward in a curved fan.
@@ -88,7 +94,7 @@ export function RadialNav({
           return (
             <li key={item.id} className="radial-item" style={style}>
               <a
-                href={`#${item.id}`}
+                href={item.href ?? `#${item.id}`}
                 onClick={go(item.id)}
                 data-active={active === item.id}
                 tabIndex={open ? 0 : -1}

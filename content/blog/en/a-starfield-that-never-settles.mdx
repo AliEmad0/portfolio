@@ -1,0 +1,54 @@
+---
+title: 'A starfield that never settles'
+description: '260 stars on curving random headings, wrapping at the edges, scattering under the cursor — and why the first version was wrong.'
+date: '2026-07-15'
+tags: ['canvas', 'animation']
+---
+
+The first version sprang home.
+
+Every star had an anchor — a `hx, hy` it belonged to. Push them with the cursor and they scattered beautifully, then a spring pulled every one back to exactly where it started. Within a second the field resolved to the same quiet lattice it always had.
+
+It looked designed. That was the problem. A galaxy that returns to its assigned seats isn't a galaxy, it's a seating chart.
+
+## Drift instead of anchors
+
+The fix was to delete the concept of home. Each star now carries a heading and a slow speed, and a wander phase nudges that heading a fraction every frame:
+
+```js
+s.wp += s.wps;               // wander phase
+s.ang += Math.sin(s.wp) * 0.02;  // steer, gently
+s.x += Math.cos(s.ang) * s.speed + s.vx;
+s.y += Math.sin(s.ang) * s.speed + s.vy;
+```
+
+`Math.sin` of a slowly advancing phase gives a smooth, signed, bounded curve — so headings meander rather than jitter. No randomness per frame, no straight lines.
+
+## Wrapping makes it infinite
+
+Drift alone empties the screen. Wrapping fixes it:
+
+```js
+const m = s.r + 1;
+if (s.x < -m) s.x = W + m;
+else if (s.x > W + m) s.x = -m;
+```
+
+A star that leaves the left edge re-enters on the right. Density stays constant, the field never repeats, and it never settles.
+
+## The cursor still scatters
+
+The interaction survived the rewrite untouched — stars near the pointer get pushed away, then friction bleeds the impulse off and they ease back into their drift instead of snapping to an anchor:
+
+```js
+s.vx *= 0.9;
+s.vy *= 0.9;
+```
+
+That one line is the whole difference between "scattered and returned" and "scattered and moved on".
+
+## What it cost
+
+Nothing measurable. 260 stars, one canvas, `pointer-events: none`, paused when the tab is hidden, and a static render under `prefers-reduced-motion`. Lighthouse still reports 100 for performance.
+
+The lesson wasn't about canvas. It was that "returns to normal" and "alive" are opposites, and I'd been shipping the first while claiming the second.

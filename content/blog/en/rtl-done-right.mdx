@@ -1,0 +1,61 @@
+---
+title: 'RTL, done right'
+description: 'Arabic is cursive. Split a word into per-character spans and you sever the letter joins — plus the logical properties that stop mirroring from being a rewrite.'
+date: '2026-06-02'
+tags: ['i18n', 'css']
+---
+
+Most "RTL support" is a `dir="rtl"` attribute and a hope. Then someone opens the Arabic page and the headline has fallen apart into disconnected letters.
+
+## Arabic is cursive
+
+The hero animates the name one unit at a time. In Latin, a unit is a character — split `"Ali Emad"` into spans, stagger them, done.
+
+Do that in Arabic and you break the language. Arabic letters join, and their shape depends on their neighbours. Wrap each character in its own span and the browser can no longer form the joins: `علي` stops being a word and becomes three orphans.
+
+So the split is language-aware:
+
+```ts
+const nameUnits = /[؀-ۿ]/.test(name)
+  ? name.split(/(\s+)/)  // Arabic: per word, joins intact
+  : [...name];           // Latin: per character
+```
+
+The capture group in the regex keeps the whitespace as its own unit, so the spacing survives the round trip.
+
+## Logical properties, everywhere
+
+The other half is refusing to write `left` or `right` ever again:
+
+```css
+/* never left/right */
+inset-inline-start: 0;
+padding-inline-end: 1rem;
+border-inline-start: 2px solid var(--color-accent);
+```
+
+`inset-inline-start` is "left" in LTR and "right" in RTL, automatically. The brand mark pins itself to the free corner in both directions without a single `[dir='rtl']` override.
+
+Where a physical direction is genuinely physical — a transform origin, a gradient angle — you do need the override:
+
+```css
+[dir='rtl'] .nav-link::after {
+  transform-origin: right;
+}
+```
+
+## Numbers and code stay LTR
+
+Not everything mirrors. An email address, a code block, a version number — these are LTR islands inside RTL prose, and they need saying so:
+
+```html
+<a href="mailto:..." dir="ltr">you@example.com</a>
+```
+
+Without it, punctuation drifts to the wrong end and the address reads as nonsense.
+
+## Test in the mirror
+
+The bugs only appear in mirror mode, so the only way to find them is to actually read the Arabic page — not to squint at it and assume the layout flipped correctly.
+
+Every one of these was a bug I shipped first and found second.
