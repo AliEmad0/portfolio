@@ -381,7 +381,8 @@ body.has-custom-cursor * {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: var(--color-accent);
+  /* Deepened so white text clears WCAG AA (4.5:1) on the strip. */
+  background: color-mix(in srgb, var(--color-accent) 78%, #000);
   color: var(--color-accent-foreground);
   padding: 0.7rem 1rem;
   font-weight: 600;
@@ -665,6 +666,26 @@ body.has-custom-cursor * {
 .brand-mark:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
+}
+
+/* Skip link — visually hidden until keyboard-focused */
+.skip-link {
+  position: fixed;
+  top: 12px;
+  inset-inline-start: 50%;
+  z-index: 100;
+  transform: translate(-50%, -160%);
+  background: var(--color-surface);
+  color: var(--color-foreground);
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+.skip-link:focus {
+  transform: translate(-50%, 0);
 }
 
 /* Global reduced-motion safety net */

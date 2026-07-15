@@ -5,6 +5,7 @@ import { About } from '@/components/sections/About';
 import { Projects } from '@/components/sections/Projects';
 import { Skills } from '@/components/sections/Skills';
 import { Experience } from '@/components/sections/Experience';
+import { Contact } from '@/components/sections/Contact';
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -32,6 +33,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       <Projects locale={l} />
       <Skills locale={l} />
       <Experience locale={l} />
+      <Contact />
     </>
   );
 }

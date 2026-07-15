@@ -16,8 +16,8 @@ export function BrandMark({ label }: { label: string }) {
     else window.scrollTo({ top: 0, behavior: 'auto' });
   };
   return (
-    <button type="button" onClick={toTop} aria-label={label} className="brand-mark">
-      <Logo variant="mark" />
+    <button type="button" onClick={toTop} className="brand-mark">
+      <Logo variant="mark" label={label} />
     </button>
   );
 }
