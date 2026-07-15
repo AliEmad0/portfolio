@@ -15,7 +15,6 @@ import { CustomCursor } from '@/animation/CustomCursor';
 import { Starfield } from '@/animation/Starfield';
 import '@/styles/globals.css';
 import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -94,7 +93,6 @@ export default async function LocaleLayout({
           </LenisProvider>
         </NextIntlClientProvider>
         <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );
