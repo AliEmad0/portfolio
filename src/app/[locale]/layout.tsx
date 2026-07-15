@@ -45,7 +45,11 @@ export async function generateMetadata({
     applicationName: 'Ali Emad — Portfolio',
     authors: [{ name: 'Ali Emad' }],
     creator: 'Ali Emad',
-    alternates: { canonical: path, languages: { en: '/en', ar: '/ar' } },
+    alternates: {
+      canonical: path,
+      languages: { en: '/en', ar: '/ar' },
+      types: { 'application/rss+xml': `${siteUrl}/${locale}/rss.xml` },
+    },
     openGraph: {
       type: 'website',
       siteName: 'Ali Emad — Portfolio',

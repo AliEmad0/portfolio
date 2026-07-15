@@ -6,6 +6,7 @@ import rehypePrettyCode from 'rehype-pretty-code';
 import { setRequestLocale } from 'next-intl/server';
 import { siteUrl } from '@/lib/site';
 import { getPost, getPostBody, getAllPostParams } from '@/lib/blog';
+import { RTL_LOCALES } from './og/route';
 import { Typewriter, twDuration } from '@/components/blog/Typewriter';
 
 export function generateStaticParams() {
@@ -21,6 +22,15 @@ export async function generateMetadata({
   const post = getPost(locale, slug);
   if (!post) return {};
   const path = `/${locale}/blog/${slug}`;
+  // Per-post card from the sibling og/ route handler — referenced explicitly
+  // rather than via the opengraph-image file convention, which breaks under the
+  // dynamic [locale] segment on Vercel (PR #8).
+  //
+  // RTL posts fall back to the brand card: satori can't order Arabic words
+  // (bidi), so a generated card would read backwards. See og/route.tsx.
+  const ogImage = RTL_LOCALES.has(locale)
+    ? { url: `${siteUrl}/og.png`, width: 1200, height: 630, alt: 'Ali Emad — Portfolio' }
+    : { url: `${siteUrl}${path}/og`, width: 1200, height: 630, alt: post.title };
   return {
     title: post.title,
     description: post.description,
@@ -32,8 +42,14 @@ export async function generateMetadata({
       url: `${siteUrl}${path}`,
       publishedTime: post.date,
       tags: post.tags,
+      images: [ogImage],
     },
-    twitter: { card: 'summary_large_image', title: post.title, description: post.description },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.description,
+      images: [ogImage],
+    },
   };
 }
 
