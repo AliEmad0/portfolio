@@ -34,8 +34,11 @@ export async function Footer({ socials, email, name }: FooterProps) {
         <Logo variant="full" className="text-[20px]" />
       </div>
 
-      <div className="text-muted mx-auto grid max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 pb-10 text-sm">
-        <div className="flex gap-4 justify-self-start">
+      {/* Mobile: socials centered above the back-to-top arrow (the © is hidden
+          there, so a 3-col grid would strand the arrow beside dead space).
+          sm+: socials start · © dead-centre · arrow end. */}
+      <div className="text-muted mx-auto flex max-w-5xl flex-col items-center gap-5 px-6 pb-10 text-sm sm:grid sm:grid-cols-[1fr_auto_1fr] sm:gap-4">
+        <div className="flex gap-4 sm:justify-self-start">
           {socials.map((s) => (
             <a
               key={s.url}
@@ -48,10 +51,10 @@ export async function Footer({ socials, email, name }: FooterProps) {
             </a>
           ))}
         </div>
-        <span className="hidden justify-self-center whitespace-nowrap sm:block">
+        <span className="hidden whitespace-nowrap sm:block sm:justify-self-center">
           © {year} {name}
         </span>
-        <div className="justify-self-end">
+        <div className="sm:justify-self-end">
           <BackToTop label={t('backToTop')} />
         </div>
       </div>
