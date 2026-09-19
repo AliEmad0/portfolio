@@ -221,6 +221,52 @@
       "featured": true
     },
     {
+      "slug": "pitchiq-game",
+      "name": "PitchIQ — Game",
+      "summary": {
+        "en": "A deterministic retro football simulation powered by 34 seasons of Premier League data.",
+        "ar": "محاكاة كرة قدم حتمية بطابع كلاسيكي تعتمد على بيانات ٣٤ موسمًا من الدوري الإنجليزي الممتاز."
+      },
+      "description": {
+        "en": "Built inside PitchIQ, the game turns historical player-season data into seven draft modes, era-aware cards, a seeded match engine, and a live tactical pitch. Every match is reproducible and shareable, with English and Arabic commentary generated from localized event keys. The experience runs entirely client-side and is route-split from the encyclopedia.",
+        "ar": "بُنيت اللعبة داخل PitchIQ لتحوّل بيانات اللاعبين في كل موسم إلى سبعة أنماط درافت وبطاقات تراعي اختلاف الحقب ومحرك مباريات ببذرة ثابتة وملعب تكتيكي مباشر. كل مباراة قابلة لإعادة الإنتاج والمشاركة، مع تعليق بالإنجليزية والعربية مولّد من مفاتيح أحداث مترجمة. تعمل التجربة بالكامل على جهاز المستخدم وتُحمّل بشكل منفصل عن صفحات الموسوعة."
+      },
+      "stack": [
+        "Next.js",
+        "TypeScript",
+        "Tailwind CSS",
+        "next-intl",
+        "Vitest"
+      ],
+      "status": "live",
+      "role": {
+        "en": "Solo developer",
+        "ar": "مطوّر منفرد"
+      },
+      "highlights": [
+        {
+          "en": "Seven rule-driven draft modes and 20 formations",
+          "ar": "سبعة أنماط درافت قائمة على القواعد و٢٠ تشكيلة"
+        },
+        {
+          "en": "Seeded deterministic matches with live tactical decisions",
+          "ar": "مباريات حتمية ببذرة ثابتة مع قرارات تكتيكية مباشرة"
+        },
+        {
+          "en": "Era-aware player-season cards with bilingual commentary",
+          "ar": "بطاقات لاعب-موسم تراعي الحقب مع تعليق ثنائي اللغة"
+        }
+      ],
+      "links": [
+        {
+          "label": "Live",
+          "url": "https://pitchiq-pl.vercel.app/game"
+        }
+      ],
+      "image": "/projects/pitchiq-game.png",
+      "featured": true
+    },
+    {
       "slug": "rung",
       "name": "Rung",
       "summary": {
