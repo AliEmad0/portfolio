@@ -182,8 +182,8 @@
         "ar": "موسوعة الدوري الإنجليزي الممتاز تغطي ٣٤ موسمًا."
       },
       "description": {
-        "en": "Standings, fixtures, teams, players, managers, a comparison tool, trivia, and an interactive historic map — with a per-era Time-Machine theme, full English/Arabic RTL localization, and motion.",
-        "ar": "الترتيب والمباريات والفرق واللاعبون والمدربون وأداة مقارنة ومعلومات وخريطة تاريخية تفاعلية — مع ثيم آلة الزمن لكل حقبة وترجمة كاملة للعربية وحركة."
+        "en": "A bilingual Premier League reference covering every season from 1992–93 onward. It combines standings, fixtures, clubs, players, managers, comparisons, trivia, and an interactive historical map in one time-themed experience.",
+        "ar": "مرجع ثنائي اللغة للدوري الإنجليزي الممتاز يغطي كل موسم منذ 1992–93. يجمع الترتيب والمباريات والأندية واللاعبين والمدربين والمقارنات والمعلومات وخريطة تاريخية تفاعلية ضمن تجربة تتغير بصريًا مع كل حقبة."
       },
       "stack": [
         "Next.js",
@@ -228,8 +228,8 @@
         "ar": "منصّة سريعة ومركّزة لإدارة العمل."
       },
       "description": {
-        "en": "Created to preserve a useful work hierarchy while removing interface bloat, lag, and notification noise, with secure workspaces, lists, boards, rich tasks, search, and real-time collaboration.",
-        "ar": "أُنشئت للحفاظ على هيكل عمل عملي مع إزالة ازدحام الواجهة والبطء وضوضاء الإشعارات، وتقديم مساحات عمل آمنة وقوائم ولوحات ومهام غنية وبحث وتعاون لحظي."
+        "en": "A focused work-management platform built for teams that value speed and clarity. It combines secure workspaces, lists, boards, rich tasks, search, and real-time collaboration without unnecessary interface noise.",
+        "ar": "منصّة مركّزة لإدارة العمل صُممت للفرق التي تقدّر السرعة والوضوح. تجمع مساحات العمل الآمنة والقوائم واللوحات والمهام الغنية والبحث والتعاون اللحظي دون ازدحام غير ضروري في الواجهة."
       },
       "stack": [
         "Next.js",
@@ -260,8 +260,8 @@
         "ar": "الموقع التفاعلي الأصلي لوكالة إبداعية متخصّصة في Web3 والميتافيرس."
       },
       "description": {
-        "en": "The first version was created to establish 1UP Nova's brand, services, portfolio, utility, careers, and minting presence in one animated launch experience.",
-        "ar": "أُنشئ الإصدار الأول لتأسيس حضور علامة 1UP Nova وخدماتها وأعمالها ومزاياها ووظائفها وتجربة السك في إطلاق تفاعلي واحد."
+        "en": "The original digital presence for a Web3 and metaverse creative agency. It introduced the agency’s services, portfolio, careers, community utility, and minting experience through an interactive, motion-led website.",
+        "ar": "الحضور الرقمي الأصلي لوكالة إبداعية متخصصة في Web3 والميتافيرس. قدّم خدمات الوكالة وأعمالها ووظائفها ومزايا مجتمعها وتجربة السك عبر موقع تفاعلي تقوده الحركة."
       },
       "stack": [
         "Next.js",
@@ -292,8 +292,8 @@
         "ar": "موقع سينمائي لوكالة Web3 يحوّل أفكار الميتافيرس إلى منتجات رقمية."
       },
       "description": {
-        "en": "The second generation was created to present the agency's services, studio, work, and careers through a richer editorial system and immersive motion-led experience.",
-        "ar": "أُنشئ الجيل الثاني لعرض خدمات الوكالة والاستوديو والأعمال والوظائف عبر نظام محتوى أكثر ثراءً وتجربة غامرة تقودها الحركة."
+        "en": "A redesigned agency platform that presents 1UP Nova’s services, studio, selected work, and career opportunities. The second version uses richer editorial content and cinematic motion to create a more polished brand experience.",
+        "ar": "منصّة مُعاد تصميمها تعرض خدمات 1UP Nova والاستوديو وأبرز الأعمال والفرص الوظيفية. يستخدم الإصدار الثاني محتوى تحريريًا أكثر ثراءً وحركة سينمائية لتقديم تجربة علامة تجارية أكثر صقلًا."
       },
       "stack": [
         "Next.js",
@@ -324,8 +324,8 @@
         "ar": "منصّة اكتشاف عربية للملفات الدقيقة عن الشخصيات العامة الرائجة."
       },
       "description": {
-        "en": "Created to answer “Who is that?” with searchable profiles, profession and country filters, and background information that follows a public figure's story.",
-        "ar": "أُنشئت للإجابة عن سؤال «مين ده؟» عبر ملفات قابلة للبحث وفلاتر حسب المجال والبلد ومعلومات تحكي قصة الشخصية."
+        "en": "An Arabic-first discovery platform for learning about trending public figures. Visitors can search and filter profiles by profession or country, then explore concise background information about each person.",
+        "ar": "منصّة اكتشاف تبدأ بالعربية للتعرّف إلى الشخصيات العامة الرائجة. يمكن للزوار البحث في الملفات وتصفيتها حسب المهنة أو الدولة، ثم قراءة معلومات موجزة عن خلفية كل شخصية."
       },
       "stack": [
         "NestJS",
@@ -356,8 +356,8 @@
         "ar": "معرض اجتماعي للرموز غير القابلة للاستبدال وهواة الجمع والمجموعات والأصول الرقمية."
       },
       "description": {
-        "en": "Created as a free online museum that makes crypto assets easier to discover and lets collectors display NFTs on personalized profiles across multiple chains.",
-        "ar": "أُنشئ كمتحف إلكتروني مجاني يسهّل اكتشاف الأصول الرقمية ويتيح لهواة الجمع عرض رموزهم في ملفات شخصية مخصّصة عبر عدة شبكات."
+        "en": "A social NFT gallery where collectors can organize and present their digital assets. It makes collections easier to discover while giving users personalized profiles that bring together NFTs from multiple blockchains.",
+        "ar": "معرض اجتماعي للرموز غير القابلة للاستبدال يتيح لهواة الجمع تنظيم أصولهم الرقمية وعرضها. يسهّل اكتشاف المجموعات ويوفر ملفات شخصية تجمع الرموز من عدة شبكات بلوك تشين."
       },
       "stack": [
         "Next.js",
@@ -388,8 +388,8 @@
         "ar": "تصوّر سينمائي لعالم ميتافيرس تنافسي قائم على فصائل قطط عنصرية."
       },
       "description": {
-        "en": "Created to introduce a competitive metaverse where elemental factions battle for prizes through trailer-led storytelling and large animated world renders.",
-        "ar": "أُنشئ لتقديم ميتافيرس تنافسي تتصارع فيه الفصائل العنصرية على الجوائز عبر سرد تقوده العروض ومشاهد عالم متحركة كبيرة."
+        "en": "A cinematic game and metaverse concept centered on competing elemental cat factions. The website introduces its characters, world, battles, and rewards through animated storytelling and large-scale visual scenes.",
+        "ar": "مفهوم سينمائي للعبة وميتافيرس يتمحور حول فصائل قطط عنصرية متنافسة. يعرّف الموقع بالشخصيات والعالم والمعارك والمكافآت عبر سرد متحرك ومشاهد بصرية واسعة."
       },
       "stack": [
         "Next.js",
@@ -420,8 +420,8 @@
         "ar": "لوحة إنتاج لبناء البثوث المباشرة وجدولتها وتحقيق الدخل منها."
       },
       "description": {
-        "en": "Created to let customers compose scenes, manage media and overlays, schedule broadcasts, handle stream keys and subscriptions, and monitor live operations.",
-        "ar": "أُنشئت لتمكين العملاء من تركيب المشاهد وإدارة الوسائط والطبقات وجدولة البثوث والتعامل مع مفاتيح البث والاشتراكات ومراقبة العمليات."
+        "en": "A streaming platform that turns prerecorded videos into scheduled, continuously running live broadcasts. Users can prepare scenes, manage media and overlays, connect streaming accounts, monitor broadcasts, and manage subscriptions from one dashboard.",
+        "ar": "منصّة بث تحوّل مقاطع الفيديو المسجلة مسبقًا إلى بثوث مباشرة مجدولة تعمل باستمرار. يمكن للمستخدمين إعداد المشاهد وإدارة الوسائط والطبقات وربط حسابات البث ومراقبة البثوث وإدارة الاشتراكات من لوحة تحكم واحدة."
       },
       "stack": [
         "React",
@@ -452,8 +452,8 @@
         "ar": "عالم Minecraft سينمائي للـNFT وتجربة لقصص اللعبة."
       },
       "description": {
-        "en": "Created to reveal the game world through maps, environments, factions, and a motion-heavy timeline that turns roadmap content into exploration.",
-        "ar": "أُنشئ لكشف عالم اللعبة عبر الخرائط والبيئات والفصائل وخط زمني كثيف الحركة يحوّل خارطة الطريق إلى استكشاف."
+        "en": "An immersive introduction to a Minecraft-inspired NFT game world. It presents the project’s environments, maps, factions, story, and development roadmap as an interactive journey through the BrokeTopia universe.",
+        "ar": "مقدمة غامرة لعالم لعبة NFT مستوحى من Minecraft. تعرض البيئات والخرائط والفصائل والقصة وخارطة التطوير في رحلة تفاعلية داخل عالم BrokeTopia."
       },
       "stack": [
         "Next.js",
@@ -484,8 +484,8 @@
         "ar": "موقع إطلاق مرح لهوية مجتمع رمز Island Boys."
       },
       "description": {
-        "en": "Created to package the creators' token, community links, and launch messaging into a lightweight tropical experience with playful motion and responsive layouts.",
-        "ar": "أُنشئ لتجميع الرمز وروابط المجتمع ورسائل الإطلاق في تجربة استوائية خفيفة بحركة مرحة وتخطيطات متجاوبة."
+        "en": "A playful launch website for the Island Boys token and its online community. It brings together the project’s story, token information, community links, and launch messaging in a responsive tropical-themed experience.",
+        "ar": "موقع إطلاق مرح لرمز Island Boys ومجتمعه الرقمي. يجمع قصة المشروع ومعلومات الرمز وروابط المجتمع ورسائل الإطلاق في تجربة متجاوبة بطابع استوائي."
       },
       "stack": [
         "Next.js",
@@ -515,8 +515,8 @@
         "ar": "تجربة ترويجية سينمائية تتمحور حول طاقم العمل وكواليس الإنتاج."
       },
       "description": {
-        "en": "Created to turn a film-style campaign into an interactive one-page story, moving from hero content through cast profiles and behind-the-scenes material.",
-        "ar": "أُنشئت لتحويل حملة بأسلوب سينمائي إلى قصة تفاعلية من صفحة واحدة تنتقل من الواجهة إلى ملفات طاقم العمل والكواليس."
+        "en": "An interactive promotional website designed around a film-style campaign. It guides visitors through the central concept, cast profiles, visual media, and behind-the-scenes content as a cinematic one-page story.",
+        "ar": "موقع ترويجي تفاعلي صُمم حول حملة بطابع سينمائي. يقود الزوار عبر الفكرة الرئيسية وملفات طاقم العمل والوسائط المرئية ومحتوى ما وراء الكواليس في قصة سينمائية من صفحة واحدة."
       },
       "stack": [
         "Next.js",
@@ -546,8 +546,8 @@
         "ar": "منصّة غنية بالمحتوى لوكالة تسويق مؤثرين وإنتاج رقمي."
       },
       "description": {
-        "en": "Created to present Syft's creator network, development and content services, case studies, campaign landing pages, and lead-generation funnels to brands and creators.",
-        "ar": "أُنشئت لعرض شبكة مبدعي Syft وخدمات التطوير والمحتوى ودراسات الحالة وصفحات الحملات ومسارات جذب العملاء للعلامات والمبدعين."
+        "en": "A digital agency platform presenting Syft’s influencer marketing, content production, and development services. It combines case studies, campaign pages, creator opportunities, and lead-generation flows for brands and creators.",
+        "ar": "منصّة لوكالة رقمية تعرض خدمات Syft في التسويق عبر المؤثرين وإنتاج المحتوى والتطوير. تجمع دراسات الحالة وصفحات الحملات وفرص صناع المحتوى ومسارات جذب العملاء للعلامات التجارية والمبدعين."
       },
       "stack": [
         "Next.js",
@@ -578,8 +578,8 @@
         "ar": "سوق للمبدعين يربطهم بتعاونات وحملات مدفوعة في مجال الألعاب."
       },
       "description": {
-        "en": "Created so gaming creators can discover campaigns, manage collaborations and chat, publish rates, connect accounts, track analytics, and receive payments in one platform.",
-        "ar": "أُنشئ لتمكين صنّاع محتوى الألعاب من اكتشاف الحملات وإدارة التعاونات والمحادثات ونشر الأسعار وربط الحسابات وتتبع التحليلات واستلام المدفوعات في منصّة واحدة."
+        "en": "A marketplace where gaming creators can find and manage paid brand collaborations. Creators can publish their rates, connect social accounts, communicate with partners, track campaign performance, and receive payments.",
+        "ar": "سوق يتيح لصناع محتوى الألعاب العثور على تعاونات مدفوعة مع العلامات التجارية وإدارتها. يمكنهم نشر أسعارهم وربط حساباتهم الاجتماعية والتواصل مع الشركاء وتتبع أداء الحملات واستلام المدفوعات."
       },
       "stack": [
         "Next.js",
@@ -610,8 +610,8 @@
         "ar": "منصّة رقمية ثنائية اللغة لشركة إنتاج إبداعي سعودية."
       },
       "description": {
-        "en": "Created to turn services, categories, factory, sustainability work, portfolio, careers, and service requests into a high-end Arabic and English web experience.",
-        "ar": "أُنشئت لتحويل الخدمات والفئات والمصنع ومبادرات الاستدامة والأعمال والوظائف وطلب الخدمة إلى تجربة ويب راقية بالعربية والإنجليزية."
+        "en": "A bilingual corporate platform for a Saudi creative-production company. It showcases Artisan’s services, production capabilities, portfolio, sustainability initiatives, career opportunities, and service-request process in Arabic and English.",
+        "ar": "منصّة مؤسسية ثنائية اللغة لشركة إنتاج إبداعي سعودية. تعرض خدمات Artisan وقدراتها الإنتاجية وأعمالها ومبادرات الاستدامة والفرص الوظيفية وآلية طلب الخدمات بالعربية والإنجليزية."
       },
       "stack": [
         "Next.js",
@@ -642,8 +642,8 @@
         "ar": "معرض أعمال غامر لاستوديو عمارة وتصميم داخلي."
       },
       "description": {
-        "en": "Created to turn residential, commercial, and medical project photography into a high-end studio story with galleries, process sections, and location-aware contact.",
-        "ar": "أُنشئ لتحويل صور المشاريع السكنية والتجارية والطبية إلى قصة راقية للاستوديو تشمل المعارض ومراحل العمل والتواصل المرتبط بالموقع."
+        "en": "An immersive portfolio for an architecture and interior-design studio. It transforms residential, commercial, and medical project photography into detailed case studies supported by galleries, process information, and contact details.",
+        "ar": "معرض أعمال غامر لاستوديو عمارة وتصميم داخلي. يحوّل صور المشاريع السكنية والتجارية والطبية إلى دراسات حالة مفصلة تدعمها المعارض ومعلومات مراحل العمل وبيانات التواصل."
       },
       "stack": [
         "Next.js",
@@ -674,8 +674,8 @@
         "ar": "واجهة راقية لعرض منتجات وخدمات متجر زهور محلي."
       },
       "description": {
-        "en": "Created to give Jolie Flower a premium digital storefront that introduces the shop, products, services, and mission through tactile scrolling and strong art direction.",
-        "ar": "أُنشئ لمنح Jolie Flower واجهة رقمية فاخرة تعرّف بالمتجر والمنتجات والخدمات والرسالة عبر تمرير ملموس وإخراج بصري قوي."
+        "en": "A premium digital showcase for a local flower shop. It introduces the brand’s arrangements, products, services, and creative philosophy through tactile scrolling, refined visuals, and editorial-style presentation.",
+        "ar": "واجهة رقمية راقية لمتجر زهور محلي. تعرّف بتنسيقات العلامة ومنتجاتها وخدماتها وفلسفتها الإبداعية عبر تمرير تفاعلي وصور مصقولة وعرض تحريري."
       },
       "stack": [
         "Next.js",
@@ -706,8 +706,8 @@
         "ar": "تجربة غامرة لعالم Bored Ape تتضمن لعبة Unity مصغّرة."
       },
       "description": {
-        "en": "Created as an interactive brand world combining visual storytelling, account flows, wallet-aware functionality, and a score-backed browser game.",
-        "ar": "أُنشئت كعالم تفاعلي للعلامة يجمع السرد البصري ومسارات الحساب ووظائف المحافظ ولعبة متصفح تحفظ النتائج."
+        "en": "An interactive Bored Ape-themed digital experience combining visual storytelling with a browser-based Unity mini-game. It includes account and wallet interactions, game scoring, and an immersive branded interface.",
+        "ar": "تجربة رقمية تفاعلية بطابع Bored Ape تجمع السرد البصري مع لعبة Unity مصغرة داخل المتصفح. تتضمن تفاعلات الحساب والمحفظة وتسجيل النقاط وواجهة غامرة تحمل هوية المشروع."
       },
       "stack": [
         "Next.js",
@@ -738,8 +738,8 @@
         "ar": "موقع لمجموعة Web3 يتمحور حول المالكين والمزايا وخزانة DAO."
       },
       "description": {
-        "en": "Created to launch the collection, explain its utility and governance model, onboard holders, and support wallet-connected community interactions.",
-        "ar": "أُنشئ لإطلاق المجموعة وشرح مزاياها ونموذج الحوكمة واستقبال المالكين ودعم تفاعلات المجتمع المتصلة بالمحافظ."
+        "en": "A Web3 collection platform built around community ownership, holder benefits, and DAO governance. It explains the collection’s utility and treasury model while supporting wallet-connected interactions for members.",
+        "ar": "منصّة لمجموعة Web3 مبنية حول ملكية المجتمع ومزايا الحائزين وحوكمة DAO. تشرح استخدامات المجموعة ونموذج الخزانة وتدعم تفاعلات الأعضاء المتصلة بالمحافظ."
       },
       "stack": [
         "Next.js",
@@ -770,8 +770,8 @@
         "ar": "إطلاق لعبة Web3 يتضمن تجربة Unity قابلة للعب داخل المتصفح."
       },
       "description": {
-        "en": "Created to let visitors meet the AstroBotz universe, play an embedded game, explore pack utility and roadmap, connect a wallet, and mint in one themed experience.",
-        "ar": "أُنشئ لتمكين الزوار من اكتشاف عالم AstroBotz ولعب تجربة مدمجة واستعراض مزايا الحِزم وخارطة الطريق وربط المحفظة والسك ضمن تجربة موحّدة."
+        "en": "A Web3 game launch experience that introduces the AstroBotz universe and includes a playable Unity game. Visitors can explore characters, pack utility, roadmap milestones, wallet features, and minting from one themed platform.",
+        "ar": "تجربة إطلاق للعبة Web3 تعرّف بعالم AstroBotz وتتضمن لعبة Unity قابلة للعب. يمكن للزوار استكشاف الشخصيات ومزايا الحزم ومحطات خارطة الطريق وخصائص المحفظة والسك من منصّة واحدة ذات طابع موحد."
       },
       "stack": [
         "Next.js",
@@ -802,8 +802,8 @@
         "ar": "مركز مجتمع Web3 متكامل يجمع المقتنيات والألعاب ومزايا المالكين."
       },
       "description": {
-        "en": "Created to extend an NFT collection beyond minting into a members area with token galleries, gangs, pets, jobs, honors, mini-games, and burn mechanics.",
-        "ar": "أُنشئ لتوسيع مجموعة NFT لما بعد السك عبر منطقة أعضاء تضم معرض الرموز والعصابات والحيوانات والوظائف والتكريمات والألعاب المصغّرة وآليات الحرق."
+        "en": "A community platform that expands an NFT collection into a connected digital world. Members can explore collectibles, gangs, pets, jobs, achievements, mini-games, token-burning mechanics, and holder-only experiences.",
+        "ar": "منصّة مجتمعية توسّع مجموعة NFT إلى عالم رقمي مترابط. يمكن للأعضاء استكشاف المقتنيات والعصابات والحيوانات الأليفة والوظائف والإنجازات والألعاب المصغرة وآليات حرق الرموز وتجارب حصرية للحائزين."
       },
       "stack": [
         "Next.js",
@@ -829,8 +829,8 @@
         "ar": "تجربة NFT تجمع الرقمي والمادي وتربط الرموز الفريدة بساعات مخصّصة."
       },
       "description": {
-        "en": "Created to guide collectors from wallet connection and minting to claiming a one-of-one physical watch, while explaining provenance, partners, and sustainability.",
-        "ar": "أُنشئت لإرشاد هواة الجمع من ربط المحفظة والسك إلى استلام ساعة مادية فريدة، مع شرح الأصالة والشراكات والاستدامة."
+        "en": "A phygital NFT project connecting unique digital tokens with custom physical watches. The experience guides collectors through wallet connection, minting, provenance, and claiming a one-of-one watch linked to their token.",
+        "ar": "مشروع NFT يجمع بين العالمين الرقمي والمادي عبر ربط رموز رقمية فريدة بساعات فعلية مخصّصة. تقود التجربة هواة الجمع خلال ربط المحفظة والسك وإثبات المصدر والمطالبة بساعة فريدة مرتبطة بالرمز."
       },
       "stack": [
         "Next.js",
@@ -844,7 +844,12 @@
         "en": "Front-end developer",
         "ar": "مطوّر واجهات أمامية"
       },
-      "links": [],
+      "links": [
+        {
+          "label": "Live",
+          "url": "https://flexwatches.com/"
+        }
+      ],
       "image": "/projects/flexnft.png",
       "featured": false
     }
