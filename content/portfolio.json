@@ -413,6 +413,38 @@
       "featured": false
     },
     {
+      "slug": "streaming-bots",
+      "name": "Streaming Bots",
+      "summary": {
+        "en": "A production dashboard for building, scheduling, and monetizing live streams.",
+        "ar": "لوحة إنتاج لبناء البثوث المباشرة وجدولتها وتحقيق الدخل منها."
+      },
+      "description": {
+        "en": "Created to let customers compose scenes, manage media and overlays, schedule broadcasts, handle stream keys and subscriptions, and monitor live operations.",
+        "ar": "أُنشئت لتمكين العملاء من تركيب المشاهد وإدارة الوسائط والطبقات وجدولة البثوث والتعامل مع مفاتيح البث والاشتراكات ومراقبة العمليات."
+      },
+      "stack": [
+        "React",
+        "TypeScript",
+        "Redux Toolkit",
+        "Ant Design",
+        "Konva"
+      ],
+      "status": "archived",
+      "role": {
+        "en": "Front-end developer",
+        "ar": "مطوّر واجهات أمامية"
+      },
+      "links": [
+        {
+          "label": "Live",
+          "url": "https://streamingbots.com/"
+        }
+      ],
+      "image": "/projects/streaming-bots.png",
+      "featured": false
+    },
+    {
       "slug": "broketopia",
       "name": "BrokeTopia",
       "summary": {
@@ -787,38 +819,6 @@
       },
       "links": [],
       "image": "/projects/brokeboyz.png",
-      "featured": false
-    },
-    {
-      "slug": "streaming-bots",
-      "name": "Streaming Bots",
-      "summary": {
-        "en": "A production dashboard for building, scheduling, and monetizing live streams.",
-        "ar": "لوحة إنتاج لبناء البثوث المباشرة وجدولتها وتحقيق الدخل منها."
-      },
-      "description": {
-        "en": "Created to let customers compose scenes, manage media and overlays, schedule broadcasts, handle stream keys and subscriptions, and monitor live operations.",
-        "ar": "أُنشئت لتمكين العملاء من تركيب المشاهد وإدارة الوسائط والطبقات وجدولة البثوث والتعامل مع مفاتيح البث والاشتراكات ومراقبة العمليات."
-      },
-      "stack": [
-        "React",
-        "TypeScript",
-        "Redux Toolkit",
-        "Ant Design",
-        "Konva"
-      ],
-      "status": "archived",
-      "role": {
-        "en": "Front-end developer",
-        "ar": "مطوّر واجهات أمامية"
-      },
-      "links": [
-        {
-          "label": "Live",
-          "url": "https://streamingbots.com/"
-        }
-      ],
-      "image": "/projects/streaming-bots.png",
       "featured": false
     },
     {
