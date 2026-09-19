@@ -27,7 +27,6 @@ export async function Projects({ locale }: { locale: Locale }) {
             key={p.slug}
             index={i}
             name={p.name}
-            summary={localized(p.summary, locale)}
             description={localized(p.description, locale)}
             stack={p.stack}
             image={p.image}

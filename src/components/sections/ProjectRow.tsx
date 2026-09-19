@@ -15,7 +15,6 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 export type ProjectRowProps = {
   index: number;
   name: string;
-  summary: string;
   description: string;
   stack: string[];
   image: string;
@@ -62,7 +61,6 @@ function StatusTag({ label, tone }: ProjectStatus) {
 export function ProjectRow({
   index,
   name,
-  summary,
   description,
   stack,
   image,
@@ -167,8 +165,7 @@ export function ProjectRow({
             {featuredLabel && <FeaturedTag label={featuredLabel} />}
             {status && <StatusTag {...status} />}
           </div>
-          <p className="text-muted hidden text-sm md:block">{summary}</p>
-          <p className="text-muted text-sm leading-relaxed md:hidden">{description}</p>
+          <p className="text-muted text-sm leading-relaxed">{description}</p>
           <ul className="mt-1 flex flex-wrap gap-2">
             {stack.map((s) => (
               <li
