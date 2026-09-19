@@ -19,10 +19,10 @@ export type ProjectRowProps = {
   description: string;
   stack: string[];
   image: string;
-  href: string;
+  href?: string;
   featuredLabel?: string;
   status?: ProjectStatus;
-  viewLabel: string;
+  viewLabel?: string;
   numberLabel: string;
 };
 
@@ -77,7 +77,7 @@ export function ProjectRow({
   const curtainRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { sign } = useLocaleDir();
-  const external = href.startsWith('http');
+  const external = href?.startsWith('http') ?? false;
 
   useGSAP(
     () => {
@@ -179,9 +179,11 @@ export function ProjectRow({
               </li>
             ))}
           </ul>
-          <span className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-white md:hidden">
-            {viewLabel} <span className="proj-arrow text-accent-2">↗</span>
-          </span>
+          {viewLabel && (
+            <span className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-white md:hidden">
+              {viewLabel} <span className="proj-arrow text-accent-2">↗</span>
+            </span>
+          )}
         </div>
 
         <ProjectVisual name={name} />

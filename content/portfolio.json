@@ -32,11 +32,17 @@
     "facts": [
       {
         "label": { "en": "Focus", "ar": "التركيز" },
-        "value": { "en": "Performance, motion & accessibility", "ar": "الأداء والحركة وسهولة الوصول" }
+        "value": {
+          "en": "Performance, motion & accessibility",
+          "ar": "الأداء والحركة وسهولة الوصول"
+        }
       },
       {
         "label": { "en": "Location", "ar": "الموقع" },
-        "value": { "en": "Cairo, Egypt · open to remote", "ar": "القاهرة، مصر · متاح للعمل عن بُعد" }
+        "value": {
+          "en": "Cairo, Egypt · open to remote",
+          "ar": "القاهرة، مصر · متاح للعمل عن بُعد"
+        }
       },
       {
         "label": { "en": "Languages", "ar": "اللغات" },
@@ -97,7 +103,10 @@
       "status": "live",
       "role": { "en": "Solo developer", "ar": "مطوّر منفرد" },
       "highlights": [
-        { "en": "34 seasons of committed data (1992–2026)", "ar": "٣٤ موسمًا من البيانات (١٩٩٢–٢٠٢٦)" },
+        {
+          "en": "34 seasons of committed data (1992–2026)",
+          "ar": "٣٤ موسمًا من البيانات (١٩٩٢–٢٠٢٦)"
+        },
         {
           "en": "Full English + Arabic RTL localization",
           "ar": "ترجمة كاملة للإنجليزية والعربية (من اليمين لليسار)"
@@ -110,6 +119,420 @@
       "links": [{ "label": "Live", "url": "https://pitchiq-pl.vercel.app" }],
       "image": "/projects/pitchiq.png",
       "featured": true
+    },
+    {
+      "slug": "rung",
+      "name": "Rung",
+      "summary": {
+        "en": "A fast, opinionated work-management platform inspired by ClickUp.",
+        "ar": "منصّة سريعة ومركّزة لإدارة العمل مستوحاة من ClickUp."
+      },
+      "description": {
+        "en": "Created to keep ClickUp's useful hierarchy while removing interface bloat, lag, and notification noise, with secure workspaces, lists, boards, rich tasks, search, and real-time collaboration.",
+        "ar": "أُنشئت للاحتفاظ بهيكل ClickUp المفيد مع إزالة ازدحام الواجهة والبطء وضوضاء الإشعارات، وتقديم مساحات عمل آمنة وقوائم ولوحات ومهام غنية وبحث وتعاون لحظي."
+      },
+      "stack": ["Next.js", "TypeScript", "Tailwind CSS", "Supabase", "PostgreSQL"],
+      "status": "wip",
+      "role": { "en": "Solo developer", "ar": "مطوّر منفرد" },
+      "links": [{ "label": "Live", "url": "https://rung-two.vercel.app/" }],
+      "image": "/projects/rung.png",
+      "featured": true
+    },
+    {
+      "slug": "one-up-nova-v2",
+      "name": "1UP Nova — Version 2",
+      "summary": {
+        "en": "A cinematic Web3 agency site for turning metaverse ideas into digital products.",
+        "ar": "موقع سينمائي لوكالة Web3 يحوّل أفكار الميتافيرس إلى منتجات رقمية."
+      },
+      "description": {
+        "en": "The second generation was created to present the agency's services, studio, work, and careers through a richer editorial system and immersive motion-led experience.",
+        "ar": "أُنشئ الجيل الثاني لعرض خدمات الوكالة والاستوديو والأعمال والوظائف عبر نظام محتوى أكثر ثراءً وتجربة غامرة تقودها الحركة."
+      },
+      "stack": ["Next.js", "TypeScript", "Tailwind CSS", "Sanity", "GSAP"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://1upnova-nu.vercel.app/" }],
+      "image": "/projects/one-up-nova-v2.png",
+      "featured": false
+    },
+    {
+      "slug": "one-up-nova-v1",
+      "name": "1UP Nova — Version 1",
+      "summary": {
+        "en": "The original interactive site for a Web3 and metaverse creative agency.",
+        "ar": "الموقع التفاعلي الأصلي لوكالة إبداعية متخصّصة في Web3 والميتافيرس."
+      },
+      "description": {
+        "en": "The first version was created to establish 1UP Nova's brand, services, portfolio, utility, careers, and minting presence in one animated launch experience.",
+        "ar": "أُنشئ الإصدار الأول لتأسيس حضور علامة 1UP Nova وخدماتها وأعمالها ومزاياها ووظائفها وتجربة السك في إطلاق تفاعلي واحد."
+      },
+      "stack": ["Next.js", "TypeScript", "Tailwind CSS", "GSAP", "Framer Motion"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://1-up.vercel.app/" }],
+      "image": "/projects/one-up-nova-v1.jpg",
+      "featured": false
+    },
+    {
+      "slug": "mynt",
+      "name": "Mynt",
+      "summary": {
+        "en": "A social NFT gallery for collectors, collections, and digital assets.",
+        "ar": "معرض اجتماعي للرموز غير القابلة للاستبدال وهواة الجمع والمجموعات والأصول الرقمية."
+      },
+      "description": {
+        "en": "Created as a free online museum that makes crypto assets easier to discover and lets collectors display NFTs on personalized profiles across multiple chains.",
+        "ar": "أُنشئ كمتحف إلكتروني مجاني يسهّل اكتشاف الأصول الرقمية ويتيح لهواة الجمع عرض رموزهم في ملفات شخصية مخصّصة عبر عدة شبكات."
+      },
+      "stack": ["Next.js", "TypeScript", "GraphQL", "Apollo", "Prisma"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://mynt-git-master-mynt.vercel.app/" }],
+      "image": "/projects/mynt.png",
+      "featured": false
+    },
+    {
+      "slug": "artraj",
+      "name": "Artraj",
+      "summary": {
+        "en": "An immersive portfolio for an architecture and interior-design studio.",
+        "ar": "معرض أعمال غامر لاستوديو عمارة وتصميم داخلي."
+      },
+      "description": {
+        "en": "Created to turn residential, commercial, and medical project photography into a high-end studio story with galleries, process sections, and location-aware contact.",
+        "ar": "أُنشئ لتحويل صور المشاريع السكنية والتجارية والطبية إلى قصة راقية للاستوديو تشمل المعارض ومراحل العمل والتواصل المرتبط بالموقع."
+      },
+      "stack": ["Next.js", "TypeScript", "Tailwind CSS", "GSAP", "Leaflet"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://artraj.vercel.app/" }],
+      "image": "/projects/artraj.png",
+      "featured": false
+    },
+    {
+      "slug": "jolie-flower",
+      "name": "Jolie Flower",
+      "summary": {
+        "en": "A polished product and service showcase for a local flower shop.",
+        "ar": "واجهة راقية لعرض منتجات وخدمات متجر زهور محلي."
+      },
+      "description": {
+        "en": "Created to give Jolie Flower a premium digital storefront that introduces the shop, products, services, and mission through tactile scrolling and strong art direction.",
+        "ar": "أُنشئ لمنح Jolie Flower واجهة رقمية فاخرة تعرّف بالمتجر والمنتجات والخدمات والرسالة عبر تمرير ملموس وإخراج بصري قوي."
+      },
+      "stack": ["Next.js", "TypeScript", "Tailwind CSS", "GSAP", "Lenis"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://jolie-flower.vercel.app/" }],
+      "image": "/projects/jolie-flower.png",
+      "featured": false
+    },
+    {
+      "slug": "solygons",
+      "name": "Solygons",
+      "summary": {
+        "en": "A Web3 collection site built around holders, utility, and a DAO treasury.",
+        "ar": "موقع لمجموعة Web3 يتمحور حول المالكين والمزايا وخزانة DAO."
+      },
+      "description": {
+        "en": "Created to launch the collection, explain its utility and governance model, onboard holders, and support wallet-connected community interactions.",
+        "ar": "أُنشئ لإطلاق المجموعة وشرح مزاياها ونموذج الحوكمة واستقبال المالكين ودعم تفاعلات المجتمع المتصلة بالمحافظ."
+      },
+      "stack": ["Next.js", "Chakra UI", "Prisma", "Framer Motion", "Web3"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://solygons.vercel.app/" }],
+      "image": "/projects/solygons.jpg",
+      "featured": false
+    },
+    {
+      "slug": "basc-wrld",
+      "name": "BASC WRLD",
+      "summary": {
+        "en": "An interactive 3D Web3 world with minting and community utility.",
+        "ar": "عالم Web3 تفاعلي ثلاثي الأبعاد يضم السك ومزايا المجتمع."
+      },
+      "description": {
+        "en": "Created to introduce the BASC universe, sell its access assets, and make its characters, passes, roadmap, and wallet flows feel like one game world.",
+        "ar": "أُنشئ لتقديم عالم BASC وبيع أصول الدخول إليه وجمع الشخصيات والتصاريح وخارطة الطريق ومسارات المحفظة في تجربة تشبه اللعبة."
+      },
+      "stack": ["Next.js", "TypeScript", "React Three Fiber", "Tailwind CSS", "ethers.js"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://basc-wrld.vercel.app/" }],
+      "image": "/projects/basc-wrld.png",
+      "featured": false
+    },
+    {
+      "slug": "refuge",
+      "name": "Refuge",
+      "summary": {
+        "en": "A stylized NFT community launch site for citizens, lore, and roadmap.",
+        "ar": "موقع إطلاق بصري لمجتمع NFT يعرّف بالمواطنين والقصة وخارطة الطريق."
+      },
+      "description": {
+        "en": "Created as a focused launch experience that introduces the Refuge world, community, team, roadmap, and collectible premise in one scroll-led narrative.",
+        "ar": "أُنشئ كتجربة إطلاق مركّزة تقدّم عالم Refuge ومجتمعه وفريقه وخارطة الطريق وفكرة المقتنيات ضمن سرد واحد يقوده التمرير."
+      },
+      "stack": ["Next.js", "TypeScript", "Tailwind CSS"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://refuge-mynt.vercel.app/" }],
+      "image": "/projects/refuge.png",
+      "featured": false
+    },
+    {
+      "slug": "astro-botz",
+      "name": "AstroBotz",
+      "summary": {
+        "en": "A Web3 game launch with an embedded playable Unity experience.",
+        "ar": "إطلاق لعبة Web3 يتضمن تجربة Unity قابلة للعب داخل المتصفح."
+      },
+      "description": {
+        "en": "Created to let visitors meet the AstroBotz universe, play an embedded game, explore pack utility and roadmap, connect a wallet, and mint in one themed experience.",
+        "ar": "أُنشئ لتمكين الزوار من اكتشاف عالم AstroBotz ولعب تجربة مدمجة واستعراض مزايا الحِزم وخارطة الطريق وربط المحفظة والسك ضمن تجربة موحّدة."
+      },
+      "stack": ["Next.js", "Chakra UI", "Unity WebGL", "Framer Motion", "GSAP"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://astro-bots.vercel.app/" }],
+      "image": "/projects/astro-botz.png",
+      "featured": false
+    },
+    {
+      "slug": "bayc",
+      "name": "BAYC Experience",
+      "summary": {
+        "en": "An immersive Bored Ape experience with an integrated Unity mini-game.",
+        "ar": "تجربة غامرة لعالم Bored Ape تتضمن لعبة Unity مصغّرة."
+      },
+      "description": {
+        "en": "Created as an interactive brand world combining visual storytelling, account flows, wallet-aware functionality, and a score-backed browser game.",
+        "ar": "أُنشئت كعالم تفاعلي للعلامة يجمع السرد البصري ومسارات الحساب ووظائف المحافظ ولعبة متصفح تحفظ النتائج."
+      },
+      "stack": ["Next.js", "Chakra UI", "Unity WebGL", "Prisma", "ethers.js"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://bayc-five.vercel.app/" }],
+      "image": "/projects/bayc.png",
+      "featured": false
+    },
+    {
+      "slug": "meow-club",
+      "name": "Meow Club",
+      "summary": {
+        "en": "A cinematic PvP metaverse concept built around elemental cat factions.",
+        "ar": "تصوّر سينمائي لعالم ميتافيرس تنافسي قائم على فصائل قطط عنصرية."
+      },
+      "description": {
+        "en": "Created to introduce a competitive metaverse where elemental factions battle for prizes through trailer-led storytelling and large animated world renders.",
+        "ar": "أُنشئ لتقديم ميتافيرس تنافسي تتصارع فيه الفصائل العنصرية على الجوائز عبر سرد تقوده العروض ومشاهد عالم متحركة كبيرة."
+      },
+      "stack": ["Next.js", "Tailwind CSS", "GSAP", "Framer Motion", "React Player"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://meowclub.vercel.app/" }],
+      "image": "/projects/meow-club.png",
+      "featured": false
+    },
+    {
+      "slug": "broketopia",
+      "name": "BrokeTopia",
+      "summary": {
+        "en": "A cinematic NFT Minecraft world and game-lore experience.",
+        "ar": "عالم Minecraft سينمائي للـNFT وتجربة لقصص اللعبة."
+      },
+      "description": {
+        "en": "Created to reveal the game world through maps, environments, factions, and a motion-heavy timeline that turns roadmap content into exploration.",
+        "ar": "أُنشئ لكشف عالم اللعبة عبر الخرائط والبيئات والفصائل وخط زمني كثيف الحركة يحوّل خارطة الطريق إلى استكشاف."
+      },
+      "stack": ["Next.js", "Tailwind CSS", "GSAP", "Framer Motion", "Three.js"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://broketopia-six.vercel.app/" }],
+      "image": "/projects/broketopia.png",
+      "featured": false
+    },
+    {
+      "slug": "island-boys",
+      "name": "Island Boys",
+      "summary": {
+        "en": "A playful branded launch site for the Island Boys token community.",
+        "ar": "موقع إطلاق مرح لهوية مجتمع رمز Island Boys."
+      },
+      "description": {
+        "en": "Created to package the creators' token, community links, and launch messaging into a lightweight tropical experience with playful motion and responsive layouts.",
+        "ar": "أُنشئ لتجميع الرمز وروابط المجتمع ورسائل الإطلاق في تجربة استوائية خفيفة بحركة مرحة وتخطيطات متجاوبة."
+      },
+      "stack": ["Next.js", "Chakra UI", "Framer Motion", "React Hook Form"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://island-boys.vercel.app/" }],
+      "image": "/projects/island-boys.png",
+      "featured": false
+    },
+    {
+      "slug": "syft-gg",
+      "name": "Syft.gg",
+      "summary": {
+        "en": "A creator marketplace for gaming collaborations and paid campaigns.",
+        "ar": "سوق للمبدعين يربطهم بتعاونات وحملات مدفوعة في مجال الألعاب."
+      },
+      "description": {
+        "en": "Created so gaming creators can discover campaigns, manage collaborations and chat, publish rates, connect accounts, track analytics, and receive payments in one platform.",
+        "ar": "أُنشئ لتمكين صنّاع محتوى الألعاب من اكتشاف الحملات وإدارة التعاونات والمحادثات ونشر الأسعار وربط الحسابات وتتبع التحليلات واستلام المدفوعات في منصّة واحدة."
+      },
+      "stack": ["Next.js", "TypeScript", "GraphQL", "Apollo", "Stripe"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://syftgg-v2.vercel.app/" }],
+      "image": "/projects/syft-gg.png",
+      "featured": false
+    },
+    {
+      "slug": "syft-la",
+      "name": "Syft.la",
+      "summary": {
+        "en": "A content-rich agency platform for influencer marketing and digital production.",
+        "ar": "منصّة غنية بالمحتوى لوكالة تسويق مؤثرين وإنتاج رقمي."
+      },
+      "description": {
+        "en": "Created to present Syft's creator network, development and content services, case studies, campaign landing pages, and lead-generation funnels to brands and creators.",
+        "ar": "أُنشئت لعرض شبكة مبدعي Syft وخدمات التطوير والمحتوى ودراسات الحالة وصفحات الحملات ومسارات جذب العملاء للعلامات والمبدعين."
+      },
+      "stack": ["Next.js", "React", "GraphQL", "Apollo", "NextAuth"],
+      "status": "live",
+      "role": { "en": "Lead front-end developer", "ar": "قائد تطوير الواجهات الأمامية" },
+      "links": [{ "label": "Live", "url": "https://syft.la/" }],
+      "image": "/projects/syft-la.png",
+      "featured": false
+    },
+    {
+      "slug": "bitch-ass",
+      "name": "Bitch Ass",
+      "summary": {
+        "en": "A cinematic promotional experience built around cast and behind-the-scenes content.",
+        "ar": "تجربة ترويجية سينمائية تتمحور حول طاقم العمل وكواليس الإنتاج."
+      },
+      "description": {
+        "en": "Created to turn a film-style campaign into an interactive one-page story, moving from hero content through cast profiles and behind-the-scenes material.",
+        "ar": "أُنشئت لتحويل حملة بأسلوب سينمائي إلى قصة تفاعلية من صفحة واحدة تنتقل من الواجهة إلى ملفات طاقم العمل والكواليس."
+      },
+      "stack": ["Next.js", "Chakra UI", "Framer Motion", "React Slick"],
+      "status": "live",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [{ "label": "Live", "url": "https://bitch-ass.vercel.app/#" }],
+      "image": "/projects/bitch-ass.png",
+      "featured": false
+    },
+    {
+      "slug": "meenda",
+      "name": "Meenda",
+      "summary": {
+        "en": "An Arabic-first discovery platform for accurate profiles of trending public figures.",
+        "ar": "منصّة اكتشاف عربية للملفات الدقيقة عن الشخصيات العامة الرائجة."
+      },
+      "description": {
+        "en": "Created to answer “Who is that?” with searchable profiles, profession and country filters, and background information that follows a public figure's story.",
+        "ar": "أُنشئت للإجابة عن سؤال «مين ده؟» عبر ملفات قابلة للبحث وفلاتر حسب المجال والبلد ومعلومات تحكي قصة الشخصية."
+      },
+      "stack": ["NestJS", "TypeScript", "GraphQL", "Prisma", "Fastify"],
+      "status": "live",
+      "role": { "en": "Back-end developer", "ar": "مطوّر خلفية" },
+      "links": [{ "label": "Live", "url": "https://meenda.com/" }],
+      "image": "/projects/meenda.png",
+      "featured": false
+    },
+    {
+      "slug": "afterlands",
+      "name": "Afterlands",
+      "summary": {
+        "en": "A multiplayer cursor experiment layered over a cinematic world teaser.",
+        "ar": "تجربة مؤشرات متعددة اللاعبين فوق عرض سينمائي لعالم افتراضي."
+      },
+      "description": {
+        "en": "Created as a real-time interaction prototype where visitors share a visual space and see one another's cursors, making a teaser page feel inhabited.",
+        "ar": "أُنشئت كنموذج تفاعل لحظي يشارك فيه الزوار مساحة بصرية ويرون مؤشرات بعضهم، ما يجعل صفحة العرض نابضة بالحياة."
+      },
+      "stack": ["Next.js", "TypeScript", "Tailwind CSS", "Socket.IO", "Framer Motion"],
+      "status": "archived",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [],
+      "image": "/projects/afterlands.png",
+      "featured": false
+    },
+    {
+      "slug": "artisan",
+      "name": "Artisan",
+      "summary": {
+        "en": "A bilingual digital platform for a Saudi creative-production company.",
+        "ar": "منصّة رقمية ثنائية اللغة لشركة إنتاج إبداعي سعودية."
+      },
+      "description": {
+        "en": "Created to turn services, categories, factory, sustainability work, portfolio, careers, and service requests into a high-end Arabic and English web experience.",
+        "ar": "أُنشئت لتحويل الخدمات والفئات والمصنع ومبادرات الاستدامة والأعمال والوظائف وطلب الخدمة إلى تجربة ويب راقية بالعربية والإنجليزية."
+      },
+      "stack": ["Next.js", "TypeScript", "Tailwind CSS", "GSAP", "WordPress REST"],
+      "status": "live",
+      "role": { "en": "Lead front-end developer", "ar": "قائد تطوير الواجهات الأمامية" },
+      "links": [{ "label": "Live", "url": "https://www.artisan.com.sa/" }],
+      "image": "/projects/artisan.png",
+      "featured": false
+    },
+    {
+      "slug": "brokeboyz",
+      "name": "BrokeBoyz",
+      "summary": {
+        "en": "A full Web3 community hub combining collectibles, games, and holder utility.",
+        "ar": "مركز مجتمع Web3 متكامل يجمع المقتنيات والألعاب ومزايا المالكين."
+      },
+      "description": {
+        "en": "Created to extend an NFT collection beyond minting into a members area with token galleries, gangs, pets, jobs, honors, mini-games, and burn mechanics.",
+        "ar": "أُنشئ لتوسيع مجموعة NFT لما بعد السك عبر منطقة أعضاء تضم معرض الرموز والعصابات والحيوانات والوظائف والتكريمات والألعاب المصغّرة وآليات الحرق."
+      },
+      "stack": ["Next.js", "Chakra UI", "Prisma", "Three.js", "Web3"],
+      "status": "archived",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [],
+      "image": "/projects/brokeboyz.png",
+      "featured": false
+    },
+    {
+      "slug": "streaming-bots",
+      "name": "Streaming Bots",
+      "summary": {
+        "en": "A production dashboard for building, scheduling, and monetizing live streams.",
+        "ar": "لوحة إنتاج لبناء البثوث المباشرة وجدولتها وتحقيق الدخل منها."
+      },
+      "description": {
+        "en": "Created to let customers compose scenes, manage media and overlays, schedule broadcasts, handle stream keys and subscriptions, and monitor live operations.",
+        "ar": "أُنشئت لتمكين العملاء من تركيب المشاهد وإدارة الوسائط والطبقات وجدولة البثوث والتعامل مع مفاتيح البث والاشتراكات ومراقبة العمليات."
+      },
+      "stack": ["React", "TypeScript", "Redux Toolkit", "Ant Design", "Konva"],
+      "status": "archived",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [],
+      "image": "/projects/streaming-bots.png",
+      "featured": false
+    },
+    {
+      "slug": "flexnft",
+      "name": "FlexNFT",
+      "summary": {
+        "en": "A phygital NFT mint connecting unique tokens to custom watches.",
+        "ar": "تجربة NFT تجمع الرقمي والمادي وتربط الرموز الفريدة بساعات مخصّصة."
+      },
+      "description": {
+        "en": "Created to guide collectors from wallet connection and minting to claiming a one-of-one physical watch, while explaining provenance, partners, and sustainability.",
+        "ar": "أُنشئت لإرشاد هواة الجمع من ربط المحفظة والسك إلى استلام ساعة مادية فريدة، مع شرح الأصالة والشراكات والاستدامة."
+      },
+      "stack": ["Next.js", "TypeScript", "Tailwind CSS", "ethers.js", "Framer Motion"],
+      "status": "archived",
+      "role": { "en": "Front-end developer", "ar": "مطوّر واجهات أمامية" },
+      "links": [],
+      "image": "/projects/flexnft.png",
+      "featured": false
     }
   ],
   "timeline": [

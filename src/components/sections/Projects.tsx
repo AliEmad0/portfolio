@@ -31,12 +31,12 @@ export async function Projects({ locale }: { locale: Locale }) {
             description={localized(p.description, locale)}
             stack={p.stack}
             image={p.image}
-            href={p.links[0]?.url ?? '#'}
+            href={p.links[0]?.url}
             featuredLabel={p.featured ? t('projects.featured') : undefined}
             status={
               p.status ? { label: t(`projects.status.${p.status}`), tone: p.status } : undefined
             }
-            viewLabel={t('actions.viewProject')}
+            viewLabel={p.links.length ? t('actions.viewProject') : undefined}
             numberLabel={String(i + 1).padStart(2, '0')}
           />
         ))}
