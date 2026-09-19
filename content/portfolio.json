@@ -224,12 +224,12 @@
       "slug": "rung",
       "name": "Rung",
       "summary": {
-        "en": "A fast, opinionated work-management platform inspired by ClickUp.",
-        "ar": "منصّة سريعة ومركّزة لإدارة العمل مستوحاة من ClickUp."
+        "en": "A fast, opinionated platform for focused work management.",
+        "ar": "منصّة سريعة ومركّزة لإدارة العمل."
       },
       "description": {
-        "en": "Created to keep ClickUp's useful hierarchy while removing interface bloat, lag, and notification noise, with secure workspaces, lists, boards, rich tasks, search, and real-time collaboration.",
-        "ar": "أُنشئت للاحتفاظ بهيكل ClickUp المفيد مع إزالة ازدحام الواجهة والبطء وضوضاء الإشعارات، وتقديم مساحات عمل آمنة وقوائم ولوحات ومهام غنية وبحث وتعاون لحظي."
+        "en": "Created to preserve a useful work hierarchy while removing interface bloat, lag, and notification noise, with secure workspaces, lists, boards, rich tasks, search, and real-time collaboration.",
+        "ar": "أُنشئت للحفاظ على هيكل عمل عملي مع إزالة ازدحام الواجهة والبطء وضوضاء الإشعارات، وتقديم مساحات عمل آمنة وقوائم ولوحات ومهام غنية وبحث وتعاون لحظي."
       },
       "stack": [
         "Next.js",
