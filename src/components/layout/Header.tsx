@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { BrandMark } from '@/components/brand/BrandMark';
 import { EdgeText } from './navs/EdgeText';
 import { RadialNav, type NavItem } from './RadialNav';
+import { LocaleSwitcher } from './LocaleSwitcher';
 
 export async function Header() {
   const t = await getTranslations('nav');
@@ -23,6 +24,9 @@ export async function Header() {
   return (
     <header className="contents">
       <BrandMark label={t('home')} />
+      <div className="locale-switcher-shell">
+        <LocaleSwitcher currentLocale={locale === 'ar' ? 'ar' : 'en'} />
+      </div>
       <div className="hidden md:block">
         <EdgeText items={items} />
       </div>

@@ -443,6 +443,19 @@ body.has-custom-cursor * {
   z-index: 50;
 }
 
+.locale-switcher-shell {
+  position: fixed;
+  top: 20px;
+  inset-inline-end: 20px;
+  z-index: 50;
+}
+
+@media (max-width: 767px) {
+  .locale-switcher-shell {
+    inset-inline-end: 76px;
+  }
+}
+
 /* Edge-text rail (desktop) */
 .edge-text {
   position: fixed;

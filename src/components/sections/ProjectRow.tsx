@@ -15,14 +15,13 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 export type ProjectRowProps = {
   index: number;
   name: string;
-  summary: string;
   description: string;
   stack: string[];
   image: string;
-  href: string;
+  href?: string;
   featuredLabel?: string;
   status?: ProjectStatus;
-  viewLabel: string;
+  viewLabel?: string;
   numberLabel: string;
 };
 
@@ -62,7 +61,6 @@ function StatusTag({ label, tone }: ProjectStatus) {
 export function ProjectRow({
   index,
   name,
-  summary,
   description,
   stack,
   image,
@@ -77,7 +75,7 @@ export function ProjectRow({
   const curtainRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { sign } = useLocaleDir();
-  const external = href.startsWith('http');
+  const external = href?.startsWith('http') ?? false;
 
   useGSAP(
     () => {
@@ -167,8 +165,7 @@ export function ProjectRow({
             {featuredLabel && <FeaturedTag label={featuredLabel} />}
             {status && <StatusTag {...status} />}
           </div>
-          <p className="text-muted hidden text-sm md:block">{summary}</p>
-          <p className="text-muted text-sm leading-relaxed md:hidden">{description}</p>
+          <p className="text-muted text-sm leading-relaxed">{description}</p>
           <ul className="mt-1 flex flex-wrap gap-2">
             {stack.map((s) => (
               <li
@@ -179,9 +176,11 @@ export function ProjectRow({
               </li>
             ))}
           </ul>
-          <span className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-white md:hidden">
-            {viewLabel} <span className="proj-arrow text-accent-2">↗</span>
-          </span>
+          {viewLabel && (
+            <span className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-white md:hidden">
+              {viewLabel} <span className="proj-arrow text-accent-2">↗</span>
+            </span>
+          )}
         </div>
 
         <ProjectVisual name={name} />
