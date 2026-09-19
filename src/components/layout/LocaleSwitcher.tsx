@@ -41,7 +41,7 @@ export function LocaleSwitcher({ currentLocale }: { currentLocale: 'en' | 'ar' }
       href={pathname}
       hrefLang={target}
       onClick={handleClick}
-      className="nav-link text-muted hover:text-foreground text-sm"
+      className="nav-link border-border bg-background/80 text-foreground hover:border-accent rounded-full border px-3 py-2 text-sm font-medium shadow-lg backdrop-blur-md transition-colors"
     >
       {label}
     </a>
