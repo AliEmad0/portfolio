@@ -1,0 +1,106 @@
+---
+title: 'Accessibility bugs live outside the component you audited'
+description: 'Rung’s contrast, sticky layout, portal controls, nested buttons, touch drag, and scroll tests passed locally because each audit stopped too early.'
+date: '2026-09-21'
+tags: ['accessibility', 'css', 'responsive', 'testing']
+---
+
+Rung shipped a token at 2.78:1 contrast and several controls below 44 pixels despite accessibility tests. The tests were not useless; their scope was too narrow.
+
+## Tokens need measured contracts
+
+`ink-faint` looked acceptable on one monitor and failed contrast measurement. Hardcoded paper fills also survived into dark mode.
+
+```css
+:root {
+  color-scheme: light dark;
+  --surface: #fbfaf7;
+  --ink-muted: #5f5c57;
+}
+
+[data-theme='dark'] {
+  --surface: #151515;
+  --ink-muted: #b9b5ad;
+}
+```
+
+A user-selected accent could not reach 4.5:1 in both themes—the theoretical best was about 4.115:1. It is therefore a non-text mark with a 3:1 requirement; readable text stays on controlled tokens. Requirements must be mathematically feasible.
+
+## Responsive defects compound
+
+A translucent sticky header overlapped content. Chips without `shrink-0` compressed titles. Mobile inputs used 15px text and triggered iOS zoom. Stateful controls and tap targets under 44px existed outside the tested dialog.
+
+The fix combines layout and audit rules:
+
+```css
+.task-chip {
+  flex-shrink: 0;
+}
+.mobile-input {
+  font-size: 16px;
+}
+.icon-button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.scroll-content {
+  scroll-padding-block-end: var(--composer-height);
+}
+```
+
+The composer must be sticky relative to the element that actually scrolls, with bottom space reserved so the last task is not hidden.
+
+## Portals escape subtree audits
+
+Popover and calendar content is mounted under `document.body`, not inside the dialog DOM. Auditing only the dialog misses the interactive portal.
+
+```ts
+const dialog = page.getByRole('dialog');
+await expect(dialog).toPassAxe();
+
+const portal = page.locator('[data-radix-popper-content-wrapper]');
+await expect(portal).toPassAxe();
+```
+
+The same rule applies to focus traps and dismiss behavior: test the rendered ownership model, not component source nesting.
+
+## Semantics can be broken by valid-looking markup
+
+A button nested inside a button produced invalid interaction and keyboard ambiguity. An icon control with `aria-label` inside a heading changed the heading's accessible name.
+
+The solution is structural separation:
+
+```tsx
+<h2 id={headingId}>{title}</h2>
+<button aria-describedby={headingId} aria-label="Task actions">
+  <MoreIcon />
+</button>
+```
+
+The heading retains its name and the control retains context.
+
+## Synthetic touch is not touch
+
+PointerSensor captured touch gestures, and dispatching a synthetic `TouchEvent` did not reproduce the browser's input pipeline. Reordering sensors did not fix ownership.
+
+Rung uses distinct mouse and touch sensors, then tests through browser/CDP input. It also asserts the real scroll container: the application scrolls `<main>`, not `document`.
+
+```ts
+const before = await main.evaluate((node) => node.scrollTop);
+await dragWithTouch(page, source, target);
+expect(await main.evaluate((node) => node.scrollTop)).toBeGreaterThan(before);
+```
+
+## Audit the system surface
+
+A useful matrix includes:
+
+- light and dark themes;
+- phone widths and desktop widths;
+- keyboard, mouse and real touch;
+- component subtree and portals;
+- initial, loading, error and optimistic states;
+- the actual scroll container;
+- text contrast and non-text contrast under their correct thresholds.
+
+Accessibility is not a property attached to a component. It emerges from the component, its portal, theme, viewport and input method together.

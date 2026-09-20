@@ -1,0 +1,92 @@
+---
+title: 'Designing a football budget that cannot deadlock'
+description: 'PitchIQ’s €100M draft disabled every card, rewarded the wrong eras, and trapped replacement screens. Measurements—not intuition—fixed the economy.'
+date: '2026-09-21'
+tags: ['game-design', 'algorithms', 'testing', 'football']
+---
+
+Budget Cap looked like a UI feature: attach prices to cards and stop spending above €100M. In practice it was a constraint solver spanning historical economics, random hands, replacements and floating-point arithmetic.
+
+## The pool was feasible; the dealt game was not
+
+The cheapest complete XI in the pool cost €46M. That sounded safe. But players choose from five random cards per slot. Across real deals, the sum of the cheapest card in each hand was **€137M–€265M**. Every card became disabled before the first pick.
+
+The wrong check measured the pool floor. The game is bounded by the hands it actually offers.
+
+```ts
+function deal(slot: Slot, eligible: Card[], rng: RNG) {
+  const cheapest = minBy(eligible, price);
+  return unique([cheapest, ...seededSample(eligible, 4, rng)]);
+}
+```
+
+Guaranteeing one cheapest eligible card per hand moved the dealt floor to €47M–€50M. Hand-written fixtures had hidden the defect because they already contained a cheap card in every hand.
+
+## Historical prices needed indexing, then game currency
+
+Raw values made older eras the only rational choice. Median inflation was also wrong: the middle of the market inflated about 6.5× while the elite inflated about 4.3×, so median correction made a 2004 star cost €179M beside a comparable 2024 player at €101M.
+
+PitchIQ froze top-50 era factors, then used real value only as an ordering signal:
+
+```ts
+function gamePrice(percentile: number) {
+  const millions = 4 + 15.5 * percentile ** 2;
+  return Math.round(millions * 10); // integer tenths of £1M
+}
+```
+
+Percentile mapping preserves bargains—disagreement between rating rank and price rank—without exposing absurd £104M cards under a £100M cap. Linear rescaling failed because the skewed market compressed about 90% of cards into one narrow band.
+
+## Compression also changed difficulty
+
+Shrinking a 40× real range to 4.9× let the budget buy **97% of the best possible XI**. Tripling the pool moved that only to 95.2% while tripling payload. The curve exponent, not pool depth, controlled difficulty.
+
+Every price-model change now measures:
+
+- cost of the globally optimal XI;
+- quality purchasable under the cap;
+- distribution seen by a human choosing from five cards;
+- affordability across all formations.
+
+## Decimal money created unstable decisions
+
+The reserve sums ten future prices every render. Floating-point drift can make a boundary card affordable in one calculation and unavailable in the next. Prices therefore use integer tenths:
+
+```ts
+type PriceTenths = number;
+
+const spent = squad.reduce((sum, card) => sum + card.priceTenths, 0);
+const canAfford = spent + candidate.priceTenths + reserve <= capTenths;
+```
+
+## Replacing a player trapped the screen
+
+When reopening a filled slot, the old calculation included its occupant in `spent` and its hand minimum in `reserve`. The coach saw only loose change, every replacement was disabled, and the inherited Legacy modal had no close, backdrop or Escape behavior.
+
+The open slot must contribute nothing:
+
+```ts
+for (const [index, pick] of picks.entries()) {
+  if (index === openSlot) continue;
+  if (pick) spent += priceOf(pick);
+  else reserve += cheapestFor(index);
+}
+```
+
+Reconsiderable packs can dismiss or clear the slot; locked packs remain non-dismissible. The behavior derives from `lockPicks`, never a mode-name check.
+
+## Bench indices are not formation indices
+
+A 16-player budget squad opened slot 12 and crashed on `shape.slots[i].role`. Formation arrays contain eleven starters. One resolver now owns the boundary:
+
+```ts
+function roleAt(index: number, shape: Formation): Role {
+  return shape.slots[index]?.role ?? BENCH_ROLES[index - shape.slots.length];
+}
+```
+
+## Tests must represent production
+
+The Budget Cap fixture declared `lockPicks: true` although the actual pack used `false`, so 126 tests exercised a state the mode could never enter. Tests now import the pack, use real-data feasibility probes, open bench slot 12 and verify escape paths.
+
+A constrained game needs proofs about every state the player can reach—not only a valid final squad.

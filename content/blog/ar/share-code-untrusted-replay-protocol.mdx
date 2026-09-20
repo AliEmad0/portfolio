@@ -1,0 +1,110 @@
+---
+title: 'رمز المشاركة بروتوكول إعادة غير موثوق'
+description: 'فشلت روابط PitchIQ بسبب مفاتيح تشكيل وهمية، ومسارات خاطئة، وقرارات مكررة، وseed مفقود، وإجابات لا تستطيع القواعد ترميزها.'
+date: '2026-09-21'
+tags: ['typescript', 'protocols', 'urls', 'game-engine']
+---
+
+رابط المشاركة ليس كيسًا من حالة الواجهة، بل بروتوكول ذو إصدار يجب أن يعيد بناء الكيان نفسه على مسار ومتصفح وإصدار آخر.
+
+تعلّم PitchIQ ذلك من أعطال ظهرت كلها كأن «الرابط المنسوخ لا يعمل».
+
+## الهوية الثابتة ليست index داخل array
+
+حملت التشكيلات أسماء مثل `4-3-2-1 Christmas Tree/11` فيها مسافات وشرطة، بينما قبل regex الأول fixture وهمية `4-4-2` لا ينتجها أي تشكيل حقيقي.
+
+وكان index غير آمن لأن ترتيب التشكيلات خاص بالعرض.
+
+```ts
+export function formationSlug(name: string) {
+  return slugify(name);
+}
+
+export function formationBySlug(slug: string) {
+  return FORMATIONS.find((shape) => formationSlug(shape.name) === slug) ?? null;
+}
+```
+
+يفحص الاختبار رحلة الذهاب والعودة لكل التشكيلات العشرين وفرادة slugs.
+
+## مسار الاستقبال جزء من الهوية
+
+تملك Legacy pools خاصة بالنادي، لكن `shareUrl` ثبّت `/game/draft`. نجح فك الرمز ثم فشل حل البطاقات داخل pool المسار العام.
+
+```ts
+const shareUrl = new URL(pathname, origin);
+shareUrl.searchParams.set('match', encodeMatch(match));
+```
+
+يستخدم الرابط الآن المسار الذي لُعبت عليه المباراة. كما تسافر هوية المنافس وسياسة اختياره؛ اختراعهما أثناء الإعادة يصنع مباراة مختلفة.
+
+## يجب أن تبقى حالة الاستعلام عبر كل رابط
+
+قُرئ `?format=season` بعد hydration للحفاظ على المسار ثابتًا. لكن محدد النادي على الخادم أصدر روابط عارية وأسقطه، ففتح Full Season مباراة واحدة.
+
+يحمل حد عميل ضيق القيمة الوحيدة المعروفة:
+
+```tsx
+export function ChoiceLink({ href, format, children }: Props) {
+  const target = format === 'season' ? `${href}?format=season` : href;
+  return <Link href={target}>{children}</Link>;
+}
+```
+
+ولا يكرر إدخال المستخدم العشوائي في الرابط.
+
+## يجب قبول القرار مرة واحدة بالضبط
+
+شغّل React Strict Mode effect الإجابة مرتين. قدّمت الأولى stream، ثم أجابت المكررة القرار التالي بشكل القرار السابق. نجح الحفظ ورفضت الإعادة الحتمية البيانات.
+
+فحص «يوجد قرار معلق» غير كاف لأن قرارًا جديدًا أصبح معلقًا:
+
+```ts
+function answer(decision: Decision, response: Answer) {
+  if (
+    response.kind !== decision.kind ||
+    response.minute !== decision.minute ||
+    response.side !== decision.side
+  )
+    return state;
+
+  return reduceAnswer(state, response);
+}
+```
+
+## يجب أن يسلّم الإعداد seed إلى الشاشة التالية
+
+بنت معاينة Chaos الفريقين من seed، لكن التأكيد أنشأ قيمة جديدة وأعاد سحب المنافس خلف الشاشة. تحمل نتيجة الإعداد seed الآن:
+
+```ts
+type ConfirmedSetup = {
+  seed: number;
+  homeCardIds: string[];
+};
+
+confirmSquad({ seed: previewSeed, homeCardIds });
+```
+
+يقارن الاختبار المنافس المرئي على اللوحة بالبرنامج، لا بإعادة اشتقاق قد تكرر العيب نفسه.
+
+## يجب أن ترفض القواعد الإجابة المستحيلة
+
+حمل تبديل تلقائي `reason` تمنعه قواعد token. عمل الترميز أثناء شاشة النهاية، فرمى خطأ وأسقط الصفحة.
+
+```ts
+function normalize(answer: Answer): EncodableAnswer {
+  if (answer.kind === 'sub-offer') {
+    const { reason: _ignored, ...safe } = answer;
+    return safe;
+  }
+  return answer;
+}
+```
+
+ولا يستطيع dismissal أن يبدّل لاعبًا ويعين حارس طوارئ معًا. تجعل token heads المنفصلة الحالة غير صالحة بدل فكها بشكل غامض.
+
+## الإعادة تحقق وليست أفضل محاولة
+
+يستخدم resume وshare مسار `replayWith` واحدًا. يعيد المحرك الأحداث من الإعداد وseed والقرارات ثم يفحص fingerprint. يُحذف الحفظ المحلي القديم، وقد يظهر تحذير تغير للرابط، لكن لا يخترع أي منهما بديلًا مقنعًا.
+
+لذلك تستخدم اختبارات البروتوكول تشكيلات وpools حقيقية وكل tokens وبيانات تالفة ومسارات خاطئة وإجابات مكررة. fixture لا يمكن حدوثها لا تثبت شيئًا عن بروتوكول يستخدمه اللاعبون.

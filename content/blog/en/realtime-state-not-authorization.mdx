@@ -1,0 +1,88 @@
+---
+title: 'Realtime state is a hint, not authorization'
+description: 'Rung’s binary frames, stale offline snapshots, revoked members, and optimistic navigation races showed why live collaboration needs an authoritative server boundary.'
+date: '2026-09-21'
+tags: ['supabase', 'realtime', 'offline', 'security']
+---
+
+Rung's collaboration layer had four sources of apparent truth: PostgreSQL, Realtime messages, local persistence and optimistic React state. Incidents happened whenever a faster source was mistaken for the authoritative one.
+
+## Presence metadata can be forged
+
+The existing “Presence is not identity” incident moved user identity and workspace access to the server. Client metadata may decorate a cursor, but it cannot grant a topic or write permission.
+
+Membership removal also needs proactive eviction. Leaving an old guest subscribed to a permanent workspace topic keeps delivering events after access changes. Rung uses leases and rotating generation topics so revocation can strand the obsolete generation and authorize the next subscription afresh.
+
+```ts
+const topic = `workspace:${workspaceId}:generation:${generation}`;
+await authorizeTopic({ workspaceId, generation, userId: session.user.id });
+```
+
+## A parser that handles only JSON proves little
+
+A sabotage test inspected Realtime WebSocket messages as JSON. Some protocol frames were binary, so invalidation events passed through unobserved and the test reported green.
+
+```ts
+function decodeFrame(frame: string | ArrayBuffer) {
+  if (typeof frame === 'string') return JSON.parse(frame);
+  return decodePhoenixBinary(new Uint8Array(frame));
+}
+```
+
+The final assertion observes application behavior—another client receives the invalidation—not merely a particular transport representation.
+
+## Offline state cannot reopen permission
+
+A cached workspace snapshot can render quickly, but an old snapshot may say the user is still an editor. Treating it as authorization lets removed members reopen write controls while reconnecting.
+
+The model separates content from capability:
+
+```ts
+type CachedWorkspace = {
+  data: WorkspaceSnapshot;
+  observedAt: number;
+  // No authoritative canWrite field.
+};
+
+const canWrite = serverMembership?.role === 'owner' || serverMembership?.role === 'editor';
+```
+
+The UI may show stale content offline, but mutations wait for current server authority. An obsolete snapshot never upgrades permission.
+
+## Optimistic UI is not durable state
+
+Workspace setup redirected immediately after starting an IndexedDB write. On the next page, hydration raced the unfinished persistence and appeared to lose setup.
+
+```ts
+await workspaceStore.save(snapshot);
+router.push(`/workspace/${snapshot.id}`);
+```
+
+Tests had the same mistake: they saw optimistic text, pressed Tab or reloaded, and assumed the network write had completed. Traces showed reload happening before the request.
+
+A durable test waits for the mutation response or reads the committed database row before reload:
+
+```ts
+const saved = page.waitForResponse(
+  (response) => response.url().includes('/tasks') && response.request().method() === 'PATCH',
+);
+
+await editor.fill('Committed text');
+await saved;
+await page.reload();
+await expect(editor).toHaveValue('Committed text');
+```
+
+## Resolve conflicts by authority, not arrival order
+
+The ordering is:
+
+1. PostgreSQL policies and membership decide permission.
+2. Confirmed server rows decide durable content.
+3. Realtime invalidates or advances known state.
+4. Local storage accelerates startup and supports offline reading.
+5. Optimistic state predicts the result but must reconcile.
+
+A later-arriving cache entry is not newer merely because it arrived later. Every layer needs identity, version or observation time.
+
+Realtime systems become safer when “live” means fast delivery—not a second authorization system.

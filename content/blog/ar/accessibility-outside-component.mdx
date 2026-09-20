@@ -1,0 +1,106 @@
+---
+title: 'تعيش أخطاء الوصول خارج المكون الذي فحصته'
+description: 'مرت مشاكل contrast وsticky وportal والأزرار المتداخلة والسحب باللمس والscroll لأن كل تدقيق في Rung توقف مبكرًا.'
+date: '2026-09-21'
+tags: ['accessibility', 'css', 'responsive', 'testing']
+---
+
+شحن Rung token بنسبة 2.78:1 وعدة أدوات أصغر من ٤٤px رغم اختبارات الوصول. لم تكن الاختبارات بلا فائدة؛ كان نطاقها ضيقًا.
+
+## تحتاج tokens إلى عقود مقاسة
+
+بدا `ink-faint` مقبولًا على شاشة وفشل القياس. كما بقيت خلفيات paper ثابتة داخل الوضع الداكن.
+
+```css
+:root {
+  color-scheme: light dark;
+  --surface: #fbfaf7;
+  --ink-muted: #5f5c57;
+}
+
+[data-theme='dark'] {
+  --surface: #151515;
+  --ink-muted: #b9b5ad;
+}
+```
+
+لم يستطع لون المستخدم بلوغ 4.5:1 في الوضعين؛ كان أفضل حد نظري نحو 4.115:1. لذلك أصبح علامة غير نصية بشرط 3:1، وبقي النص على tokens مضبوطة. يجب أن يكون المطلوب ممكنًا رياضيًا.
+
+## تتراكم مشاكل responsive
+
+غطى header شفاف المحتوى. ضغطت chips التي لا تملك `shrink-0` العناوين. استخدمت inputs ‏15px وشغلت zoom في iOS. ووجدت أدوات وأهداف أصغر من ٤٤px خارج dialog المختبر.
+
+يجمع الحل layout وقواعد التدقيق:
+
+```css
+.task-chip {
+  flex-shrink: 0;
+}
+.mobile-input {
+  font-size: 16px;
+}
+.icon-button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.scroll-content {
+  scroll-padding-block-end: var(--composer-height);
+}
+```
+
+يجب أن يكون composer sticky بالنسبة للعنصر الذي يمرر فعلًا، مع مساحة تمنع إخفاء آخر مهمة.
+
+## تخرج portals من تدقيق subtree
+
+يُركب محتوى popover وcalendar تحت `document.body` لا داخل DOM الخاص بـdialog. يفوته تدقيق dialog وحده.
+
+```ts
+const dialog = page.getByRole('dialog');
+await expect(dialog).toPassAxe();
+
+const portal = page.locator('[data-radix-popper-content-wrapper]');
+await expect(portal).toPassAxe();
+```
+
+ينطبق الأمر على focus وdismiss: اختبر ملكية العرض الحقيقية لا تداخل source.
+
+## قد تكسر markup تبدو صحيحة semantics
+
+صنع button داخل button تفاعلًا غير صالح وغموضًا للوحة المفاتيح. كما غيّر control يحمل `aria-label` داخل heading الاسم المقروء للعنوان.
+
+الحل فصل بنيوي:
+
+```tsx
+<h2 id={headingId}>{title}</h2>
+<button aria-describedby={headingId} aria-label="Task actions">
+  <MoreIcon />
+</button>
+```
+
+يحتفظ العنوان باسمه وتحصل الأداة على السياق.
+
+## touch مصطنع ليس touch
+
+استولى PointerSensor على اللمس، ولم تمثل `TouchEvent` مصطنعة pipeline المتصفح. لم يصلح ترتيب sensors الملكية.
+
+يستخدم Rung sensors منفصلة للماوس واللمس، ويختبر عبر input حقيقي من المتصفح/CDP. كما يفحص scroll container الحقيقي: التطبيق يمرر `<main>` لا `document`.
+
+```ts
+const before = await main.evaluate((node) => node.scrollTop);
+await dragWithTouch(page, source, target);
+expect(await main.evaluate((node) => node.scrollTop)).toBeGreaterThan(before);
+```
+
+## افحص سطح النظام
+
+تشمل المصفوفة المفيدة:
+
+- الوضع الفاتح والداكن؛
+- الهاتف وسطح المكتب؛
+- keyboard وmouse وtouch حقيقي؛
+- subtree وportals؛
+- initial وloading وerror وoptimistic؛
+- scroll container الحقيقي؛
+- contrast النص وغير النص بحديهما الصحيحين.
+
+الوصول ليس خاصية داخل المكون؛ ينتج من المكون وportal والثيم والعرض وطريقة الإدخال معًا.

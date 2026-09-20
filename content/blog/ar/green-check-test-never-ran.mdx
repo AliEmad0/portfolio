@@ -1,0 +1,89 @@
+---
+title: 'قد تعني العلامة الخضراء أن الاختبار لم يعمل'
+description: 'أنتج sabotage وshell وreload متفائل وإثبات SSR زائف وPR متعارض نتائج خضراء مقنعة من دون إثبات النظام.'
+date: '2026-09-21'
+tags: ['testing', 'ci', 'playwright', 'debugging']
+---
+
+النتيجة الخضراء الأخطر ليست assertion ضعيفة، بل مسارًا لم تحدث فيه التجربة المقصودة.
+
+## يجب أن يعيد sabotage النظام ويبلغ حكمه
+
+عطّل سكربت RLS الحماية وابتلع output عبر pipeline وقد يخرج من دون إعادتها. جعل retry الدليل أقل ثقة.
+
+يعامل harness المتين cleanup كجزء من الاختبار:
+
+```ts
+let sabotaged = false;
+try {
+  await disablePolicy();
+  sabotaged = true;
+  await runExpectedFailure();
+  await assertReport();
+} finally {
+  if (sabotaged) await enablePolicy();
+  await assertPolicyEnabled();
+}
+```
+
+يكتب تقريرًا مقروءًا آليًا ولا يعيد المحاولة. فشل تطبيق sabotage ليس نجاحًا للحارس.
+
+## قد تستبدل shell exit code
+
+لا يلتقط `set -e` كل فشل داخل `&&`، ويعيد `command | tail` حالة `tail` من دون pipefail. كما وسعت أوامر بين Windows وWSL variables داخل shell الخطأ.
+
+استخدم process API مباشرًا أو احفظ كل نتيجة:
+
+```bash
+set -euo pipefail
+pnpm test 2>&1 | tee test.log
+status=${PIPESTATUS[0]}
+exit "$status"
+```
+
+احفظ JSON/JUnit قبل أن يستطيع wrapper إنهاء العملية.
+
+## النص المتفائل ليس صفًا محفوظًا
+
+كتبت E2E ورأت UI تتغير ثم أعادت التحميل قبل اكتمال PATCH. بدا النص مفقودًا عشوائيًا.
+
+انتظر mutation أو اقرأ القاعدة. كما أن Supabase admin-style client لم يضمن grants؛ جعلت null فحص cleanup ينجح. يستخدم التحقق المميز اتصال قاعدة مباشرًا ويفحص عدد الصفوف.
+
+## DOM بعد hydration لا يثبت SSR
+
+قراءة DOM بعد JavaScript لا تثبت وجود النص في HTML الخادم؛ ربما أضافه hydration.
+
+```ts
+const response = await request.get(route);
+const html = await response.text();
+expect(html).toContain('data-server-task');
+```
+
+افحص marker المقصود لا نص payload قد يظهر في بيانات مسلسلة لسبب آخر.
+
+## flake زمني يحتاج حدًا سلوكيًا
+
+تسابق اختبار rate limit مع ساعة PostgreSQL مطلقة وفشل بنحو 0.6%. زيادة sleep خفضت الاحتمال ولم تلغ السباق.
+
+احقن الوقت أو ثبته ثم اختبر قبل الحد وبعده. قِس معدل flake على commit نفسه؛ rerun أخضر دليل nondeterminism لا إصلاح.
+
+## dev يشوه E2E
+
+عملت Playwright مع `next dev`، فتجاوز compilation وقت الاختبار واستهلك signup ميزانية حسابات. يجعل build الإنتاج تكلفة المسار ثابتة، وتعيد fixtures استخدام الحسابات وتسلسل suites التي تغير القاعدة.
+
+## قد يعني عدم وجود الأحمر عدم وجود الاختبار
+
+لا يشغل GitHub workflow عندما لا يستطيع صنع merge ref لـPR متعارض. قد يبقى Vercel أخضر فيظهر “لا أحمر” بلا CI.
+
+تطلب أداة الدمج check باسم `test` بحالة `completed/success` على head SHA الحالي. الشبكة والمهلة و`skipped` و`neutral` و`stale` ليست نجاحًا.
+
+```py
+if check.name != "test" or check.sha != head_sha:
+    refuse("required check missing")
+if check.status != "completed" or check.conclusion != "success":
+    refuse("required check not successful")
+```
+
+تفصل exit codes بين فشل الاختبار والمهلة وعدم الوصول إلى GitHub.
+
+السؤال خلف كل أخضر: ما التجربة التي عملت، وعلى أي commit وبأي سلطة، وما الملاحظة التي كانت ستجعلها تفشل؟

@@ -1,0 +1,102 @@
+---
+title: 'أخطاء كرة القدم المختبئة بين المحرك وReact'
+description: 'كانت الطلبات الملغاة وطلبات الدكة المتأخرة والحارس المطرود والحركة المخفضة وVAR صحيحة منفردة، وفشلت عند حدود دورة الحياة.'
+date: '2026-09-21'
+tags: ['react', 'game-engine', 'state-machines', 'testing']
+---
+
+قد يكون المحرك الحتمي صحيحًا بينما التجربة المحيطة خاطئة. وجد PitchIQ أصعب عيوبه حيث تلتقي الحالة النقية مع effects والساعة وقرارات المدرب.
+
+## كشف Strict Mode تحميلًا لا ينتهي
+
+استخدم effect جلب ref دائمة باسم “started”:
+
+```tsx
+if (started.current) return;
+started.current = true;
+fetchProfile({ signal: controller.signal });
+return () => controller.abort();
+```
+
+ينفذ mount التطويري setup → cleanup → setup. ألغى cleanup الطلب الأول، ثم منعت ref البديل. بقيت الشاشة تحمل للأبد.
+
+يمتلك كل setup طلبه الآن:
+
+```tsx
+useEffect(() => {
+  const controller = new AbortController();
+
+  void fetchProfile({ signal: controller.signal })
+    .then(setProfile)
+    .catch((error) => {
+      if (error.name !== 'AbortError') setError(error);
+    });
+
+  return () => controller.abort();
+}, [playerId, season]);
+```
+
+تمنع dependencies الثابتة الطلبات غير اللازمة؛ لا يجب أن تعيش ref بعد setup مُلغى.
+
+## زر الدكة طلب لا حدث فوري
+
+يصدر المحرك عروض التبديل بين الدقيقة ٥٥ و٨٥. يطلب الضغط خارج العرض الفتح عند التوقف التالي. لم يكن ممكنًا تنفيذ طلب بعد ٨٥، فظل الزر معطلًا حتى النهاية.
+
+```ts
+function requestLapsed(state: MatchState, request: BenchRequest) {
+  if (state.pendingDecision?.kind === 'sub-offer') return false;
+  return state.minute > SUB_WINDOW_END || state.minute - request.requestedAt > REQUEST_GRACE;
+}
+```
+
+يجب أن يعمل effect الفتح قبل auto-answer، وأن يتوقف auto-answer أثناء وجود الطلب. ترتيب effects جزء من السلوك عندما تراقب القرار نفسه.
+
+## طرد الحارس يحتاج قرار كرة قدم
+
+لم تغيّر إجابة dismissal الافتراضية شيئًا، فبقي المرمى فارغًا والحارس الاحتياطي على الدكة. عبر ٦٠٠ seed طُرد حارس في ٥٦ مباراة، وانتهت ٤٧ منها بلا حارس.
+
+تختار السياسة الآن حارس الدكة:
+
+```ts
+if (decision.kind === 'dismissal' && decision.keeperGone) {
+  const reserve = decision.legalOn.find((player) => player.role === 'GK');
+  if (reserve) return substituteKeeper(decision, reserve);
+}
+```
+
+انخفضت النتيجة إلى ٣ من ٦٠٠، وهي حالات لا يبقى فيها حارس. تحتاج قرار لاعب طوارئ منفصلًا وتظل مسجلة بدل إخفائها بحدث تبديل زائف.
+
+كما تحفظ pools المنافس حدًا أدنى لكل مركز. اختيار الأعلى تقييمًا فقط ترك مرة حارسًا واحدًا وأدخل مهاجمًا في المرمى.
+
+## الحركة المخفضة ما زالت تحتاج تقدم الحالة
+
+بدأت الدقيقة المرئية من سقف المحرك، ثم خرج clock effect مبكرًا عند reduced motion ولم يتبع القرارات التالية. تجمد العرض عند أول توقف.
+
+```tsx
+useEffect(() => {
+  if (reducedMotion) setMinute(ceilingMinute);
+}, [reducedMotion, ceilingMinute]);
+```
+
+تلغي الحركة المخفضة animation لا المعلومات والتقدم. احتاج الإصلاح شاشتي live وreplay وفشل في ٥ من ١٠ تشغيلات قبل الحماية.
+
+## يغيّر VAR النتيجة عند الحكم
+
+زاد التعليق كل هدف ولم ينقص الملغي. بعد عكس VAR كتب feed ‏1–2 بينما اللوحة ‏0–2.
+
+```ts
+for (const event of events) {
+  if (event.type === 'goal' && event.minute <= minute) score[event.side]++;
+  if (event.type === 'var-disallowed' && event.minute <= minute) {
+    score[event.side]--;
+  }
+}
+```
+
+يبقى الهدف ظاهرًا حتى دقيقة الحكم. حذفه من دقيقته الأصلية يهدم القصة المقصودة.
+
+## يجب أن تعبر الاختبارات الحد
+
+لم تكشف اختبارات المحرك النقية تكرار effect وساعة reduced motion وترتيب dialog. وأخفت دكة متاحة دائمًا حالة الحارس الطارئ. تقود التغطية المفيدة hook الحقيقي تحت Strict Mode، وتستهلك التبديلات قبل الطرد، وتتجاوز نافذة الطلب، وتقارن التعليق باللوحة.
+
+صحة الوحدات لا تضمن صحة النظام. تحتاج الحدود اختبارات state machine خاصة بها.

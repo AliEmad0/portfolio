@@ -1,0 +1,86 @@
+---
+title: 'تفشل حالة App Router عند حدود التنقل'
+description: 'عملت reducers القديمة وnot-found الخاطئة والمسارات المعترضة وnull المتفائلة وredirects حتى غيّر التنقل سياق المكون.'
+date: '2026-09-21'
+tags: ['next', 'react', 'routing', 'state']
+---
+
+ثبّت Rung إصدار Next 15 بعد عدم استقرار Next 16، لكن الإصدار لم يكن القصة كاملة. جاءت معظم مشاكل التنقل من افتراض أن المكون يحتفظ بالمعنى نفسه عبر payloads والمسارات المعترضة والتحميل الكامل.
+
+## يعمل initializer الخاص بـreducer مرة واحدة
+
+استخدمت لوحة التفاصيل بيانات الخادم كـinitializer لـ`useReducer`. أعاد الانتقال إلى مهمة أخرى استخدام المكون، فاحتفظ reducer بحالة المهمة الأولى.
+
+```tsx
+const [state, dispatch] = useReducer(reducer, task, createState);
+
+useEffect(() => {
+  dispatch({ type: 'server-replaced', task });
+}, [task.id, task.updatedAt]);
+```
+
+كما نفذت الإجراءات غير المتزامنة `reset()` عامًا بعد الحفظ. إذا فتح المستخدم محررًا أحدث أثناء الطلب أغلقه اكتمال الطلب القديم. يحمل الإجراء الآن token للإصدار ولا يغلق إلا الحالة التي بدأها.
+
+## قد تكون null قيمة متفائلة مقصودة
+
+جعل هذا التعبير مسح الحقل يبدو فاشلًا:
+
+```ts
+const visibleValue = optimisticValue ?? serverValue;
+```
+
+كانت `null` تعني «امسح»، لكن nullish coalescing فسرتها «لا توجد حالة متفائلة».
+
+```ts
+type Optimistic<T> = { active: false } | { active: true; value: T | null };
+
+const visible = optimistic.active ? optimistic.value : serverValue;
+```
+
+تحتاج state machine sentinel منفصلًا لغياب التوقع.
+
+## لا يستطيع boundary التقاط parent الخاص به
+
+وُضع not-found داخل layout الذي يجب أن يلتقط أخطاءه، فلم يعمل عند فشل إنشاء layout. نقله إلى مستوى segment الصحيح أصلح الملكية.
+
+وتحتاج parallel slots إلى `default.tsx` للتحميل المباشر. كما أن `notFound()` داخل modal slot استبدل صفحة القائمة كلها؛ السلوك الصحيح overlay بحالة 200 يشرح عدم توفر المهمة.
+
+## يجب اختبار interception من المدخلين
+
+ينفذ `<a>` انتقال document ولا يثبت اعتراض العميل. تغطي الاختبارات:
+
+```ts
+await page.getByRole('link', { name: taskName }).click(); // overlay
+await expect(page).toHaveURL(/tasks\/[^/]+$/);
+
+await page.goto(taskUrl); // صفحة كاملة
+await expect(page.getByRole('main')).toContainText(taskName);
+```
+
+يجب أن ينتج reload للرابط المعترض الصفحة الأساسية، لا overlay عاش داخل history فقط.
+
+## يجب أن يحفظ redirect الأصل والcookies
+
+بناء redirect من `request.url` استخدم أصل proxy داخليًا. فقد الانتقال بين الأصول cookies. ووضع تنفيذ آخر cookie على response ثم أعاد response مختلفة.
+
+```ts
+const response = NextResponse.redirect(new URL('/workspace', publicOrigin));
+response.cookies.set('session-ready', '1', cookieOptions);
+return response;
+```
+
+تتجنب redirects النسبية إعادة بناء الأصل. وعند الحاجة إلى URL مطلق يُستخدم host العام الموثوق لا socket الداخلي.
+
+## تثبيت الإصدار قرار استقرار
+
+ثبّت Rung Next 15 لأن الإصدار الأحدث سبب مشاكل بناء وتشغيل. لا يعني pin تجاهل الترقية: تُسجل الأعطال، ويُحفظ فرع ترقية، وتُعاد اختبارات direct load وinterception وcookies وبناء الإنتاج.
+
+صحة التوجيه مصفوفة:
+
+- انتقال العميل مقابل تحميل document؛
+- route معترض مقابل canonical؛
+- أول payload مقابل مكون معاد الاستخدام؛
+- قيمة متفائلة مقابل صف مؤكد؛
+- أصل داخلي مقابل أصل عام.
+
+اختبار خلية واحدة لا يثبت البقية.
