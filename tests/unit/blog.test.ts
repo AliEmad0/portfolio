@@ -43,6 +43,16 @@ describe('post loading', () => {
     expect([...dates].sort().reverse()).toEqual(dates);
   });
 
+  it('keeps published post slugs equal across English and Arabic', () => {
+    const english = getPosts('en')
+      .map((post) => post.slug)
+      .sort();
+    const arabic = getPosts('ar')
+      .map((post) => post.slug)
+      .sort();
+    expect(arabic).toEqual(english);
+  });
+
   it('derives slug, locale and readingTime', () => {
     const post = getPost('en', 'rtl-done-right');
     expect(post).not.toBeNull();
