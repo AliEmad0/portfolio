@@ -1,0 +1,30 @@
+---
+title: 'The 0.6% test failure that was not random'
+description: 'A Rung rate-limit test raced an absolute PostgreSQL clock window. Intuitive timing fixes reduced the rate without fixing the test.'
+date: '2026-09-17'
+tags: ['testing', 'postgresql', 'debugging']
+---
+
+A Rung rate-limit test failed in CI and passed when the same commit reran. It looked like infrastructure noise. It was a clock-boundary race with a measurable probability.
+
+## The window was absolute
+
+The database grouped calls by the current whole second, not by one second after the first request. The test made two round trips and assumed both landed before the next boundary.
+
+Across 5,000 runs it failed 30 times: 0.60%. The measured gap between server clock reads predicted about 0.55%. That agreement identified the mechanism.
+
+## Two fixes made it rarer
+
+Increasing the window to three seconds divided the risk but left a race. Sleeping until an apparent boundary still failed even though Node and PostgreSQL clocks closely agreed.
+
+Both ideas optimized probability. Neither removed the assumption.
+
+## The shipped test uses a guarantee
+
+The requirement was “a new window resets the count.” It did not require two calls inside one window.
+
+The rewrite makes one call, waits 1.6 seconds against a one-second window, then makes the second. They cannot share a window. It also inspects the counter table and requires two rows with one call each, which is stronger than two successful booleans.
+
+One misleading 4% measurement was caused by another suite truncating the table at the same time. The failure shape—one missing row—revealed deletion rather than a boundary race.
+
+A flaky test is not repaired when failure becomes unlikely. It is repaired when the reason it can fail no longer exists.

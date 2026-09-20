@@ -5,9 +5,11 @@ import { RadialNav } from '@/components/layout/RadialNav';
 const lenisState = vi.hoisted(() => ({
   ref: { current: null as null | { scrollTo: ReturnType<typeof vi.fn> } },
 }));
+const pathnameState = vi.hoisted(() => ({ value: '/' }));
 
 vi.mock('@/animation/LenisProvider', () => ({ useLenis: () => lenisState.ref }));
 vi.mock('@/hooks/useActiveSection', () => ({ useActiveSection: () => 'projects' }));
+vi.mock('@/i18n/navigation', () => ({ usePathname: () => pathnameState.value }));
 vi.mock('@/hooks/useLocaleDir', () => ({
   useLocaleDir: () => ({ dir: 'ltr', sign: 1, locale: 'en' }),
 }));
@@ -15,6 +17,7 @@ vi.mock('@/hooks/useLocaleDir', () => ({
 const items = [
   { id: 'about', label: 'About' },
   { id: 'projects', label: 'Projects' },
+  { id: 'blog', label: 'Blog', href: '/en/blog' },
   { id: 'contact', label: 'Contact' },
 ];
 
@@ -24,6 +27,7 @@ function setup() {
 
 beforeEach(() => {
   lenisState.ref.current = null;
+  pathnameState.value = '/';
   document.body.innerHTML =
     '<header style="height:60px"></header><section id="about"></section><section id="projects"></section>';
 });
@@ -54,6 +58,13 @@ describe('RadialNav', () => {
     setup();
     expect(screen.getByRole('link', { name: 'Projects' })).toHaveAttribute('data-active', 'true');
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('data-active', 'false');
+  });
+
+  it('marks Blog active on the blog index and post routes', () => {
+    pathnameState.value = '/blog/a-post';
+    setup();
+    expect(screen.getByRole('link', { name: 'Blog' })).toHaveAttribute('data-active', 'true');
+    expect(screen.getByRole('link', { name: 'Projects' })).toHaveAttribute('data-active', 'false');
   });
 
   it('smooth-scrolls via Lenis when a target exists', () => {

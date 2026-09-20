@@ -1,0 +1,32 @@
+---
+title: 'The match engine was correct—but the winning goal was missing'
+description: 'PitchIQ simulated stoppage time correctly while its view stopped at 90. Every domain test passed because the defect lived between engine and screen.'
+date: '2026-09-12'
+tags: ['testing', 'game-engine', 'react']
+---
+
+PitchIQ added two to six minutes of stoppage time. The engine generated goals, cards, and commentary there correctly.
+
+The screen stopped at minute 90.
+
+A winner at 93 existed in the event list and never appeared to the player.
+
+## Why the tests stayed green
+
+Domain tests verified the deterministic event sequence. Commentary tests verified the message keys. Neither exercised the view clock through the last event.
+
+The UI contained a constant named FULL_TIME set to 90. Once the display cursor reached it, playback ended. The engine and the screen each behaved according to their own rules; the rules no longer agreed.
+
+## Derive boundaries from the data
+
+The match view model now carries lastMinute, derived from the generated events. The clock cannot finish before the simulation does, regardless of how much added time a future engine version creates.
+
+This is stronger than changing 90 to 96. Another constant would merely move the disagreement.
+
+The same principle protects VAR. An event snapshot may contain a verdict scheduled after the current visible minute. The renderer filters by its own cursor so it does not disallow a goal before the crowd has seen the review.
+
+## Test the seam
+
+The regression test does not only inspect engine output. It drives the view model and proves a stoppage-time event becomes visible at the correct point.
+
+Pure domain tests are valuable, but users experience the composition of domain, state, and rendering. The most embarrassing defects often live at those boundaries: everything is correct in isolation, and the product is wrong.

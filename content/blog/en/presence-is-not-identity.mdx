@@ -1,0 +1,30 @@
+---
+title: 'Presence is not identity'
+description: 'A Supabase Realtime experiment accepted forged presence metadata and kept delivering after membership removal. The fix moved trust server-side.'
+date: '2026-09-16'
+tags: ['security', 'supabase', 'realtime']
+---
+
+Realtime presence answers “who claims to be here?” It does not automatically answer “who has the server verified?”
+
+Rung tested that distinction before shipping collaborative presence.
+
+## The experiment broke the assumption
+
+An authorized user joined a private channel and an outsider was rejected. Then deeper probes found that a client could publish a forged Presence key and user ID, and removing a joined member did not stop delivery on the existing connection.
+
+Calling setAuth with the old token did not force permission evaluation. Obtaining a genuinely refreshed token did.
+
+Channel admission protected the join. It did not authenticate arbitrary metadata or proactively revoke a socket already inside. Client cooperation is not a security boundary.
+
+## Move trust to the server
+
+The replacement uses auth.uid-bound session procedures instead of trusting a supplied member ID. Lists receive rotating authorized topics. Membership changes rotate the room, moving valid clients to a replacement topic while the removed connection remains stranded on the old one.
+
+The test deliberately keeps the removed guest connected. A positive control proves delivery on the replacement topic while the old guest receives no later signal. Disconnecting the guest would prove cooperation, not enforcement.
+
+## Negative tests need positive controls
+
+A realtime refusal can appear correct because the receiver or setup is broken. Every refusal therefore sits beside a known-good delivery.
+
+Presence can provide excellent collaborative UX. It simply cannot become verified identity without a server-owned binding and a revocation story for connections that are already open.

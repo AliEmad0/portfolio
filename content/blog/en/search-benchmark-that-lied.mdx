@@ -1,0 +1,32 @@
+---
+title: 'The search benchmark that lied'
+description: 'Rung looked fast because the benchmark bypassed row-level security and modeled only one growing table. Measuring the real role changed the decision.'
+date: '2026-09-15'
+tags: ['postgresql', 'performance', 'rls']
+---
+
+The first Rung task-search benchmark reported 18.6 milliseconds across 20,000 rows. It looked comfortably below the 150ms stop threshold.
+
+It measured the wrong user.
+
+## The privileged role removed the expensive work
+
+The script ran as postgres, a role that bypasses row-level security. Real searches run as authenticated users, and the active-tasks view checks workspace membership while scanning.
+
+The corrected benchmark used a genuine user ID, switched to the authenticated role, and spread synthetic tasks across real lists and workspaces. Setup and measurement lived inside one transaction that always rolled back, so even a killed process left no test rows behind.
+
+## A realistic role exposed an unrealistic fixture
+
+PostgreSQL still chose a fast bitmap plan because the fixture grew tasks while lists and spaces stayed tiny. The planner could narrow three small lists before touching the large task table.
+
+That was a property of the fixture, not a promise about production.
+
+A second, explicitly labeled measurement disabled index and bitmap scans to answer the original scaling question. Selective and no-match searches crossed 280ms at 20,000 rows. The no-match case mattered most: it cannot fill the result limit early, so it pays for the full scan.
+
+## State what the measurement proves
+
+The natural plan was fast on the current local shape. The forced sequential plan demonstrated the risk once tenant metadata grows. Neither number should impersonate the other.
+
+The evidence supported a trigram index on task titles and, equally important, a workspace-aware query shape.
+
+Benchmarks lie when the role, data distribution, or missing-data case differs from production. A precise timer cannot rescue an inaccurate model.

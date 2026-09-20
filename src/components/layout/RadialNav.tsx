@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useLenis } from '@/animation/LenisProvider';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useLocaleDir } from '@/hooks/useLocaleDir';
+import { usePathname } from '@/i18n/navigation';
+import { getActiveNavId } from './navs/activeNav';
 
 /**
  * `href` lets an item point anywhere (a locale-absolute `/en#about`, or a real
@@ -33,6 +35,8 @@ export function RadialNav({
   const { sign } = useLocaleDir();
   const ids = useMemo(() => items.map((i) => i.id), [items]);
   const active = useActiveSection(ids);
+  const pathname = usePathname();
+  const activeId = getActiveNavId(items, pathname, active);
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -96,7 +100,7 @@ export function RadialNav({
               <a
                 href={item.href ?? `#${item.id}`}
                 onClick={go(item.id)}
-                data-active={active === item.id}
+                data-active={activeId === item.id}
                 tabIndex={open ? 0 : -1}
                 className="radial-link"
               >

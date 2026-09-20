@@ -1,14 +1,18 @@
 'use client';
 
 import { useMemo } from 'react';
+import { usePathname } from '@/i18n/navigation';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useNavScroll } from '@/hooks/useNavScroll';
 import type { NavItem } from '../RadialNav';
+import { getActiveNavId } from './activeNav';
 
 /** #10 — rotated section links stacked along the edge of the viewport. */
 export function EdgeText({ items }: { items: NavItem[] }) {
   const ids = useMemo(() => items.map((i) => i.id), [items]);
   const active = useActiveSection(ids);
+  const pathname = usePathname();
+  const activeId = getActiveNavId(items, pathname, active);
   const nav = useNavScroll();
   return (
     <nav className="edge-text" aria-label="Sections">
@@ -17,7 +21,7 @@ export function EdgeText({ items }: { items: NavItem[] }) {
           key={it.id}
           href={it.href ?? `#${it.id}`}
           onClick={nav(it.id)}
-          data-active={active === it.id}
+          data-active={activeId === it.id}
           className="edge-link"
         >
           {it.label}

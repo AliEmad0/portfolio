@@ -1,0 +1,42 @@
+---
+title: 'Your static site is running a function on every request'
+description: 'PitchIQ was prerendered and fast, yet one locale cookie made every response private and burned through Vercel CPU.'
+date: '2026-09-20'
+tags: ['next', 'vercel', 'performance']
+---
+
+PitchIQ had thousands of prerendered pages, no request-time database, and healthy render times. It still produced 39,000 function invocations in twelve hours.
+
+The pages were static. The responses were not cacheable.
+
+## The clue was in the headers
+
+Every HTML route returned Set-Cookie: NEXT_LOCALE. A shared CDN cannot cache a response that changes a visitor cookie, so Vercel answered with:
+
+```text
+x-vercel-cache: MISS
+cache-control: private, no-cache, no-store
+```
+
+Middleware-exempt controls such as robots.txt and image routes returned cache hits. That contrast isolated the middleware before profiling was necessary.
+
+## We optimized the wrong number first
+
+Two earlier changes reduced the cost of each render: entity pages became static and JSON loaders were memoized. Both were useful. Neither reduced the number of invocations.
+
+A cheap render multiplied by every request from every crawler is still expensive.
+
+## The fix was one flag
+
+Locale detection already lived in the URL, so the cookie was never read. Disabling it restored public responses:
+
+```ts
+defineRouting({
+  localeDetection: false,
+  localeCookie: false,
+});
+```
+
+A scheduled cache guard now probes a representative page and fails when the cache headers regress.
+
+When a supposedly static application consumes server CPU, inspect cacheability before optimizing rendering. Measure the multiplier before polishing the multiplication.
