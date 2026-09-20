@@ -1,0 +1,82 @@
+---
+title: 'Infrastructure failures that impersonate application bugs'
+description: 'A dead API gateway looked like rate limiting; local credentials looked like production; WSL, Node, fonts, migrations, scanners, and shared build output produced false diagnoses.'
+date: '2026-09-21'
+tags: ['devops', 'wsl', 'vercel', 'supabase']
+---
+
+Several expensive debugging sessions began with a truthful application message describing the wrong underlying failure.
+
+## A dead gateway looked like a rate limit
+
+PostgreSQL on port 54322 stayed healthy while `supabase_kong_rung` exited with code 127. Direct database tests passed. Supabase-js failed, and the rate limiter failed closed, showing “Too many attempts” on an empty counter.
+
+Before debugging counters:
+
+```bash
+docker ps -a --filter name=supabase
+curl -i http://127.0.0.1:54321/rest/v1/
+```
+
+A bare `supabase start` did not revive the exited container. A full `supabase stop && supabase start` did.
+
+## Local credentials can produce a false production green
+
+`.env.local` points to `127.0.0.1:54321`. A “production” probe built with it verified the developer's machine and passed. Production checks must obtain production credentials explicitly and print the target host before running destructive or authoritative assertions.
+
+## Migration commands are not the schema
+
+`supabase db push` could wait for confirmation after applying migrations. Killing the process did not mean nothing changed. The safe flow is:
+
+```bash
+supabase db push --linked --dry-run --yes </dev/null
+supabase db push --linked --yes </dev/null
+supabase migration list --linked
+supabase db diff --linked --schema public
+```
+
+Verify objects, not exit status. A merge also does not apply migrations; Vercel can deploy new code against an old schema unless database delivery is coordinated.
+
+## The toolchain can select the wrong runtime
+
+Lexical sorting chose Node v8.17.0 as “latest” among v4–v24:
+
+```bash
+# Wrong
+ls ~/.nvm/versions/node | tail -1
+
+# Correct
+ls ~/.nvm/versions/node | sort -V | tail -1
+```
+
+Windows PATH could also put a broken shim before Linux Node. Project runners pin a Linux-only Node 22 path.
+
+Google font fetches failed builds because WSL's network-family attempt timeout was too short, not because webpack was broken:
+
+```bash
+NODE_OPTIONS=--network-family-autoselection-attempt-timeout=2000 pnpm build
+```
+
+## Shared processes and output cross project boundaries
+
+`pkill -f "next dev"` matched other repositories. Cleanup now verifies `/proc/<pid>/cwd` or targets the project's port.
+
+Build and dev share `.next`. Running both concurrently produced missing chunk and manifest errors; deleting `.next` while dev ran made it worse. Stop the owning process, remove output, then restart.
+
+Windows rewrites also converted whole files to CRLF, burying a small edit in hundreds of changed lines. `.gitattributes` enforces LF, and suspiciously large diffs trigger `git ls-files --eol`.
+
+Long WSL calls could be killed around 45 seconds; UNC writes sometimes failed while inline pipelines once reported a false clean tree. Long jobs run in chunks, verdicts go to files, and `git diff` is the final authority.
+
+## Scanner traffic is real compute
+
+PitchIQ returned branded Next.js 404s for `wp-login.php`, `xmlrpc.php` and `.git/config`. A 404 cannot be prerendered, so every probe bought a Node render.
+
+Middleware now denies a positive list of junk patterns at the edge while exempting `.well-known`. An allowlist of real routes was rejected because it would turn human typos and future sections into bare 404s.
+
+Production probes assert a tiny response body, not only status, because both a rendered 404 and an edge 404 can return 404.
+
+## Keep server boundaries explicit
+
+Heavy data adapters and loaders begin with `import 'server-only'`. Client code consumes domain/view models, preventing a server dataset from leaking into a browser or function bundle.
+
+Operations debugging needs a layered checklist: process, port, credentials, runtime, schema, build output, platform route and only then application logic. The visible error is often the final fallback, not the root cause.

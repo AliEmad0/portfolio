@@ -1,0 +1,82 @@
+---
+title: 'أعطال البنية التي تنتحل شكل أخطاء التطبيق'
+description: 'بدت API gateway ميتة كـrate limit، وبدت credentials محلية كإنتاج، وصنعت WSL وNode والخطوط وmigrations وscanners تشخيصات كاذبة.'
+date: '2026-09-21'
+tags: ['devops', 'wsl', 'vercel', 'supabase']
+---
+
+بدأت جلسات تصحيح مكلفة برسالة صحيحة من التطبيق تصف سببًا سفليًا خاطئًا.
+
+## بدت gateway الميتة كـrate limit
+
+ظل PostgreSQL على 54322 سليمًا بينما خرج `supabase_kong_rung` برمز 127. نجحت اختبارات القاعدة وفشل supabase-js، وأظهر rate limiter الذي يفشل مغلقًا “Too many attempts” على عداد فارغ.
+
+قبل تحليل العداد:
+
+```bash
+docker ps -a --filter name=supabase
+curl -i http://127.0.0.1:54321/rest/v1/
+```
+
+لم يحيِ `supabase start` وحده container. احتاج الأمر `supabase stop && supabase start`.
+
+## قد تنتج credentials محلية أخضر إنتاجيًا زائفًا
+
+تشير `.env.local` إلى `127.0.0.1:54321`. بنى probe «إنتاجي» منها وفحص جهاز المطور ونجح. يجب أن تجلب فحوص الإنتاج credentials صريحة وتطبع host قبل أي assertion موثوق.
+
+## أمر migration ليس schema
+
+قد ينتظر `supabase db push` التأكيد بعد تطبيق migrations. قتله لا يعني عدم حدوث شيء. المسار الآمن:
+
+```bash
+supabase db push --linked --dry-run --yes </dev/null
+supabase db push --linked --yes </dev/null
+supabase migration list --linked
+supabase db diff --linked --schema public
+```
+
+تحقق من objects لا exit status. كما لا يطبق merge migrations؛ قد ينشر Vercel كودًا جديدًا فوق schema قديمة من دون تنسيق.
+
+## قد تختار الأدوات runtime الخطأ
+
+اختار الترتيب النصي Node v8.17.0 كـ«الأحدث» بين v4–v24:
+
+```bash
+# خطأ
+ls ~/.nvm/versions/node | tail -1
+
+# صحيح
+ls ~/.nvm/versions/node | sort -V | tail -1
+```
+
+وقد يضع Windows PATH shim مكسورًا قبل Node لينكس. تثبت runners مسار Node 22.
+
+فشل جلب Google font لأن مهلة network-family في WSL قصيرة، لا لأن webpack مكسور:
+
+```bash
+NODE_OPTIONS=--network-family-autoselection-attempt-timeout=2000 pnpm build
+```
+
+## تعبر العمليات والمخرجات حدود المشاريع
+
+طابق `pkill -f "next dev"` مستودعات أخرى. يتحقق cleanup من `/proc/<pid>/cwd` أو يستخدم port المشروع.
+
+يتشارك build وdev مجلد `.next`. صنع تشغيلهما معًا chunks وmanifests مفقودة، وزاد حذف المجلد أثناء dev المشكلة. أوقف العملية المالكة ثم احذف ثم أعد التشغيل.
+
+كما أعادت كتابة Windows ملفات كاملة بـCRLF ودفنت تعديلًا صغيرًا. تفرض `.gitattributes` LF، ويقود diff ضخم إلى `git ls-files --eol`.
+
+قد تُقتل أوامر WSL الطويلة قرب ٤٥ ثانية، وتفشل كتابة UNC، وقد أعلنت pipeline inline شجرة نظيفة كذبًا. تُجزأ الأعمال، وتُحفظ النتائج في ملفات، ويبقى `git diff` السلطة الأخيرة.
+
+## زيارات scanner حساب حقيقي
+
+أعاد PitchIQ صفحة Next كاملة لـ`wp-login.php` و`xmlrpc.php` و`.git/config`. لا يمكن prerender لـ404، فاشترى كل probe تصيير Node.
+
+يرفض Middleware قائمة إيجابية من junk عند edge ويستثني `.well-known`. رُفض allowlist للمسارات لأنه يجعل أخطاء البشر والأقسام الجديدة 404 عارية.
+
+تفحص production probes حجم body صغيرًا لا status فقط، لأن الرد المرسوم ورد edge كلاهما قد يعيدان 404.
+
+## اجعل حدود الخادم صريحة
+
+تبدأ loaders وadapters الثقيلة بـ`import 'server-only'`. يستهلك العميل نماذج domain/view، فلا تتسرب البيانات إلى حزمة المتصفح أو function.
+
+يحتاج تشخيص العمليات قائمة طبقات: process ثم port ثم credentials ثم runtime ثم schema ثم build output ثم مسار المنصة وأخيرًا التطبيق. الرسالة المرئية غالبًا fallback أخير لا السبب.

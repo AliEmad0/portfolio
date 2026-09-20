@@ -1,0 +1,102 @@
+---
+title: 'The football bugs hiding between an engine and React'
+description: 'Aborted fetches, late bench requests, dismissed keepers, reduced motion, and VAR were correct in isolation but failed at lifecycle boundaries.'
+date: '2026-09-21'
+tags: ['react', 'game-engine', 'state-machines', 'testing']
+---
+
+A deterministic engine can be correct while the experience around it is wrong. PitchIQ found its hardest defects where pure state met effects, clocks and human decisions.
+
+## Strict Mode exposed a permanent loading state
+
+A fetch effect used a persistent “started” ref:
+
+```tsx
+if (started.current) return;
+started.current = true;
+fetchProfile({ signal: controller.signal });
+return () => controller.abort();
+```
+
+React's development mount performs setup → cleanup → setup. Cleanup aborted the first request, then the ref suppressed its replacement. The screen loaded forever.
+
+Each setup now owns its request:
+
+```tsx
+useEffect(() => {
+  const controller = new AbortController();
+
+  void fetchProfile({ signal: controller.signal })
+    .then(setProfile)
+    .catch((error) => {
+      if (error.name !== 'AbortError') setError(error);
+    });
+
+  return () => controller.abort();
+}, [playerId, season]);
+```
+
+Stable dependencies prevent unnecessary requests; a ref must not outlive an aborted setup.
+
+## A bench action is a request, not an instant event
+
+The engine emits substitution offers only between minutes 55 and 85. A bench click outside an offer asked to open at the next stoppage. Requests after minute 85 could never be honored, leaving the button disabled through full time.
+
+```ts
+function requestLapsed(state: MatchState, request: BenchRequest) {
+  if (state.pendingDecision?.kind === 'sub-offer') return false;
+  return state.minute > SUB_WINDOW_END || state.minute - request.requestedAt > REQUEST_GRACE;
+}
+```
+
+The offer-opening effect must run before auto-answer and auto-answer must pause while a request is pending. Effect order is part of behavior when two effects observe the same decision.
+
+## A dismissed keeper needs a football decision
+
+The default dismissal answer made no change, so a red-carded keeper left an empty goal while a reserve keeper remained available. Across 600 seeds, 56 matches dismissed a keeper and 47 originally finished without one.
+
+The default policy now selects a bench goalkeeper:
+
+```ts
+if (decision.kind === 'dismissal' && decision.keeperGone) {
+  const reserve = decision.legalOn.find((player) => player.role === 'GK');
+  if (reserve) return substituteKeeper(decision, reserve);
+}
+```
+
+The result fell to 3 of 600: cases with no keeper remaining. Those require the separate emergency-outfielder decision and remain explicitly tracked rather than hidden by a fake substitution event.
+
+Position-complete rival pools also reserve a minimum per role. Selecting only the highest-rated players once left a pool with one keeper and could put a striker in goal.
+
+## Reduced motion still needs state progression
+
+The visual minute was initialized from the engine ceiling, then the clock effect returned early under reduced motion. It never followed later decisions, freezing the display at the first interruption.
+
+```tsx
+useEffect(() => {
+  if (reducedMotion) setMinute(ceilingMinute);
+}, [reducedMotion, ceilingMinute]);
+```
+
+Reduced motion removes animation, not information or progression. The fix was required in both live and replay views and failed in 5 of 10 measured runs before the guard.
+
+## VAR changes the score at the verdict
+
+Commentary incremented on every goal and never decremented disallowed ones. After a VAR reversal, the feed printed 1–2 while the scoreboard showed 0–2.
+
+```ts
+for (const event of events) {
+  if (event.type === 'goal' && event.minute <= minute) score[event.side]++;
+  if (event.type === 'var-disallowed' && event.minute <= minute) {
+    score[event.side]--;
+  }
+}
+```
+
+The goal remains visible until the verdict minute. Suppressing it from its original minute destroys the intended story.
+
+## Tests must cross the seam
+
+Pure-engine determinism tests missed effect duplication, reduced-motion clocks and dialog ordering. UI tests with an always-available bench missed emergency keepers. Useful coverage drives the real match hook under Strict Mode, exhausts substitutions before dismissal, advances past the request window and compares commentary with scoreboard state.
+
+Correct modules do not guarantee a correct system. The seams need their own state-machine tests.

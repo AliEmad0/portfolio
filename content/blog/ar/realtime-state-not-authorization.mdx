@@ -1,0 +1,88 @@
+---
+title: 'حالة Realtime إشارة وليست تفويضًا'
+description: 'كشفت frames الثنائية وsnapshots القديمة والأعضاء المحذوفون وسباق التنقل أن التعاون الحي يحتاج حد خادم موثوقًا.'
+date: '2026-09-21'
+tags: ['supabase', 'realtime', 'offline', 'security']
+---
+
+امتلكت طبقة التعاون في Rung أربعة مصادر تبدو كحقيقة: PostgreSQL ورسائل Realtime والتخزين المحلي وحالة React المتفائلة. حدثت الأعطال عندما اعتُبر المصدر الأسرع موثوقًا.
+
+## يمكن تزوير metadata الخاصة بـPresence
+
+نقلت حادثة “Presence is not identity” الهوية والوصول إلى الخادم. تستطيع بيانات العميل تزيين cursor، لكنها لا تمنح topic أو إذن كتابة.
+
+كما تحتاج إزالة العضوية طردًا نشطًا. إبقاء الضيف على topic دائم يواصل الأحداث بعد سحب الوصول. يستخدم Rung leases وgeneration topics متغيرة كي يعزل الجيل القديم ويعيد تفويض الاشتراك.
+
+```ts
+const topic = `workspace:${workspaceId}:generation:${generation}`;
+await authorizeTopic({ workspaceId, generation, userId: session.user.id });
+```
+
+## parser يفهم JSON فقط لا يثبت الكثير
+
+راقب اختبار sabotage رسائل WebSocket كـJSON. كانت بعض frames ثنائية، فمرت invalidations من دون ملاحظة وأعلن الاختبار نجاحًا.
+
+```ts
+function decodeFrame(frame: string | ArrayBuffer) {
+  if (typeof frame === 'string') return JSON.parse(frame);
+  return decodePhoenixBinary(new Uint8Array(frame));
+}
+```
+
+يفحص التأكيد النهائي سلوك التطبيق—استلام عميل آخر invalidation—لا تمثيل النقل فقط.
+
+## لا يستطيع offline state إعادة الإذن
+
+يسرّع snapshot قديم العرض، لكنه قد يقول إن المستخدم ما زال editor. اعتباره تفويضًا يعيد أدوات الكتابة لعضو محذوف أثناء الاتصال.
+
+يفصل النموذج المحتوى عن القدرة:
+
+```ts
+type CachedWorkspace = {
+  data: WorkspaceSnapshot;
+  observedAt: number;
+  // لا يوجد canWrite موثوق هنا.
+};
+
+const canWrite = serverMembership?.role === 'owner' || serverMembership?.role === 'editor';
+```
+
+قد تعرض الواجهة محتوى قديمًا offline، لكن mutation ينتظر سلطة الخادم الحالية. لا يرفع snapshot قديم الصلاحية.
+
+## UI المتفائلة ليست حالة دائمة
+
+انتقل إعداد workspace مباشرة بعد بدء كتابة IndexedDB. تسابقت الصفحة التالية مع الكتابة غير المكتملة وبدت البيانات مفقودة.
+
+```ts
+await workspaceStore.save(snapshot);
+router.push(`/workspace/${snapshot.id}`);
+```
+
+كررت الاختبارات الخطأ: رأت النص المتفائل ثم أعادت التحميل وافترضت اكتمال الشبكة. أظهر trace أن reload سبق الطلب.
+
+ينتظر الاختبار المتين استجابة mutation أو الصف الملتزم:
+
+```ts
+const saved = page.waitForResponse(
+  (response) => response.url().includes('/tasks') && response.request().method() === 'PATCH',
+);
+
+await editor.fill('Committed text');
+await saved;
+await page.reload();
+await expect(editor).toHaveValue('Committed text');
+```
+
+## احسم التعارض بالسلطة لا ترتيب الوصول
+
+الترتيب هو:
+
+1. سياسات PostgreSQL والعضوية تقرر الإذن.
+2. صفوف الخادم المؤكدة تقرر المحتوى الدائم.
+3. Realtime يبطل الحالة أو يقدمها.
+4. التخزين المحلي يسرّع ويتيح القراءة offline.
+5. الحالة المتفائلة تتنبأ ثم تتصالح.
+
+دخول cache متأخرًا لا يجعله أحدث. تحتاج كل طبقة هوية أو version أو وقت ملاحظة.
+
+تصبح أنظمة Realtime أكثر أمانًا عندما تعني “live” سرعة التوصيل لا نظام تفويض ثانٍ.

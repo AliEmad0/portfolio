@@ -1,0 +1,103 @@
+---
+title: 'A game rule is also a routing and payload contract'
+description: 'Captain and Nationality drafts exposed how a data registry can trigger builds, break replay, leak another mode’s UI, and ship megabyte pools.'
+date: '2026-09-21'
+tags: ['typescript', 'architecture', 'next', 'game-engine']
+---
+
+PitchIQ correctly modeled seven draft modes as data rather than seven component branches. But “data-driven” does not mean harmless: adding one record can activate routes, prerender combinations and replay assumptions.
+
+## Registration accidentally meant deployment
+
+`routedPacks()` selected every rule pack with a chooser. It did not consult the separate mode registry. Captain's Draft was still labelled planned, but adding it to `RULE_PACKS` generated captain × 51-club paths. The route interpreted each club ID as a captain ID, produced an empty pool and crashed at `shape.slots`.
+
+The failed assumption was that presentation status controlled routing. The fix made readiness atomic: a pack enters the routed registry only after every route supports its chooser.
+
+```ts
+type Chooser = { kind: 'club' } | { kind: 'captain' } | { kind: 'nation' };
+
+function buildPool(pack: RulePack, choice: string) {
+  switch (pack.chooser?.kind) {
+    case 'club':
+      return clubPool(Number(choice));
+    case 'captain':
+      return captainPool(choice);
+    case 'nation':
+      return nationPool(choice);
+    default:
+      return assertNever(pack.chooser);
+  }
+}
+```
+
+Every game route is also explicitly `force-static`; a guard rejects accidental dynamic inference after a previous Active-CPU pause.
+
+## “Not dealt” is not “not in the pool”
+
+Captain's Draft forces the captain into the XI, so the first implementation removed him from candidate cards. Replay later resolved all saved card IDs against the pool and returned null when it could not find the captain.
+
+The captain must remain resolvable:
+
+```ts
+const pool = buildCaptainPool(captainId); // includes every season card
+const deals = roomDeals(pool, {
+  excludePlayers: new Set([captainPlayerId]),
+});
+```
+
+Exclusion uses player identity, not card identity, because one person can have several season cards.
+
+## Recipe breadth is a deployment decision
+
+A nationality ∪ era recipe reached **3,889 players—76% of the dataset—and about 1.28 MB** for one route. Loading was cached, but rating computation was not: 46 pages multiplied roughly 680 squad calculations into about **31,000 scans**.
+
+The solution bounds both identity and work:
+
+```ts
+const pool = rankCards(cards)
+  .filter(oneCardPerPlayer())
+  .pipe(reserveMinorityGroup({ minimum: 80 }))
+  .slice(0, MAX_POOL);
+
+const rated = memoizeBySquad(loadRatedSquad);
+```
+
+Static routes move CPU to build time; they do not make payload or build complexity free.
+
+## Fallback must be resolved at the slot that needs it
+
+Nationality Draft widens nation → continent → world. Precomputing a ring per role failed when Egypt's only centre-back was consumed by the first CB slot. Unpicked cards also disappeared because an earlier five-card hand consumed them conceptually.
+
+```ts
+function dealSlot(slot: Slot, picks: Pick[]) {
+  for (const ring of ringsFor(nation)) {
+    const eligible = cardsIn(ring).filter((card) => canPlay(card, slot, picks));
+    if (eligible.length) return seededHand(eligible, slot.seed);
+  }
+}
+```
+
+Each hand is recomputed from the seed and committed picks. The UI shows which ring supplied it; invisible fallback violates the mode's promise.
+
+## Shared routes need discriminated identities
+
+The nation page inherited club copy and a club rival selector because both used `[mode]/[club]`. Worse, a country code such as `eg` is valid base-36 and could decode as a numeric club.
+
+The route now branches on chooser kind and the protocol marks nation rivals:
+
+```ts
+type RivalRef = { kind: 'club'; id: number } | { kind: 'nation'; code: string };
+
+const encoded = rival.kind === 'nation' ? `~${rival.code}` : rival.id.toString(36);
+```
+
+## What the tests must prove
+
+- every live pack resolves its chooser and route;
+- generated pools are non-empty and position-complete;
+- a forced card remains replay-resolvable but never appears in a hand;
+- payload size and distinct-player caps stay bounded;
+- chooser-specific copy and rivals do not leak across shared routes;
+- tests derive pack fields from production registries instead of restating them.
+
+Registries are executable architecture. A new row deserves the same review as a new route.

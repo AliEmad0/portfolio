@@ -1,0 +1,86 @@
+---
+title: 'App Router state fails at navigation boundaries'
+description: 'Rung’s stale reducers, misplaced not-found files, intercepted routes, optimistic nulls, and cross-origin redirects all worked until navigation changed context.'
+date: '2026-09-21'
+tags: ['next', 'react', 'routing', 'state']
+---
+
+Rung pinned Next 15 after Next 16 instability, but framework version was only part of the story. Most navigation bugs came from assuming a component retained the same meaning across payloads, intercepted routes and full-page loads.
+
+## A reducer initializer runs once
+
+A detail panel used server payload as the initializer for `useReducer`. Navigating to another task reused the component, so the reducer kept the first task's state.
+
+```tsx
+const [state, dispatch] = useReducer(reducer, task, createState);
+
+useEffect(() => {
+  dispatch({ type: 'server-replaced', task });
+}, [task.id, task.updatedAt]);
+```
+
+Async actions also used blanket `reset()` after awaiting a save. If the user opened a newer editor while the request was in flight, completion closed the newer UI. The action now carries an instance/version token and only settles the state it started.
+
+## Null can be an intentional optimistic value
+
+This expression made clearing a field appear to fail:
+
+```ts
+const visibleValue = optimisticValue ?? serverValue;
+```
+
+Here `null` meant “clear it,” but nullish coalescing interpreted it as “no optimistic state.”
+
+```ts
+type Optimistic<T> = { active: false } | { active: true; value: T | null };
+
+const visible = optimistic.active ? optimistic.value : serverValue;
+```
+
+State machines need a separate sentinel for absence of prediction.
+
+## A boundary cannot catch its own parent
+
+The not-found boundary was placed inside the layout it needed to catch, so it never rendered for failures thrown while creating that layout. Moving it to the correct segment level fixed the ownership relation.
+
+Parallel slots add another requirement: every slot needs a `default.tsx` for direct loads. Calling `notFound()` inside an intercepted modal slot replaced the entire list page; the intended behavior was a 200 overlay explaining that the task was unavailable.
+
+## Interception must be tested through both entrances
+
+A plain `<a>` performs a document navigation and cannot prove client interception. Tests now cover:
+
+```ts
+await page.getByRole('link', { name: taskName }).click(); // intercepted overlay
+await expect(page).toHaveURL(/tasks\/[^/]+$/);
+
+await page.goto(taskUrl); // canonical full page
+await expect(page.getByRole('main')).toContainText(taskName);
+```
+
+Reloading an intercepted URL should produce the canonical page, not retain an overlay that existed only in client history.
+
+## Redirects must preserve the public origin and cookies
+
+Building a redirect from `request.url` used an internal proxy origin. Crossing origins lost cookies. Another implementation set cookies on one response and returned a different redirect object.
+
+```ts
+const response = NextResponse.redirect(new URL('/workspace', publicOrigin));
+response.cookies.set('session-ready', '1', cookieOptions);
+return response;
+```
+
+Where possible, relative redirects avoid reconstructing an origin. When an absolute URL is required, derive the trusted public host—not the internal request socket.
+
+## Pinning a version is a stability decision
+
+Rung pinned Next 15 because the newer release caused build/runtime failures. A pin is not permanent avoidance: record the failing behaviors, keep an upgrade branch and rerun direct-load, interception, cookie and production-build tests before moving.
+
+Routing correctness is a matrix:
+
+- client transition versus document load;
+- intercepted versus canonical route;
+- first payload versus reused component;
+- optimistic value versus confirmed server row;
+- internal origin versus public origin.
+
+Testing one cell does not prove the others.

@@ -1,0 +1,106 @@
+---
+title: 'Row-level security is part of the data model'
+description: 'Rung’s RLS failures included recursive membership checks, guest writes, privileged RPCs, INSERT RETURNING surprises, and silent zero-row updates.'
+date: '2026-09-21'
+tags: ['postgresql', 'supabase', 'security', 'rls']
+---
+
+Row-level security is often treated as a WHERE clause attached after schema design. In Rung it became clear that RLS defines who can create, observe and mutate every state, so it belongs in the data model itself.
+
+## Membership checks can recurse
+
+A policy on workspace membership called a helper that queried the same protected membership table under the caller's privileges. PostgreSQL re-entered the policy and recursed.
+
+The helper needs a narrowly scoped security-definer boundary:
+
+```sql
+create function public.is_workspace_member(target uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1 from workspace_members
+    where workspace_id = target
+      and user_id = auth.uid()
+  );
+$$;
+```
+
+Security definer is not permission by itself. The function must constrain `search_path`, use `auth.uid()` internally and expose only the question required.
+
+## Membership is not write permission
+
+Seven content tables originally used `is_workspace_member` for writes. Guests are members, so guests could mutate content. The policy needed a capability:
+
+```sql
+create policy task_update on tasks
+for update
+using (can_write(workspace_id))
+with check (can_write(workspace_id));
+```
+
+Comments intentionally permit guest creation. That exception is documented and tested so a future “security cleanup” does not remove a product rule.
+
+## Privileged RPCs must authorize themselves
+
+A `security definer` function bypasses caller RLS. Assuming the API authenticated the outer request turns an implementation helper into an escalation path.
+
+```sql
+create function create_list(target_workspace uuid, title text)
+returns lists
+security definer
+set search_path = public
+language plpgsql
+as $$
+begin
+  if not can_write(target_workspace) then
+    raise exception 'forbidden' using errcode = '42501';
+  end if;
+
+  -- privileged insert follows only after authorization
+end;
+$$;
+```
+
+Composite foreign keys also enforce that child IDs belong to the same workspace. Authorization cannot repair a schema that permits cross-workspace combinations.
+
+## INSERT RETURNING also needs visibility
+
+PostgreSQL evaluates the SELECT policy for rows returned by `INSERT ... RETURNING`. A caller may have insert permission but fail to receive the row.
+
+The unsafe response was adding a broad SELECT or INSERT grant until the call worked. Rung instead uses a controlled workspace-creation RPC and does not expose generic direct insertion.
+
+## Denial can look like success
+
+Supabase updates and deletes filtered by RLS may affect zero rows without returning an exception. “No error” is not proof that a mutation happened.
+
+```ts
+const { data, error, count } = await supabase
+  .from('tasks')
+  .update(patch, { count: 'exact' })
+  .eq('id', taskId)
+  .select('id');
+
+if (error) throw error;
+if (count !== 1 || data?.length !== 1) throw new Error('Task was not updated');
+```
+
+Tests verify both the allowed actor changes one row and the forbidden actor changes zero.
+
+## Closed tables should stay closed
+
+Some join and activity tables support insert/delete or server-only writes but no update. Generic CRUD grants created states the product never defined. Their permissions now match their lifecycle instead of a framework template.
+
+Case-insensitive uniqueness also lives in the database:
+
+```sql
+create unique index tags_name_ci
+on tags (workspace_id, lower(name));
+```
+
+Client validation remains useful feedback, but only the index resolves concurrent writes.
+
+A secure schema does not ask only “Can this query run?” It asks whether every grant, policy, function and constraint describes the same product capability under concurrency.

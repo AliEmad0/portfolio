@@ -1,0 +1,88 @@
+---
+title: 'يجب أن تنجو قواعد قاعدة البيانات من التزامن والحذف'
+description: 'استبدل Rung المراكز العشرية وسياسات الأرشيف الهشة وtriggers المعادية للحذف والافتراضيات المكررة بقيود تصف الحالات الصالحة.'
+date: '2026-09-21'
+tags: ['postgresql', 'data-modeling', 'concurrency', 'migrations']
+---
+
+تظهر عيوب كثيرة فقط عندما تتحرك الصفوف أو تختفي أو تصل معًا. تشترك حلول Rung في مبدأ: ضع تعريف الحالة الصالحة حيث لا يستطيع عميلان الاختلاف.
+
+## ينفد الفراغ من الترتيب الكسري
+
+استخدمت المهام أرقام floating point ومنتصفًا بين الجارين. فقدت الإدخالات المتكررة الدقة بعد نحو خمسين فجوة، وقد يختار عميلان المنتصف نفسه.
+
+أصبحت المراكز مفاتيح نصية كسرية مع suffix عشوائي وترتيب ثانوي ثابت:
+
+```sql
+select *
+from tasks
+where list_id = $1
+order by position asc, id asc;
+```
+
+يجب أن يبقى المفتاح بين الجارين بدقة. المفتاح المنتهي بصفر نهائي غير صالح لأن تقصيره قد يغير الترتيب، ويجب ألا يتجاوز suffix الجار الأيمن. تولد property tests سلاسل طويلة وكتابات متزامنة في الخانة نفسها.
+
+## رؤية الأرشيف ليست تفويضًا
+
+وضع `archived_at is null` داخل RLS أخفى المهام عن سلة المحذوفات والاستعادة. يقرر التفويض من يرى الصف، ويقرر query هل تريد الشاشة الصف النشط أم المؤرشف.
+
+كما أن ختم كل descendants ولّد كتابات وأحداث Realtime كثيرة. تُشتق حالة الطفل من الأب حيث يمكن بدل نسخها في الشجرة.
+
+## يحدث الحذف بينما تختفي المراجع
+
+فشل حذف الحساب بخطأ 23503. حاولت activity triggers تسجيل actor أثناء حذفه، واستخدمت علاقات المنشئ RESTRICT، ورفض trigger عدم التغيير عملية `SET NULL` المطلوبة.
+
+يميز trigger إعادة الإسناد عن تنظيف النظام:
+
+```sql
+if old.created_by is not null
+   and new.created_by is not null
+   and old.created_by <> new.created_by then
+  raise exception 'created_by is immutable';
+end if;
+```
+
+يتأكد تسجيل النشاط من بقاء الأب والفاعل، ويتخطى الصفوف الناتجة عن حذف الأب نفسه. «اكتب audit دائمًا» غير آمن عندما يختفي موضوعه في transaction نفسها.
+
+## قواعد المنتج تحتاج حراس قاعدة
+
+يجب أن تملك كل workspace حالة closed واحدة. يخسر فحص الواجهة أمام API مباشر أو tabين متزامنين.
+
+```sql
+if old.type = 'closed'
+   and not exists (
+     select 1 from statuses
+     where workspace_id = old.workspace_id
+       and type = 'closed'
+       and id <> old.id
+   ) then
+  raise exception 'workspace requires a closed status';
+end if;
+```
+
+كما كانت ألوان القوائم في أربعة أماكن: TypeScript وSQL وRPC وcolumn default. تحديث UI ترك القوائم المنشأة عبر القاعدة بألوان قديمة. يستدعي الاختبار `create_list` ويقيس الصف المخزن بدل تأكيد نسخة خامسة من hex.
+
+## هوية workspace جزء من المفتاح
+
+سمحت foreign keys منفصلة لطفل بجمع list من مساحة وstatus من أخرى. تجعل القيود المركبة العلاقة بنيوية:
+
+```sql
+foreign key (workspace_id, list_id)
+  references lists (workspace_id, id),
+foreign key (workspace_id, status_id)
+  references statuses (workspace_id, id)
+```
+
+## يجب أن تهاجم اختبارات migration الانتقالات
+
+إدخال صف صالح واحد لا يكشف هذه العيوب. تشمل السيناريوهات المفيدة:
+
+- أكثر من خمسين إدخالًا في الفجوة نفسها؛
+- عميلين يختاران الخانة نفسها؛
+- archive ثم trash ثم restore؛
+- حذف حساب يملك مهامًا ونشاطًا؛
+- إزالة آخر closed status؛
+- تشغيل defaults عبر RPC وData API؛
+- محاولة خلط foreign keys بين المساحات.
+
+القيود ليست حشوًا دفاعيًا؛ إنها التعريف القابل للتنفيذ للحالات التي يعتبرها المنتج ممكنة.

@@ -1,0 +1,110 @@
+---
+title: 'A share code is an untrusted replay protocol'
+description: 'PitchIQ links failed through fake formation keys, wrong routes, duplicated decisions, lost seeds, and answers the grammar could not encode.'
+date: '2026-09-21'
+tags: ['typescript', 'protocols', 'urls', 'game-engine']
+---
+
+A share link is not a bag of UI state. It is a versioned protocol that must reconstruct the same domain object on another route, browser and release.
+
+PitchIQ learned this through failures that all looked like “the copied link does not work.”
+
+## Stable identity cannot be an array index
+
+Formations were identified internally by names such as `4-3-2-1 Christmas Tree/11`. That key contains spaces and a slash, while the first codec regex accepted a simpler fake `4-4-2` fixture that no real formation produced.
+
+Array indexes were also unsafe because formation order is presentation.
+
+```ts
+export function formationSlug(name: string) {
+  return slugify(name);
+}
+
+export function formationBySlug(slug: string) {
+  return FORMATIONS.find((shape) => formationSlug(shape.name) === slug) ?? null;
+}
+```
+
+A test checks all 20 real formations round-trip and all slugs are unique.
+
+## The receiving route is part of identity
+
+Legacy pools are club-specific, but `shareUrl` hardcoded `/game/draft`. The code decoded successfully, then its cards could not resolve against the generic route's pool.
+
+```ts
+const shareUrl = new URL(pathname, origin);
+shareUrl.searchParams.set('match', encodeMatch(match));
+```
+
+The URL now uses the route where the match was played. Rival club/nation and opponent policy also travel in the saved identity; inventing them during replay would create a different match.
+
+## Query state must survive every link
+
+`?format=season` was read after hydration to keep the shared route static. A server-rendered club chooser emitted bare links and silently dropped it, so Full Season opened a single match.
+
+A narrow client boundary carries only the literal it understands:
+
+```tsx
+export function ChoiceLink({ href, format, children }: Props) {
+  const target = format === 'season' ? `${href}?format=season` : href;
+  return <Link href={target}>{children}</Link>;
+}
+```
+
+It does not echo arbitrary user input into the URL.
+
+## Decisions must be accepted exactly once
+
+React Strict Mode invoked an answer effect twice. The first response advanced the stream; the duplicate then answered the next decision with the previous decision's shape. Saving succeeded, but deterministic replay rejected it.
+
+“Something is pending” is not enough because a new decision is pending by then:
+
+```ts
+function answer(decision: Decision, response: Answer) {
+  if (
+    response.kind !== decision.kind ||
+    response.minute !== decision.minute ||
+    response.side !== decision.side
+  )
+    return state;
+
+  return reduceAnswer(state, response);
+}
+```
+
+## Setup must hand the seed forward
+
+Chaos preview built both teams from a seed, but confirmation generated a fresh seed and redrew the opponent behind the next screen. The setup result now includes the seed:
+
+```ts
+type ConfirmedSetup = {
+  seed: number;
+  homeCardIds: string[];
+};
+
+confirmSquad({ seed: previewSeed, homeCardIds });
+```
+
+The guard compares the opponent visible on the board with the programme—not with another derivation that could repeat the same bug.
+
+## The grammar must reject impossible answers
+
+An automatic substitution carried a `reason` that the token grammar forbids. Encoding ran during full-time render, threw, and crashed the page.
+
+```ts
+function normalize(answer: Answer): EncodableAnswer {
+  if (answer.kind === 'sub-offer') {
+    const { reason: _ignored, ...safe } = answer;
+    return safe;
+  }
+  return answer;
+}
+```
+
+A dismissal cannot both substitute and reassign an emergency keeper. Separate token heads make that state ungrammatical rather than ambiguously decodable.
+
+## Replay is verification, not best effort
+
+Resume and share use one `replayWith` path. The engine rebuilds events from setup, seed and decisions, then verifies a fingerprint. Local stale saves are discarded; shared links may show a drift warning, but neither silently invents a plausible alternative.
+
+Protocol tests therefore use real formations, real pools, every answer token, altered bytes, wrong routes and duplicate responses. A fixture that cannot occur proves nothing about a protocol used by real players.

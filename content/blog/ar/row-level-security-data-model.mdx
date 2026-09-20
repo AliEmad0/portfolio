@@ -1,0 +1,106 @@
+---
+title: 'أمن الصفوف جزء من نموذج البيانات'
+description: 'شملت أعطال RLS في Rung recursion داخل العضوية، وكتابة الضيف، وRPC مميزًا، ومفاجأة INSERT RETURNING، وتحديثات صفرية صامتة.'
+date: '2026-09-21'
+tags: ['postgresql', 'supabase', 'security', 'rls']
+---
+
+يُعامل Row-Level Security غالبًا كشرط WHERE بعد تصميم المخطط. كشف Rung أنه يحدد من ينشئ ويرى ويغير كل حالة، لذلك هو جزء من نموذج البيانات نفسه.
+
+## قد تدخل فحوص العضوية في recursion
+
+استدعت policy على جدول العضوية مساعدًا يقرأ الجدول المحمي نفسه بصلاحيات المستخدم. أعاد PostgreSQL دخول policy وتكرر.
+
+يحتاج المساعد حد security-definer ضيقًا:
+
+```sql
+create function public.is_workspace_member(target uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1 from workspace_members
+    where workspace_id = target
+      and user_id = auth.uid()
+  );
+$$;
+```
+
+لا يعني security definer إذنًا تلقائيًا. يجب تقييد `search_path` واستخدام `auth.uid()` وإظهار السؤال اللازم فقط.
+
+## العضوية ليست إذن كتابة
+
+استخدمت سبعة جداول `is_workspace_member` للكتابة. والضيف عضو، فأصبح يستطيع تغيير المحتوى. تحتاج policy capability صريحة:
+
+```sql
+create policy task_update on tasks
+for update
+using (can_write(workspace_id))
+with check (can_write(workspace_id));
+```
+
+تسمح التعليقات عمدًا بإنشاء الضيف. يوثق الاختبار هذا الاستثناء كي لا تلغيه «عملية تشديد» مستقبلية.
+
+## يجب أن تفوض RPC المميزة نفسها
+
+تتجاوز دالة `security definer` RLS. افتراض أن API تحقق من الطلب الخارجي يحول المساعد إلى طريق تصعيد.
+
+```sql
+create function create_list(target_workspace uuid, title text)
+returns lists
+security definer
+set search_path = public
+language plpgsql
+as $$
+begin
+  if not can_write(target_workspace) then
+    raise exception 'forbidden' using errcode = '42501';
+  end if;
+
+  -- الإدخال المميز يأتي بعد التفويض فقط
+end;
+$$;
+```
+
+كما تضمن foreign keys المركبة أن child IDs تنتمي إلى workspace نفسه. لا يستطيع التفويض إصلاح schema يسمح بخلط المساحات.
+
+## يحتاج INSERT RETURNING إلى الرؤية أيضًا
+
+يقيّم PostgreSQL سياسة SELECT للصفوف التي يعيدها `INSERT ... RETURNING`. قد يملك المستخدم الإدخال ولا يستطيع استلام الصف.
+
+كان الحل غير الآمن توسيع SELECT أو INSERT حتى يعمل الطلب. يستخدم Rung RPC مضبوطًا لإنشاء workspace ولا يمنح إدخالًا عامًا.
+
+## قد يبدو الرفض نجاحًا
+
+قد تصفي RLS تحديث Supabase أو حذفه إلى صفر صفوف بلا exception. غياب الخطأ لا يثبت حدوث mutation.
+
+```ts
+const { data, error, count } = await supabase
+  .from('tasks')
+  .update(patch, { count: 'exact' })
+  .eq('id', taskId)
+  .select('id');
+
+if (error) throw error;
+if (count !== 1 || data?.length !== 1) throw new Error('Task was not updated');
+```
+
+تثبت الاختبارات أن المستخدم المسموح يغير صفًا وأن الممنوع يغير صفرًا.
+
+## يجب أن تبقى الجداول المغلقة مغلقة
+
+تدعم بعض جداول الربط insert/delete أو كتابة الخادم فقط، ولا معنى لـupdate عليها. صنعت منح CRUD عامة حالات لا يعرفها المنتج. تطابق الصلاحيات دورة الحياة الآن.
+
+وتعيش الفرادة غير الحساسة للحالة في القاعدة:
+
+```sql
+create unique index tags_name_ci
+on tags (workspace_id, lower(name));
+```
+
+يبقى فحص العميل رسالة مفيدة، لكن index وحده يحسم الكتابات المتزامنة.
+
+لا يسأل المخطط الآمن «هل يعمل الاستعلام؟» فقط، بل هل تصف grants وpolicies والدوال والقيود القدرة نفسها تحت التزامن.

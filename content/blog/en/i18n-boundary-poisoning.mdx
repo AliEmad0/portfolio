@@ -1,0 +1,99 @@
+---
+title: 'When an i18n boundary poisons an entire static build'
+description: 'Three paramless Next.js boundaries selected English before Arabic pages rendered. PitchIQ learned why lang and dir are not localization tests.'
+date: '2026-09-21'
+tags: ['next', 'i18n', 'testing', 'rtl']
+---
+
+PitchIQ once produced **541 English interfaces among 940 Arabic renders** while every document still said `lang="ar" dir="rtl"`. The defect was not a missing translation. It was request configuration being resolved too early and memoized for the rest of the render.
+
+## Root cause: a boundary without locale parameters
+
+Files such as `not-found.tsx`, `error.tsx`, `loading.tsx` and `template.tsx` receive no route params. A server boundary nevertheless called a next-intl server API:
+
+```tsx
+// Unsafe: there is no locale to pass to the request configuration.
+export default async function NotFound() {
+  const t = await getTranslations('errors');
+  return <h1>{t('notFound')}</h1>;
+}
+```
+
+The library resolved the default English catalog and memoized it. Because Next prerendered the boundary as part of the segment shell, the decision happened before the Arabic page and shared layout completed.
+
+The safe boundary is client-side and consumes the locale already fixed by the provider:
+
+```tsx
+'use client';
+
+export default function NotFound() {
+  const t = useTranslations('errors');
+  return <h1>{t('notFound')}</h1>;
+}
+```
+
+A source guard now rejects next-intl server APIs in paramless boundaries.
+
+## Why the first tests lied
+
+These checks all stayed green:
+
+- `<html lang="ar" dir="rtl">` came from route params, not the catalog.
+- Arabic player names came from an explicit entity-name loader.
+- Grepping HTML found Arabic because next-intl serialized the whole catalog.
+- A localized data test passed inside an otherwise English interface.
+
+The useful assertions inspect visible output:
+
+```ts
+expect(screen.getByRole('heading')).toHaveTextContent('الصفحة غير موجودة');
+expect((html.match(/[؀-ۿ]/g) ?? []).length).toBeGreaterThan(20);
+```
+
+## RTL is not a universal mirror
+
+Text layout should use logical properties:
+
+```css
+.card {
+  padding-inline-start: 1rem;
+  border-inline-end: 1px solid var(--line);
+}
+```
+
+A football pitch is physical geometry, not prose. Mirroring player coordinates while fixed goal boxes remained left/right put the goalkeeper in midfield. The pitch opts out:
+
+```tsx
+<div className="pitch" dir="ltr" />
+```
+
+The test asserts the container direction, not identical `insetInlineStart` values that cannot detect the bug.
+
+## Digits and names need explicit Unicode behavior
+
+The target browser returned Western digits from `Intl.NumberFormat('ar')`, and stripping names to `[A-Za-z]` turned Arabic abbreviations into an empty string.
+
+```ts
+const EASTERN = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
+export function localizeDigits(value: string) {
+  return value.replace(/\d/g, (digit) => EASTERN[Number(digit)]);
+}
+
+export function scoreboardName(name: string) {
+  return /[؀-ۿ]/.test(name) ? name : abbreviateLatinName(name);
+}
+```
+
+Canvas text needs the same helper; localization does not stop at React elements.
+
+## Regression strategy
+
+A reliable localization suite verifies four independent contracts:
+
+1. route locale and document direction;
+2. the actual message catalog visible to the user;
+3. entity data selected for the locale;
+4. physical components that intentionally remain LTR.
+
+The central lesson is that locale metadata, data localization, message localization and geometry are separate systems. Testing one cannot prove the other three.

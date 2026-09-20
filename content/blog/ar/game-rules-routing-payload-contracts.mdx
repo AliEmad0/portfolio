@@ -1,0 +1,103 @@
+---
+title: 'قاعدة اللعبة عقد للمسارات والحمولة أيضًا'
+description: 'كشفت أوضاع Captain وNationality كيف يستطيع سجل بيانات تشغيل بناء مكسور، وإفساد الإعادة، وتسريب واجهة وضع آخر، وشحن حمولة ضخمة.'
+date: '2026-09-21'
+tags: ['typescript', 'architecture', 'next', 'game-engine']
+---
+
+نمذج PitchIQ أوضاع السحب كبيانات بدل سبعة فروع داخل المكونات. لكن «مدفوع بالبيانات» لا يعني بلا أثر؛ إضافة سجل واحد قد تفعّل مسارات وتولّد تركيبات وتغيّر افتراضات الإعادة.
+
+## التسجيل صار نشرًا من دون قصد
+
+اختارت `routedPacks()` كل حزمة تملك chooser ولم تقرأ سجل الأوضاع المنفصل. ظل Captain's Draft موسومًا planned، لكن إضافته إلى `RULE_PACKS` ولّدت captain × ٥١ ناديًا. فسّر المسار رقم النادي كمعرّف قائد، فأنتج pool فارغًا وانهار عند `shape.slots`.
+
+كان الافتراض الفاشل أن حالة العرض تتحكم في التوجيه. أصبح شرط الجاهزية ذريًا: لا تدخل الحزمة السجل الموجّه حتى تفهم كل المسارات نوع chooser الخاص بها.
+
+```ts
+type Chooser = { kind: 'club' } | { kind: 'captain' } | { kind: 'nation' };
+
+function buildPool(pack: RulePack, choice: string) {
+  switch (pack.chooser?.kind) {
+    case 'club':
+      return clubPool(Number(choice));
+    case 'captain':
+      return captainPool(choice);
+    case 'nation':
+      return nationPool(choice);
+    default:
+      return assertNever(pack.chooser);
+  }
+}
+```
+
+وتعلن كل مسارات اللعبة `force-static` صراحة، مع اختبار يمنع تحولها إلى ديناميكية بعد حادثة Active CPU السابقة.
+
+## «لا يُوزع» لا تعني «ليس في pool»
+
+يفرض Captain's Draft القائد داخل التشكيلة، فحذفه التنفيذ الأول من بطاقات المرشحين. لكن الإعادة تحل كل card ID محفوظ من pool، وعادت null عندما لم تجد القائد.
+
+يجب أن يبقى القائد قابلًا للحل:
+
+```ts
+const pool = buildCaptainPool(captainId); // يحتوي بطاقات مواسمه
+const deals = roomDeals(pool, {
+  excludePlayers: new Set([captainPlayerId]),
+});
+```
+
+يستخدم الاستبعاد هوية اللاعب لا البطاقة، لأن الشخص قد يملك بطاقات مواسم متعددة.
+
+## اتساع الوصفة قرار نشر
+
+وصل اتحاد الجنسية والعصر إلى **٣٬٨٨٩ لاعبًا—٧٦٪ من البيانات—ونحو ١٫٢٨ MB** لمسار واحد. كانت الملفات مخزنة، لكن حساب التقييم لم يكن كذلك: ضاعفت ٤٦ صفحة نحو ٦٨٠ حساب فريق إلى **٣١ ألف مسح**.
+
+يحد الحل الهوية والعمل:
+
+```ts
+const pool = rankCards(cards)
+  .filter(oneCardPerPlayer())
+  .pipe(reserveMinorityGroup({ minimum: 80 }))
+  .slice(0, MAX_POOL);
+
+const rated = memoizeBySquad(loadRatedSquad);
+```
+
+المسار الثابت ينقل CPU إلى البناء؛ لا يجعل حجم الحمولة وتعقيد البناء مجانيين.
+
+## يجب حل fallback عند الخانة التي تحتاجه
+
+يوسّع Nationality Draft من الدولة إلى القارة ثم العالم. فشل الحساب المسبق لكل role عندما استهلكت أول خانة CB المدافع المصري الوحيد. كما اختفت بطاقات لم يخترها اللاعب لأن اليد السابقة اعتُبرت مستهلكة.
+
+```ts
+function dealSlot(slot: Slot, picks: Pick[]) {
+  for (const ring of ringsFor(nation)) {
+    const eligible = cardsIn(ring).filter((card) => canPlay(card, slot, picks));
+    if (eligible.length) return seededHand(eligible, slot.seed);
+  }
+}
+```
+
+تُعاد كل يد من seed والاختيارات المثبتة، وتعرض الواجهة الحلقة التي جاءت منها؛ fallback الخفي يناقض وعد الوضع.
+
+## المسارات المشتركة تحتاج هوية مميزة
+
+ورثت صفحة الدولة نص النادي ومحدد منافس الأندية لأن كليهما استخدم `[mode]/[club]`. والأسوأ أن رمزًا مثل `eg` صالح base-36 وقد يُفك كرقم نادي.
+
+يفرّع المسار على نوع chooser ويضع البروتوكول علامة للدول:
+
+```ts
+type RivalRef = { kind: 'club'; id: number } | { kind: 'nation'; code: string };
+
+const encoded = rival.kind === 'nation' ? `~${rival.code}` : rival.id.toString(36);
+```
+
+## ما الذي يجب أن تثبته الاختبارات؟
+
+- كل حزمة live تحل chooser والمسار؛
+- كل pool غير فارغ ويغطي المراكز؛
+- البطاقة المفروضة قابلة للإعادة ولا تظهر في اليد؛
+- الحجم وعدد اللاعبين مقيّدان؛
+- لا يتسرب نص أو منافس بين الأنواع؛
+- تستمد fixtures حقولها من سجل الإنتاج بدل نسخها يدويًا.
+
+سجلات البيانات معمارية قابلة للتنفيذ. يستحق السجل الجديد مراجعة مثل المسار الجديد.

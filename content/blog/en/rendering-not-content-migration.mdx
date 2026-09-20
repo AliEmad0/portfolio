@@ -1,0 +1,79 @@
+---
+title: 'Rendering is not a safe place to migrate content'
+description: 'Rung’s Markdown mirror accumulated escapes, lost tables, missed strikethrough, and generated writes during reads until conversion became a tested edit-time pipeline.'
+date: '2026-09-21'
+tags: ['markdown', 'tiptap', 'migrations', 'testing']
+---
+
+Rung stores a Tiptap document and a Markdown mirror. The mirror is useful for safe rendering and portability, but only if conversion is stable across repeated edits.
+
+## A read path must not perform a backfill
+
+The first migration idea generated missing Markdown while rendering a task and wrote it back. That makes a GET mutate data, emits activity, creates cache surprises and can repeat under crawlers or concurrent renders.
+
+Backfills run as explicit migrations or when the user edits:
+
+```ts
+export async function saveDescription(taskId: string, doc: JSONContent) {
+  const markdown = docToMarkdown(doc);
+  await db.tasks.update(taskId, {
+    description_doc: doc,
+    description_md: markdown,
+  });
+}
+```
+
+The render path is pure:
+
+```tsx
+return <Markdown source={task.description_md ?? ''} />;
+```
+
+## Conversion must be stable on the second edit
+
+Escapes accumulated because one pass treated already-escaped punctuation as fresh input. The useful invariant is idempotent round-trip behavior:
+
+```ts
+const once = docToMarkdown(markdownToDoc(source));
+const twice = docToMarkdown(markdownToDoc(once));
+expect(twice).toBe(once);
+```
+
+A converter should return a defined result for every supported document shape; “this helper never throws” is an API contract, not a hope.
+
+## Parser and editor extensions must agree
+
+CommonMark alone does not include strikethrough. Tables failed when the parser accepted them but the Tiptap schema lacked the matching extension. Table cells were configured as block content while the converter emitted inline children, creating empty cells.
+
+```ts
+const editorExtensions = [
+  StarterKit,
+  Table.configure({ resizable: false }),
+  TableRow,
+  TableHeader.configure({ content: 'inline*' }),
+  TableCell.configure({ content: 'inline*' }),
+  Strike,
+];
+```
+
+The Markdown parser uses the corresponding GFM features. Unsupported underline was removed rather than serialized into a format that could not preserve it honestly.
+
+## Browser-only libraries do not belong in server conversion
+
+A Tiptap Markdown helper depended on DOM APIs and failed in server builds. Pure parsing/serialization libraries now own storage conversion; the browser editor only owns interaction.
+
+Raw HTML and `rehype-raw` remain disabled. The rendering pipeline produces a React tree from controlled Markdown rather than accepting arbitrary stored HTML.
+
+## Save timing matters
+
+Debounced saves alone can lose the final edit during navigation. Blur/close flushes the pending value and waits for persistence. Tests wait for the network result, reload, edit again and compare the second round-trip—not merely the optimistic editor text.
+
+The complete contract is:
+
+1. edit document;
+2. convert with matching extensions;
+3. persist document and Markdown together;
+4. render without writes;
+5. reload and convert again without drift.
+
+Content migration is data work. Hiding it in rendering makes reads unpredictable and corruption difficult to observe.

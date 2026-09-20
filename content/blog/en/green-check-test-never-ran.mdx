@@ -1,0 +1,89 @@
+---
+title: 'A green check can mean the test never ran'
+description: 'Rung’s sabotage harness, shell pipelines, optimistic reloads, fake SSR assertions, and conflicted PRs produced convincing green results without proving the system.'
+date: '2026-09-21'
+tags: ['testing', 'ci', 'playwright', 'debugging']
+---
+
+The dangerous false green is not a weak assertion. It is an execution path where the intended experiment never happened.
+
+## Sabotage must restore the system and report its own verdict
+
+An RLS sabotage script disabled protection, swallowed output through a pipeline and could exit without re-enabling it. Retrying made the evidence less trustworthy.
+
+A robust harness treats cleanup as part of the test:
+
+```ts
+let sabotaged = false;
+try {
+  await disablePolicy();
+  sabotaged = true;
+  await runExpectedFailure();
+  await assertReport();
+} finally {
+  if (sabotaged) await enablePolicy();
+  await assertPolicyEnabled();
+}
+```
+
+It writes a machine-readable report and does not retry. A sabotage that fails to apply is not a passing guard.
+
+## Shell syntax can replace the exit code
+
+`set -e` does not catch every failure inside `&&` lists, and `command | tail` returns `tail`'s status unless pipe failure is configured. Inline commands crossing Windows and WSL also expanded variables in the wrong shell.
+
+Prefer direct process APIs or capture each result:
+
+```bash
+set -euo pipefail
+pnpm test 2>&1 | tee test.log
+status=${PIPESTATUS[0]}
+exit "$status"
+```
+
+Persist JSON/JUnit output before wrappers can be killed.
+
+## Optimistic text is not a saved row
+
+E2E tests typed, saw the UI update and reloaded before the PATCH completed. The reload then “randomly” lost text.
+
+Wait for the mutation or query the database. Similarly, using a Supabase admin-style client did not guarantee table grants; a null response made cleanup assertions pass. Privileged verification uses a direct database helper and checks row counts.
+
+## A hydrated DOM does not prove SSR
+
+Reading the DOM after JavaScript loads cannot prove content existed in server HTML. Hydration may have inserted it.
+
+```ts
+const response = await request.get(route);
+const html = await response.text();
+expect(html).toContain('data-server-task');
+```
+
+Assert the marker, not an arbitrary payload string that might appear in serialized data for another reason.
+
+## Timing flakes need a behavioral boundary
+
+A rate-limit test raced an absolute PostgreSQL clock boundary and failed about 0.6% of runs. Widening the sleep reduced probability but did not remove the race.
+
+Inject or anchor time, then test just before and after the boundary. Measure flake rate on the same commit; a green rerun is evidence of nondeterminism, not a fix.
+
+## Dev servers distort E2E
+
+Signup-heavy Playwright suites ran against `next dev`, where on-demand compilation exceeded timeouts and account creation consumed a finite test budget. Production builds make route cost stable; fixtures reuse accounts and serialize database-mutating suites.
+
+## A PR with no red check may have no test check
+
+GitHub does not run a pull-request workflow when it cannot create a merge ref for a conflicted PR. Vercel can still be green, creating “no red” with no CI.
+
+Merge automation requires the named `test` check at `completed/success` on the current head SHA. Network failure, timeout, `skipped`, `neutral` and `stale` are not success.
+
+```py
+if check.name != "test" or check.sha != head_sha:
+    refuse("required check missing")
+if check.status != "completed" or check.conclusion != "success":
+    refuse("required check not successful")
+```
+
+Distinct exit codes separate “tests failed,” “timed out,” and “could not reach GitHub.”
+
+The question behind every green result is: what exact experiment ran, against which commit and authority, and what observation would have made it fail?

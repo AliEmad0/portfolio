@@ -1,0 +1,99 @@
+---
+title: 'Visual correctness needs domain rules too'
+description: 'Broken photos, overlapping canvas text, flashing cards, and a weak match engine survived because tests inspected pixels, selectors, or relationships—not invariants.'
+date: '2026-09-21'
+tags: ['testing', 'animation', 'canvas', 'game-engine']
+---
+
+Some PitchIQ defects looked cosmetic but came from missing domain rules. The durable fixes moved identity, geometry, animation contracts and calibration out of visual guesswork.
+
+## A timeout is not proof that an image is absent
+
+A build probe fetched a modern player image with a four-second timeout. On any failure it baked a legacy 250×250 URL that now returns 403. Because `photoKind` was present, the runtime skipped its normal candidate chain.
+
+A transient network delay became a permanently broken deployed image.
+
+```ts
+try {
+  return await classify(modernUrl);
+} catch {
+  return { photoUrl: modernUrl, photoKind: 'unknown' };
+}
+```
+
+Runtime failure returns the card to its candidate chain. Build-time classification may optimize display, but it must not destroy recoverability.
+
+Wrong-person images are different. Fuzzy Wikimedia matching assigned unrelated portraits. The safe policy is “absent beats wrong”:
+
+```ts
+const candidates = PHOTO_BLOCKLIST.has(url) ? [] : buildCandidates(player);
+```
+
+The blocklist lives in source so a data refresh cannot silently restore a known false identity. Audits count distinct player IDs, not name spellings; one player with two historical spellings is not a collision.
+
+## Canvas geometry belongs outside the painter
+
+The share card used constants for scorer start, step and cap. A sixth scorer crossed the footer and the overflow label landed on the URL baseline. jsdom could not see it because canvas paint has no layout DOM.
+
+```ts
+export function scorerLayout(count: number) {
+  const rows = Math.min(count, MAX_ROWS);
+  const bottom = START_Y + (rows - 1) * ROW_GAP;
+  return { rows, bottom, overflow: Math.max(0, count - rows) };
+}
+
+expect(scorerLayout(100).bottom).toBeLessThan(FOOTER_TOP);
+```
+
+Pure geometry makes a visual boundary testable.
+
+## Animation composition can reverse state
+
+Locked mode tiles rested at opacity 0.4. A neighbor-dim animation started from opacity 1, so combining it with flicker made locked tiles flash brighter before dimming.
+
+Each animation now starts from the element's real state and owns a different property. Flip cards use three layers:
+
+```tsx
+<div className="footprint">
+  <div className="scaler">
+    <div className="flipper">
+      <PlayerCard />
+    </div>
+  </div>
+</div>
+```
+
+The scaler owns `transform: scale()`; the flipper owns rotational transform. Putting both transforms on one element lets the keyframe overwrite scale. Reduced-motion gates follow the element that actually animates.
+
+A first CSS test merely found the selector elsewhere in the reduced-motion block and stayed green after deleting the animation. The guard now asserts selector + rule + property, while a component test asserts the class is used.
+
+## Calibration needs the units the engine reads
+
+The match engine was under-dispersed: even the archive's widest squad-quality gap changed expected points by only about 0.05. A single match hid it; a 38-week table exposed noise.
+
+The model separates chance share from goal rate:
+
+```ts
+const homePower = Math.pow(home.attack / away.defense, POWER_EXPONENT);
+const awayPower = Math.pow(away.attack / home.defense, POWER_EXPONENT);
+const homeShare = homePower / (homePower + awayPower);
+```
+
+`POWER_EXPONENT` was fitted against 34 seasons. Normalizing the two shares keeps their sum at one, so changing quality sensitivity does not accidentally change total goals.
+
+Chemistry was refitted too. Its first harness always put one side at home, mixing chemistry with home advantage. Balanced fixtures and role-weighted attack/defence—not mean overall rating—measure the effect the engine actually consumes.
+
+## Green relationship tests can hide total drift
+
+“Same seed reproduces itself” stayed green when the formation roster expanded from 4 to 20 and every seeded output changed. Likewise, a fixture entirely above a rating threshold could not detect whether RNG was consumed consistently across mixed branches.
+
+The test strategy now combines:
+
+- invariants for determinism and bounds;
+- golden samples when output identity matters;
+- mixed fixtures that cross every branch;
+- sabotage: remove the intended rule and confirm the test fails;
+- real browser probes for behavior jsdom cannot represent;
+- `type-check` because Vitest does not enforce `@ts-expect-error`.
+
+Visual correctness becomes reliable when its important rules are expressed as pure data and executable contracts.

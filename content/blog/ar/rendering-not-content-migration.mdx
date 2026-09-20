@@ -1,0 +1,79 @@
+---
+title: 'التصيير ليس مكانًا آمنًا لترحيل المحتوى'
+description: 'راكم Markdown escapes وفقد الجداول وstrikethrough وولد كتابات أثناء القراءة حتى أصبح التحويل pipeline مختبرًا وقت التحرير.'
+date: '2026-09-21'
+tags: ['markdown', 'tiptap', 'migrations', 'testing']
+---
+
+يخزن Rung مستند Tiptap ونسخة Markdown. تفيد النسخة في التصيير الآمن والنقل، لكن فقط إذا استقر التحويل عبر التحرير المتكرر.
+
+## لا يجب أن ينفذ مسار القراءة backfill
+
+ولّدت فكرة migration الأولى Markdown المفقود أثناء عرض المهمة وكتبته إلى القاعدة. جعل ذلك GET يغير البيانات، ويصدر activity، ويصنع مفاجآت cache، وقد يتكرر مع crawler أو render متزامن.
+
+يعمل backfill كـmigration صريحة أو عند تحرير المستخدم:
+
+```ts
+export async function saveDescription(taskId: string, doc: JSONContent) {
+  const markdown = docToMarkdown(doc);
+  await db.tasks.update(taskId, {
+    description_doc: doc,
+    description_md: markdown,
+  });
+}
+```
+
+ويبقى render نقيًا:
+
+```tsx
+return <Markdown source={task.description_md ?? ''} />;
+```
+
+## يجب أن يستقر التحويل في التحرير الثاني
+
+تراكمت escapes لأن pass جديدًا عامل punctuation المحمية كمدخل جديد. invariant المفيد هو ثبات round trip:
+
+```ts
+const once = docToMarkdown(markdownToDoc(source));
+const twice = docToMarkdown(markdownToDoc(once));
+expect(twice).toBe(once);
+```
+
+يجب أن يعيد converter نتيجة معرفة لكل شكل مدعوم؛ «لا يرمي helper خطأ» عقد API لا أمنية.
+
+## يجب أن تتفق extensions في parser وeditor
+
+لا يتضمن CommonMark strikethrough. فشلت الجداول عندما قبلها parser وغابت extension المطابقة من Tiptap. وضبطت table cells كـblock بينما أنتج converter children من inline، فظهرت خلايا فارغة.
+
+```ts
+const editorExtensions = [
+  StarterKit,
+  Table.configure({ resizable: false }),
+  TableRow,
+  TableHeader.configure({ content: 'inline*' }),
+  TableCell.configure({ content: 'inline*' }),
+  Strike,
+];
+```
+
+يستخدم Markdown خصائص GFM المطابقة. أزيل underline غير المدعوم بدل تخزين تنسيق لا يستطيع format حفظه بأمانة.
+
+## مكتبة المتصفح لا تملك تحويل الخادم
+
+اعتمد helper من Tiptap على DOM وفشل في server build. تملك مكتبات نقية parsing وserialization، ويملك editor التفاعل فقط.
+
+يبقى raw HTML و`rehype-raw` معطلين. يبني التصيير React tree من Markdown مضبوط بدل قبول HTML مخزن عشوائيًا.
+
+## توقيت الحفظ مهم
+
+قد يفقد debounce وحده آخر تعديل عند التنقل. ينفذ blur/close flush وينتظر persistence. تنتظر الاختبارات الشبكة، وتعيد التحميل، وتحرر مرة ثانية وتقارن round trip الثاني، لا نص editor المتفائل فقط.
+
+العقد الكامل:
+
+1. حرر المستند؛
+2. حوّل بـextensions متطابقة؛
+3. خزّن المستند وMarkdown معًا؛
+4. صيّر بلا كتابة؛
+5. أعد التحميل والتحويل بلا drift.
+
+ترحيل المحتوى عمل بيانات. إخفاؤه داخل التصيير يجعل القراءة غير متوقعة والفساد صعب الملاحظة.

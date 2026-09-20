@@ -1,0 +1,99 @@
+---
+title: 'صحة الواجهة تحتاج قواعد domain أيضًا'
+description: 'نجت صور مكسورة ونصوص Canvas متداخلة وبطاقات وامضة ومحرك ضعيف لأن الاختبارات فحصت pixels أو selectors أو علاقات بدل القواعد.'
+date: '2026-09-21'
+tags: ['testing', 'animation', 'canvas', 'game-engine']
+---
+
+بدت بعض عيوب PitchIQ تجميلية، لكنها نتجت عن قواعد domain مفقودة. نقلت الحلول الدائمة الهوية والهندسة وعقود الحركة والمعايرة خارج التخمين البصري.
+
+## انتهاء المهلة لا يثبت غياب الصورة
+
+فحص البناء صورة حديثة بمهلة أربع ثوانٍ. عند أي فشل خزّن رابط 250×250 قديمًا يعيد 403. ولأن `photoKind` موجود تخطت الواجهة سلسلة البدائل.
+
+تحول تأخر شبكة عابر إلى صورة مكسورة داخل النشر.
+
+```ts
+try {
+  return await classify(modernUrl);
+} catch {
+  return { photoUrl: modernUrl, photoKind: 'unknown' };
+}
+```
+
+يعيد الفشل وقت التشغيل البطاقة إلى سلسلة المرشحين. يستطيع تصنيف البناء تحسين العرض، لكنه لا يجوز أن يلغي التعافي.
+
+الصورة الخطأ حالة أخرى. طابقت Wikimedia أسماء بصور أشخاص مختلفين. السياسة الآمنة «الغائب أفضل من الخطأ»:
+
+```ts
+const candidates = PHOTO_BLOCKLIST.has(url) ? [] : buildCandidates(player);
+```
+
+تعيش blocklist في المصدر كي لا يعيد تحديث البيانات الخطأ. ويعد التدقيق player IDs المميزة لا اختلافات كتابة الاسم.
+
+## هندسة Canvas خارج دالة الرسم
+
+استخدمت بطاقة المشاركة ثوابت لبداية الهدافين والمسافة والحد. عبر الهداف السادس footer، ووقع overflow فوق URL. لم يره jsdom لأن canvas بلا layout DOM.
+
+```ts
+export function scorerLayout(count: number) {
+  const rows = Math.min(count, MAX_ROWS);
+  const bottom = START_Y + (rows - 1) * ROW_GAP;
+  return { rows, bottom, overflow: Math.max(0, count - rows) };
+}
+
+expect(scorerLayout(100).bottom).toBeLessThan(FOOTER_TOP);
+```
+
+تجعل الهندسة النقية الحد البصري قابلًا للاختبار.
+
+## تركيب animations قد يعكس الحالة
+
+استقرت البطاقات المقفلة عند opacity ‏0.4، لكن neighbor-dim بدأ من 1، فومضت أكثر سطوعًا قبل أن تعتم.
+
+تبدأ كل حركة من حالة العنصر الحقيقية وتملك property مختلفة. وتستخدم بطاقة flip ثلاث طبقات:
+
+```tsx
+<div className="footprint">
+  <div className="scaler">
+    <div className="flipper">
+      <PlayerCard />
+    </div>
+  </div>
+</div>
+```
+
+يمتلك scaler التكبير وflipper الدوران. جمع transformين على عنصر واحد يجعل keyframe يمحو scale. وتتبع بوابة reduced motion العنصر الذي يتحرك فعلًا.
+
+وجد اختبار CSS الأول selector داخل بوابة reduced motion وبقي أخضر بعد حذف الحركة. يفحص الحارس الآن selector + rule + property، ويفحص اختبار component استخدام class.
+
+## المعايرة تحتاج وحدات المحرك
+
+كان المحرك قليل التشتت: أكبر فجوة جودة تاريخية غيّرت النقاط المتوقعة بنحو 0.05 فقط. أخفتها مباراة وكشفتها ٣٨ جولة.
+
+يفصل النموذج حصة الفرص عن معدل الأهداف:
+
+```ts
+const homePower = Math.pow(home.attack / away.defense, POWER_EXPONENT);
+const awayPower = Math.pow(away.attack / home.defense, POWER_EXPONENT);
+const homeShare = homePower / (homePower + awayPower);
+```
+
+ضُبط `POWER_EXPONENT` على ٣٤ موسمًا. يحافظ التطبيع على مجموع الحصتين واحدًا، فلا يغيّر رفع حساسية الجودة عدد الأهداف بالخطأ.
+
+وأعيد ضبط chemistry. جعل harness الأول فريقًا واحدًا HOME دائمًا فخلط الأثر بأفضلية الأرض. تقيس fixtures متوازنة وattack/defence الموزونين بالدور ما يقرأه المحرك فعلًا.
+
+## اختبارات العلاقة الخضراء قد تخفي تغيرًا كاملًا
+
+ظل “seed نفسه يعيد نفسه” أخضر عندما توسعت التشكيلات من ٤ إلى ٢٠ وتغير كل ناتج. ولا تكشف fixture كلها فوق threshold استهلاك RNG عبر فروع مختلطة.
+
+تجمع الاستراتيجية الآن:
+
+- invariants للحتمية والحدود؛
+- golden samples عندما تهم الهوية؛
+- fixtures مختلطة تعبر كل فرع؛
+- sabotage بحذف القاعدة والتأكد من فشل الاختبار؛
+- متصفح حقيقي لما لا يمثله jsdom؛
+- `type-check` لأن Vitest لا ينفذ `@ts-expect-error`.
+
+تصبح صحة الواجهة قابلة للثقة عندما تتحول قواعدها المهمة إلى بيانات نقية وعقود قابلة للتنفيذ.
