@@ -1,0 +1,145 @@
+---
+title: 'How one translation catalog inflated every deployment'
+description: 'Passing the full i18n catalog through a root client boundary duplicated it across page artifacts. Shared locale chunks cut local HTML by 55,780 bytes.'
+date: '2026-09-20'
+tags: ['next', 'i18n', 'bundles', 'vercel']
+---
+
+Deployment storage is rarely caused by one spectacularly large file. It grows when a medium-sized value is repeated across many artifacts, routes and deployments.
+
+PitchIQ found that multiplier in its internationalization provider.
+
+## The convenient provider had an expensive shape
+
+The root server layout loaded the complete message catalog and passed it into a client provider:
+
+```tsx
+export default async function LocaleLayout({ children, params }: Props) {
+  const { locale } = await params;
+  const messages = await getMessages({ locale });
+
+  return (
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+```
+
+Functionally this was correct. Architecturally, the catalog became part of the serialized server-to-client payload at the root of the route tree. Every page inherited it, including pages using only a fraction of the strings.
+
+The cost did not appear as one obvious bundle. It surfaced as repeated HTML and React Server Component payload across a large prerendered map, then accumulated again in retained deployments.
+
+## Why removing Arabic was not a solution
+
+The Arabic catalog was product content, not accidental weight. Removing a locale, loading messages from a runtime function, or weakening prerendering would exchange storage for missing functionality, latency or execution cost.
+
+Minifying translation JSON also attacks the smaller term. The main problem was the number of copies.
+
+## Move catalogs from repeated props to shared chunks
+
+PitchIQ replaced the root catalog prop with explicit locale-specific client modules:
+
+```tsx
+// src/i18n/providers/en.tsx
+'use client';
+
+import messages from '../../../messages/en.json';
+
+export function EnglishProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+```
+
+```tsx
+// src/i18n/providers/ar.tsx
+'use client';
+
+import messages from '../../../messages/ar.json';
+
+export function ArabicProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="ar" messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+```
+
+The server boundary chooses a known provider without serializing the catalog as a page prop:
+
+```tsx
+const providers = {
+  en: EnglishProvider,
+  ar: ArabicProvider,
+} as const;
+
+export function I18nProvider({ locale, children }: Props) {
+  const Provider = providers[locale];
+  return <Provider>{children}</Provider>;
+}
+```
+
+Messages now live in locale-specific shared JavaScript chunks. Pages reference the shared artifact instead of embedding another complete copy.
+
+## Measure generated artifacts, not source files
+
+The useful comparison was the built route map. Locally, the change reduced its HTML by **55,780 bytes, or 23.1%**.
+
+A small script makes artifact measurement reproducible:
+
+```js
+import { readdir, stat } from 'node:fs/promises';
+import path from 'node:path';
+
+async function bytesBelow(directory) {
+  let total = 0;
+
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const file = path.join(directory, entry.name);
+    total += entry.isDirectory() ? await bytesBelow(file) : (await stat(file)).size;
+  }
+
+  return total;
+}
+
+console.log(await bytesBelow('.next/server/app'));
+```
+
+Measure these layers separately:
+
+- source catalogs;
+- client chunks;
+- prerendered HTML and RSC payloads;
+- serverless function bundles;
+- total deployment output;
+- retained historical deployments.
+
+A smaller HTML map does not prove production storage fell by the same percentage. Deduplication, compression and the platform's retention model can change the result.
+
+## Protect locale correctness while changing packaging
+
+Bundle work is dangerous when success means only “smaller.” Both providers and catalogs must remain present, and rendered tests should assert a known catalog string:
+
+```ts
+expect(await import('@/i18n/providers/en')).toBeDefined();
+expect(await import('@/i18n/providers/ar')).toBeDefined();
+expect(arabicHtml).toContain('الدوري الإنجليزي');
+```
+
+Checking only `<html lang="ar">` is insufficient. Direction can be correct while visible copy is English.
+
+## What remains operational
+
+The shared-chunk change fixed the duplication mechanism and produced a measured local reduction. Two separate tasks remain:
+
+1. Measure production deployment storage before and after the change.
+2. Remove obsolete retained deployments through the platform's retention controls.
+
+The second task requires account-level access; application code cannot delete old platform artifacts.
+
+The lesson is broader than translation. Whenever a large value crosses a root server/client boundary, ask whether it is serialized once per application or once per page. Bundle limits are often repetition limits in disguise.

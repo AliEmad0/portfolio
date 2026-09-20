@@ -1,0 +1,145 @@
+---
+title: 'كيف ضاعف قاموس ترجمة واحد حجم كل نشر'
+description: 'أدى تمرير قاموس i18n كاملًا عبر حد عميل في الجذر إلى نسخه داخل ملفات الصفحات. خفّضت الحزم المشتركة HTML المحلي بمقدار ٥٥٬٧٨٠ بايت.'
+date: '2026-09-20'
+tags: ['next', 'i18n', 'bundles', 'vercel']
+---
+
+نادرًا ما ينتج تضخم مساحة النشر عن ملف واحد ضخم جدًا. غالبًا ينمو عندما تتكرر قيمة متوسطة الحجم عبر ملفات ومسارات وعمليات نشر كثيرة.
+
+وجد PitchIQ هذا المعامل داخل مزوّد الترجمة.
+
+## المزوّد المريح كان مكلف البنية
+
+كان تخطيط الخادم في الجذر يحمّل قاموس الرسائل كاملًا ويمرره إلى مزوّد يعمل على العميل:
+
+```tsx
+export default async function LocaleLayout({ children, params }: Props) {
+  const { locale } = await params;
+  const messages = await getMessages({ locale });
+
+  return (
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+```
+
+كان السلوك صحيحًا، لكن القاموس أصبح جزءًا من الحمولة المتسلسلة بين الخادم والعميل عند جذر شجرة المسارات. ورثته كل صفحة حتى لو استخدمت عددًا قليلًا من الرسائل.
+
+لم تظهر التكلفة كحزمة واحدة واضحة، بل كـHTML وحمولة React Server Components متكررين عبر خريطة كبيرة من الصفحات المولّدة مسبقًا، ثم تراكمت النسخ داخل النشرات القديمة المحتفظ بها.
+
+## لماذا لم يكن حذف العربية حلًا؟
+
+لم يكن القاموس العربي وزنًا زائدًا؛ بل محتوى أساسيًا. حذف لغة أو تحميل الرسائل من دالة وقت التشغيل أو إضعاف التوليد المسبق يستبدل التخزين بوظائف ناقصة أو زمن شبكة أو تكلفة تنفيذ.
+
+كما أن ضغط JSON يعالج الحد الأصغر. المشكلة الأساسية كانت عدد النسخ.
+
+## انقل القواميس من خصائص متكررة إلى حزم مشتركة
+
+استبدل PitchIQ خاصية القاموس في الجذر بوحدات عميل واضحة لكل لغة:
+
+```tsx
+// src/i18n/providers/en.tsx
+'use client';
+
+import messages from '../../../messages/en.json';
+
+export function EnglishProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+```
+
+```tsx
+// src/i18n/providers/ar.tsx
+'use client';
+
+import messages from '../../../messages/ar.json';
+
+export function ArabicProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="ar" messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+```
+
+ويختار حد الخادم مزوّدًا معروفًا من دون تسلسل القاموس كخاصية لكل صفحة:
+
+```tsx
+const providers = {
+  en: EnglishProvider,
+  ar: ArabicProvider,
+} as const;
+
+export function I18nProvider({ locale, children }: Props) {
+  const Provider = providers[locale];
+  return <Provider>{children}</Provider>;
+}
+```
+
+أصبحت الرسائل داخل حزم JavaScript مشتركة خاصة بكل لغة. تشير الصفحات إلى الملف المشترك بدل تضمين نسخة كاملة جديدة.
+
+## قِس ناتج البناء لا ملفات المصدر
+
+كانت المقارنة المفيدة هي خريطة المسارات بعد البناء. محليًا، خفّض التغيير HTML بمقدار **٥٥٬٧٨٠ بايت، أي ٢٣٫١٪**.
+
+يجعل سكربت صغير القياس قابلًا للتكرار:
+
+```js
+import { readdir, stat } from 'node:fs/promises';
+import path from 'node:path';
+
+async function bytesBelow(directory) {
+  let total = 0;
+
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const file = path.join(directory, entry.name);
+    total += entry.isDirectory() ? await bytesBelow(file) : (await stat(file)).size;
+  }
+
+  return total;
+}
+
+console.log(await bytesBelow('.next/server/app'));
+```
+
+يجب قياس هذه الطبقات بصورة منفصلة:
+
+- قواميس المصدر؛
+- حزم العميل؛
+- HTML وحمولة RSC المولّدان مسبقًا؛
+- حزم دوال serverless؛
+- ناتج النشر الكامل؛
+- النشرات التاريخية التي تحتفظ بها المنصة.
+
+انخفاض خريطة HTML لا يثبت أن مساحة الإنتاج انخفضت بالنسبة نفسها؛ إزالة التكرار والضغط وسياسة الاحتفاظ قد تغيّر النتيجة.
+
+## احمِ صحة اللغات أثناء تغيير طريقة التغليف
+
+يصبح تحسين الحزمة خطرًا إذا كان النجاح يعني «حجمًا أصغر» فقط. يجب أن يبقى المزوّدان والقاموسان موجودين، وأن تتحقق اختبارات العرض من رسالة معروفة:
+
+```ts
+expect(await import('@/i18n/providers/en')).toBeDefined();
+expect(await import('@/i18n/providers/ar')).toBeDefined();
+expect(arabicHtml).toContain('الدوري الإنجليزي');
+```
+
+لا يكفي فحص `<html lang="ar">`. قد يكون الاتجاه صحيحًا بينما النص المرئي إنجليزي.
+
+## ما تبقى تشغيلي
+
+عالجت الحزم المشتركة سبب التكرار وأنتجت انخفاضًا محليًا مقاسًا. بقيت مهمتان:
+
+1. قياس مساحة نشر الإنتاج قبل التغيير وبعده.
+2. حذف النشرات القديمة من خلال أدوات الاحتفاظ في المنصة.
+
+تحتاج المهمة الثانية إلى صلاحية على مستوى الحساب؛ لا يستطيع كود التطبيق حذف ملفات المنصة القديمة.
+
+الدرس أوسع من الترجمة: عندما تعبر قيمة كبيرة حدًا بين الخادم والعميل عند الجذر، اسأل هل تُسلسل مرة لكل تطبيق أم مرة لكل صفحة. كثيرًا ما تكون حدود الحزم حدود تكرار متنكرة.
