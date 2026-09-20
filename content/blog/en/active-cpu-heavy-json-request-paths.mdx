@@ -1,0 +1,120 @@
+---
+title: 'The 15 MB request path that paused a serverless app'
+description: 'A season query silently de-staticized player pages, while tempting JSON loaders could add 5–15 MB of parsing to every request. PitchIQ redesigned the boundary.'
+date: '2026-09-20'
+tags: ['next', 'vercel', 'serverless', 'performance']
+---
+
+PitchIQ's most dangerous performance regression did not look dangerous in review. A player page needed a season selector, and the obvious implementation read `?season=` in the server component.
+
+That one read changed the execution model of every player view.
+
+## A query parameter turned static pages into functions
+
+The unsafe version was straightforward:
+
+```tsx
+export default async function PlayerPage({ params, searchParams }: Props) {
+  const { id } = await params;
+  const { season = '2025' } = await searchParams;
+  const player = await loadPlayer(id, Number(season));
+
+  return <PlayerProfile player={player} />;
+}
+```
+
+Because the server page depended on request-specific search parameters, Next could no longer produce one reusable artifact. Every view became function work. The same regression can happen when `useSearchParams()` enters a client shell without the correct static boundary.
+
+On Vercel's Fluid model, wall time and Active CPU are different signals, but repeated parsing, validation and transformation consume the CPU budget directly. The project was eventually paused after work that belonged at build time moved into requests.
+
+## Large local files are still expensive
+
+There was no slow remote database to blame. The data lived on disk, which made request-time reads feel harmless.
+
+- `player-honours.json`: roughly 5 MB
+- `player-transfer-history.json`: roughly 8 MB
+- `market-value-history.json`: roughly 5 MB
+- `player-history-stats.json`: **15.28 MB**
+
+The last file was especially revealing. Its extended metrics already existed on ordinary player rows. An audit compared **58,303 fields and found zero disagreements**. Loading it would spend 15 MB of I/O, parsing and validation to learn nothing new.
+
+```ts
+// Cheap-looking code, expensive execution context.
+export async function GET() {
+  const raw = await readFile('data/player-history-stats.json', 'utf8');
+  const history = PlayerHistorySchema.parse(JSON.parse(raw));
+  return Response.json(buildTrivia(history));
+}
+```
+
+If this handler is uncached, every request repeats every step.
+
+## Failed fixes optimized the body, not the boundary
+
+Memoizing loaders helps repeated reads inside one process, but serverless instances are disposable and request distribution is outside the application's control. Increasing memory may make parsing faster while preserving the wrong architecture. Moving the same code to Edge can be worse because runtime and bundle constraints are tighter.
+
+The useful question was not “How do we parse 15 MB faster?” It was “Why does this request need 15 MB?”
+
+## Keep the page static and move only the interaction
+
+The current player route renders the latest season statically. The season switcher changes the URL without asking the server page to rerender:
+
+```ts
+function selectSeason(season: number) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('season', String(season));
+  window.history.pushState(null, '', url);
+  setSeason(season);
+}
+```
+
+The interactive subtree fetches a deliberately narrow profile endpoint:
+
+```ts
+const response = await fetch(`/api/players/${playerId}/profile?season=${season}&locale=${locale}`, {
+  signal,
+});
+
+const profile: PlayerSeasonProfile = await response.json();
+```
+
+The page remains an SSG artifact; only the selected historical fragment becomes request-time work.
+
+## Build summaries where the data changes
+
+Request-time features consume compact enrichment fields already carried by each player:
+
+```ts
+type PlayerEnrichment = {
+  trophies: number;
+  awards: number;
+  internationalCaps: number;
+  internationalGoals: number;
+  careerFee: number | null;
+};
+```
+
+Expensive joins happen in the data pipeline or during deployment, where the cost is paid once. The serving layer reads the summary it needs.
+
+Server-only imports also stop accidental client bundling:
+
+```ts
+import 'server-only';
+
+export async function loadMarketValueHistory() {
+  // Build-time only. Request handlers consume an enrichment summary.
+}
+```
+
+## Guard execution mode, not just output
+
+Output tests cannot catch this regression: the dynamic page returns correct HTML. PitchIQ therefore guards that game routes remain `force-static` and that the player route does not read server search parameters.
+
+Operational verification matters too:
+
+- Attribute usage by runtime and route in Observability → Functions.
+- Do not infer that middleware did not run because a response header is absent.
+- Separate traffic-driven middleware cost from route-specific function CPU.
+- Probe production cache behavior; a unit test cannot prove a CDN or matcher is active.
+
+The durable optimization was an architectural boundary: static pages render committed data, small endpoints serve interactions, and large source files never enter a per-request path.

@@ -1,0 +1,98 @@
+---
+title: 'When ISR keeps rewriting data that cannot change'
+description: 'PitchIQ regenerated 102 byte-identical historical pages every day. The bug was not slow rendering—it was a cache policy that contradicted the data lifecycle.'
+date: '2026-09-20'
+tags: ['next', 'vercel', 'isr', 'performance']
+---
+
+Incremental Static Regeneration sounds like a safe default: build a page once, then refresh it periodically so it never becomes stale. That works when the source can change independently of a deployment.
+
+PitchIQ's source could not. Its historical football data is committed JSON. A data refresh arrives through a pull request, and merging it triggers a deployment that already rebuilds every affected page. A timer had no new information to discover, but it still did the work.
+
+## The symptom looked like normal platform usage
+
+Vercel's Functions view showed historical routes consuming **3.6–5.0 seconds of Active CPU**. One Legacy page reached **4.97 seconds** per invocation; a rival endpoint reached **4.91 seconds**.
+
+Those routes read 34 seasons to reconstruct a club's history. That is reasonable at build time and expensive as recurring work across **51 clubs × 2 locales**.
+
+## The configuration created write amplification
+
+The route had a positive revalidation window:
+
+```ts
+// Rebuild this page after one day.
+export const revalidate = 86_400;
+```
+
+After the window expired, the next request regenerated the page and stored a replacement artifact. The replacement was byte-identical because the deployed JSON had not changed.
+
+```text
+expensive page generation
+× 51 clubs
+× 2 locales
+× every revalidation window
+= recurring CPU and writes with no new content
+```
+
+This is write amplification: a small cache policy repeats computation and storage across a large static route matrix.
+
+## Why the first fixes were incomplete
+
+Caching loaders and optimizing transforms reduced the cost of one render. They did not remove the repeated render. Extending the interval only made the waste less frequent.
+
+Searching for the known value was unsafe too. A grep for `86400` missed three routes using `revalidate = 60`. The invariant was semantic—no positive revalidation—not a particular number.
+
+## Match cache lifetime to data lifetime
+
+Committed-data pages now remain cached until the next deployment:
+
+```ts
+// The deployed JSON is immutable. Deployment is the invalidation event.
+export const revalidate = false;
+```
+
+This differs deliberately from zero:
+
+```ts
+// A request-time endpoint that must never be cached.
+export const revalidate = 0;
+```
+
+`false` keeps the static result for the deployment's lifetime. `0` disables caching. Confusing them would turn a storage fix into a request-time CPU regression.
+
+Exceptional invalidation uses a protected tag rather than a universal timer:
+
+```ts
+import { revalidateTag } from 'next/cache';
+
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+
+  if (url.searchParams.get('secret') !== process.env.REVALIDATE_SECRET) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  revalidateTag(url.searchParams.get('tag') ?? 'football-data');
+  return Response.json({ revalidated: true });
+}
+```
+
+## Turn the architecture into an executable rule
+
+A regression test scans route modules and rejects positive values while allowing `false` and intentional `0` endpoints:
+
+```ts
+const match = source.match(/export const revalidate\s*=\s*(\d+)/);
+
+if (match && Number(match[1]) > 0) {
+  throw new Error(`${route}: committed data must not use timed ISR`);
+}
+```
+
+This is stronger than a list of forbidden intervals because it describes the real contract.
+
+## The broader rule
+
+- If data changes only during deployment, generate it during deployment.
+- If it changes independently, use tags, events or a justified freshness interval.
+- Measure route count, locale count and regeneration cost together.
