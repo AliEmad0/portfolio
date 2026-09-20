@@ -1,0 +1,28 @@
+---
+title: 'A deterministic football game you can pause, share, and replay'
+description: 'Why PitchIQ stores seeds and decisions instead of a live generator—and verifies every restored match with an event fingerprint.'
+date: '2026-09-19'
+tags: ['typescript', 'game-engine', 'architecture']
+---
+
+A PitchIQ match is a pure simulation driven by teams, rules, and a seeded pseudo-random generator. That makes a result reproducible, but persistence still needed careful design.
+
+## A generator is not a save file
+
+The live engine is a running generator with internal state that cannot be serialized safely. Saving the visible UI would also miss decisions the engine had already prepared.
+
+The solution was replay, not serialization. A save contains the setup, seed, coach answers, phase, and visible cursor. Restoring constructs the same engine and replays the same answers. Opponent decisions use the same deterministic policy.
+
+One match-building function serves both paths, so live play and restoration cannot quietly diverge.
+
+## A version number was not enough
+
+The same seed can produce another result after a rating update, player-pool refresh, or calibration change. A POOL_VERSION constant only works if someone remembers every relevant bump.
+
+Instead, the save includes a fingerprint of the generated events. The current engine replays and hashes its output. A mismatch rejects the stale record regardless of what caused the drift.
+
+## Determinism needs boundaries
+
+The engine never reads Date.now or Math.random. Daily values become explicit setup inputs and part of the shareable match identity. A data adapter prevents raw encyclopedia shapes from leaking into the simulation.
+
+A reproducible game is not created by adding a seed to random calls. It comes from controlling every source of entropy, making inputs explicit, and checking that replay still means what it meant when the save was created.

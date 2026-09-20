@@ -1,0 +1,34 @@
+---
+title: 'Rich text without silent Markdown corruption'
+description: 'Four small parser assumptions broke Rung content round-trips: a DOM-only library, missing escapes, the wrong preset, and incompatible table cells.'
+date: '2026-09-14'
+tags: ['markdown', 'tiptap', 'testing']
+---
+
+Rung stores both a Tiptap document and a Markdown mirror. Markdown is the rendering source because it can become a safe React tree without accepting raw HTML.
+
+That contract depends on every edit round-tripping without changing meaning.
+
+## Four failures in one probe
+
+The first candidate, tiptap-markdown, called window.DOMParser and could not run in Node. That made the core conversion difficult to test outside a browser. Rung chose prosemirror-markdown with markdown-it instead.
+
+Then the pure converter exposed three quieter failures:
+
+1. Text nodes were serialized without escaping. Literal stars became real bold after a second edit.
+2. The CommonMark preset did not enable strikethrough. Tildes passed through looking supported until another operation interpreted them differently.
+3. Tiptap table cells defaulted to block content while Markdown cells contain inline content. Rows appeared, but every cell value vanished.
+
+The fixes were escaping text, using markdown-it default features, and narrowing table-cell content to inline nodes.
+
+## Test the second trip
+
+A single parse-and-serialize test can preserve a defect. The important assertion performs the cycle twice. Literal formatting must remain literal, rich formatting must remain rich, and tables must retain every cell.
+
+That second trip is where silent semantic changes appear.
+
+## Keep one public truth
+
+The JSON document preserves editor fidelity and initializes Tiptap. Markdown remains the public rendering source. If they disagree, readers see the safer representation rather than client-supplied document markup.
+
+Rich text is not trustworthy because the editor looks right after Save. It is trustworthy when meaning survives repeated conversion in a DOM-free test that fails on every known corruption class.

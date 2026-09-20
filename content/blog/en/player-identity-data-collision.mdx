@@ -1,0 +1,37 @@
+---
+title: 'When one data error becomes two different footballers'
+description: 'A frozen birth-year map split Kepa across two IDs and merged a teenage Josh King with a retired namesake. Repair required more than editing JSON.'
+date: '2026-09-13'
+tags: ['data', 'identity', 'football']
+---
+
+Identity is the hardest part of a historical sports dataset. Names change, players return after years away, and upstream IDs are not stable across every source.
+
+PitchIQ found both failure directions in one audit.
+
+## One person became two
+
+Kepa returned to the league after the committed birth-year map had frozen. Without a birth year, the reconciliation fallback could not connect the new upstream key to his existing history, so a fresh player ID was created.
+
+His current season and earlier career looked like different people.
+
+## Two people became one
+
+A source code for a teenage English midfielder named Josh King carried the birth year of the older Norwegian forward. Name and year matching then merged the teenager into the veteran ID. A later photo enrichment spread the younger player image across the retired player historical rows.
+
+This was worse than a split: the data looked connected and plausible.
+
+## Repair the process, not only the rows
+
+The repair started as an offline reconciliation diff. A one-off migration then:
+
+- remapped both affected IDs;
+- corrected and completed the birth-year map;
+- added canonical aliases without changing existing IDs;
+- repaired contaminated photos;
+- regenerated leaderboards and the search index;
+- reran the real reconciliation path to prove zero fallback IDs remained.
+
+The migration supported dry-run and apply modes, was idempotent, and was deliberately excluded from the daily sync.
+
+Identity repairs must leave evidence. Editing the visible JSON can hide the symptom while the next sync recreates it. The durable fix changes the mapping inputs, repairs derived artifacts, and proves the ordinary pipeline now reaches the same result.

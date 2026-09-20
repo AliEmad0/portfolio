@@ -1,0 +1,36 @@
+---
+title: 'Investigate flaky tests—do not just rerun them'
+description: 'A practical method from Rung and PitchIQ: reproduce, predict the rate, classify the signature, reject probability fixes, and sabotage the guard.'
+date: '2026-09-11'
+tags: ['testing', 'ci', 'debugging']
+---
+
+A green rerun answers one useful question: the commit can pass. It does not tell you why the first run failed.
+
+Across Rung and PitchIQ, the most productive flake investigations followed the same sequence.
+
+## Measure before editing
+
+Repeat the smallest failing test enough times to estimate its rate. Then build a hypothesis that predicts that rate.
+
+A fractional-position test collapsed 1.68% of the time. Its random bound had a 1-in-62 no-room case: 1.61%. A rate-limit test failed 0.60%; the measured server-clock gap predicted 0.55%.
+
+Matching numbers turn a story into a mechanism.
+
+## Read the failure shape
+
+Two calls in one time window leave one row with count two. A concurrent reset leaves one row missing. Those signatures separated a real timing race from a measurement corrupted by another suite.
+
+Likewise, a navigation click that was swallowed before the router mounted produced no request at all. Increasing the assertion timeout could never help an event that had already disappeared.
+
+## Reject fixes that only lower probability
+
+Longer timeouts, wider windows, retries, and extra sleeps often make a failure rarer. They also erase evidence.
+
+Prefer removing the requirement: fixed deterministic bounds, guaranteed different clock windows, router-readiness gates, and pre-warmed routes.
+
+## Prove the guard can fail
+
+Break the rule intentionally. Disable the event fingerprint. Remove the static-route directive. Weaken the ordering guard. A test that stays green under its target defect is decoration.
+
+Flakiness is frequently deterministic behavior observed through random timing or random data. The job is not to achieve a green run. It is to discover the hidden variable and make the test independent of it.

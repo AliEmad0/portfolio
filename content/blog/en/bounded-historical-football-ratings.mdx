@@ -1,0 +1,34 @@
+---
+title: 'Why historical football ratings need bounded models'
+description: 'Per-position normalization sent ordinary seasons into the nineties. PitchIQ replaced it with anchors, bounded deltas, and population guards.'
+date: '2026-09-18'
+tags: ['data', 'game-engine', 'football']
+---
+
+Turning thirty-four seasons of uneven football data into one rating scale is not a normal normalization problem.
+
+Modern seasons have rich metrics. Older seasons may have appearances, goals, and cards. Goalkeepers and defenders should not be punished by attacking dimensions, but tiny positional cohorts cannot support aggressive percentiles.
+
+## The plausible model that failed
+
+We normalized each role by its median-to-95th-percentile spread. It sounded fair: compare a player only with similar players.
+
+In thin roles the denominator became tiny. Amplification ranged from roughly 1× to 5×. Ordinary seasons reached 96 while elite historical defenders fell into the sixties. Eight left midfielders cannot provide a stable 95th percentile.
+
+The model shipped and was reverted.
+
+## Bound the damage by construction
+
+The replacement separates two questions: which broad historical tier does this player-season belong to, and how should its real metrics move it inside that tier?
+
+A curated anchor answers the first. Data-derived deltas answer the second, clamped to a small window. A defect can now move a card a few points, not thirty.
+
+Unanchored cards still expose whether their evidence comes from a rich or sparse era.
+
+## Test the population
+
+The harness sweeps more than eleven thousand player-seasons. It checks distributions, anchor bounds, goalkeepers, role constants, and whether ratings pile up at the clamp edges.
+
+That final check matters: a saturated model can obey every bound and still be useless.
+
+The best model is not the cleverest formula. It limits its worst failure, exposes uncertainty, and is tested across the whole population.
