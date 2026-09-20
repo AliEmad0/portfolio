@@ -16,8 +16,8 @@ It looked designed. That was the problem. A galaxy that returns to its assigned 
 The fix was to delete the concept of home. Each star now carries a heading and a slow speed, and a wander phase nudges that heading a fraction every frame:
 
 ```js
-s.wp += s.wps;               // wander phase
-s.ang += Math.sin(s.wp) * 0.02;  // steer, gently
+s.wp += s.wps; // wander phase
+s.ang += Math.sin(s.wp) * 0.02; // steer, gently
 s.x += Math.cos(s.ang) * s.speed + s.vx;
 s.y += Math.sin(s.ang) * s.speed + s.vy;
 ```

@@ -17,8 +17,8 @@ So the split is language-aware:
 
 ```ts
 const nameUnits = /[؀-ۿ]/.test(name)
-  ? name.split(/(\s+)/)  // Arabic: per word, joins intact
-  : [...name];           // Latin: per character
+  ? name.split(/(\s+)/) // Arabic: per word, joins intact
+  : [...name]; // Latin: per character
 ```
 
 The capture group in the regex keeps the whitespace as its own unit, so the spacing survives the round trip.
